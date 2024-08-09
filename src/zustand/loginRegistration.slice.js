@@ -11,7 +11,7 @@ const createRegisterLoginSlice = (set, get) => ({
             get().login(payload);
         } catch (err) {
             console.log(err)
-            set({errorMessage : `Oops! That didn't work. The username might already be taken. Try again!`})
+            get().setAuthErrorMessage ( `Oops! That didn't work. The username might already be taken. Try again!`)
     
         }
     },
