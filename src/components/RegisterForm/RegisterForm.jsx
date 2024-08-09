@@ -1,30 +1,28 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import useStore from '../../zustand/store';
+
 
 function RegisterForm() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const errors = useSelector((store) => store.errors);
-  const dispatch = useDispatch();
+  const errors = useStore((store) => store.authErrorMessage);
+  const register = useStore((store) => store.register)
 
   const registerUser = (event) => {
     event.preventDefault();
 
-    dispatch({
-      type: 'REGISTER',
-      payload: {
-        username: username,
-        password: password,
-      },
-    });
+    register({
+      username: username,
+      password: password,
+    })
   }; // end registerUser
 
   return (
     <form className="formPanel" onSubmit={registerUser}>
       <h2>Register User</h2>
-      {errors.registrationMessage && (
+      {errors && (
         <h3 className="alert" role="alert">
-          {errors.registrationMessage}
+          {errors}
         </h3>
       )}
       <div>

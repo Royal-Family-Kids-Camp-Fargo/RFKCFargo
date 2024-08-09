@@ -1,35 +1,33 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import {useSelector} from 'react-redux';
+import useStore from '../../zustand/store';
 
 function LoginForm() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const errors = useSelector(store => store.errors);
-  const dispatch = useDispatch();
+  const errors = useStore(store => store.authErrorMessage);
+  const setAuthErrorMessage = useStore(store => store.setAuthErrorMessage)
+  const login = useStore(store => store.login)
 
-  const login = (event) => {
+
+  const handleSubmit = (event) => {
     event.preventDefault();
 
     if (username && password) {
-      dispatch({
-        type: 'LOGIN',
-        payload: {
+     login( {
           username: username,
           password: password,
-        },
-      });
+        })
     } else {
-      dispatch({ type: 'LOGIN_INPUT_ERROR' });
+      setAuthErrorMessage(`Username and Password Required!`)
     }
   }; // end login
 
   return (
-    <form className="formPanel" onSubmit={login}>
+    <form className="formPanel" onSubmit={handleSubmit}>
       <h2>Login</h2>
-      {errors.loginMessage && (
+      {errors && (
         <h3 className="alert" role="alert">
-          {errors.loginMessage}
+          {errors}
         </h3>
       )}
       <div>

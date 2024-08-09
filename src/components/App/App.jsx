@@ -6,8 +6,7 @@ import {
   Switch,
 } from 'react-router-dom';
 
-import { useDispatch, useSelector } from 'react-redux';
-
+import useStore from '../../zustand/store';
 import Nav from '../Nav/Nav';
 import Footer from '../Footer/Footer';
 
@@ -23,13 +22,12 @@ import RegisterPage from '../RegisterPage/RegisterPage';
 import './App.css';
 
 function App() {
-  const dispatch = useDispatch();
 
-  const user = useSelector(store => store.user);
-
+  const user = useStore( (state) => state.user);
+  const fetchUser = useStore( state => state.fetchUser)
   useEffect(() => {
-    dispatch({ type: 'FETCH_USER' });
-  }, [dispatch]);
+    fetchUser();
+  }, [fetchUser]);
 
   return (
     <Router>
