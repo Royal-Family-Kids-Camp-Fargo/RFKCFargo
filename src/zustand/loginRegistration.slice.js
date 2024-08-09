@@ -5,6 +5,7 @@ axios.defaults.withCredentials = true;
 
 const createRegisterLoginSlice = (set, get) => ({
     register: async (payload) => {
+        //get() allows you to call/access other slice's parts
         get().setAuthErrorMessage('')
         try {
             await axios.post('/api/user/register', payload);
@@ -18,6 +19,7 @@ const createRegisterLoginSlice = (set, get) => ({
     login: async (payload) => {
         get().setAuthErrorMessage('')
         try {
+            //zustand doesnt care about waiting
             await axios.post('/api/user/login', payload);;
             get().fetchUser()
         } catch (err) {

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 axios.defaults.withCredentials = true;
 
-
+//slice of state, including functionality
 const createUserSlice = (set, get) => ({
     authErrorMessage: '',
     setAuthErrorMessage: (message) => set({errorMessage : message}),
