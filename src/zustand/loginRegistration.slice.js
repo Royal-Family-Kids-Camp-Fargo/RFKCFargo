@@ -5,7 +5,7 @@ axios.defaults.withCredentials = true;
 
 const createRegisterLoginSlice = (set, get) => ({
     register: async (payload) => {
-        set({errorMessage : ''})
+        get().setAuthErrorMessage('')
         try {
             await axios.post('/api/user/register', payload);
             get().login(payload);
@@ -16,7 +16,7 @@ const createRegisterLoginSlice = (set, get) => ({
         }
     },
     login: async (payload) => {
-        set({errorMessage : ''})
+        get().setAuthErrorMessage('')
         try {
             await axios.post('/api/user/login', payload);;
             get().fetchUser()
