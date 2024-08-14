@@ -5,7 +5,7 @@ axios.defaults.withCredentials = true;
 //slice of state, including functionality
 const createUserSlice = (set, get) => ({
     authErrorMessage: '',
-    setAuthErrorMessage: (message) => set({errorMessage : message}),
+    setAuthErrorMessage: (message) => set({authErrorMessage : message}),
     user: {},
     fetchUser: async () => {
         try {
