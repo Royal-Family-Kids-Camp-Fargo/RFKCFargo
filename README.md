@@ -1,6 +1,6 @@
 # Prime Solo Project - Starting Repo
 
-This version uses React, Zustand, Express, Passport, and PostgreSQL (a full list of dependencies can be found in `package.json`).
+This version uses React, Zustand, Express, Passport, and PostgreSQL. (A full list of dependencies can be found in `package.json`.)
 
 ## Prerequisites
 
@@ -26,7 +26,6 @@ Create a new database, then create a `user` table using the query found in `data
 - While you're in your new `.env` file, take the time to replace `superDuperSecret` with some a random string like `25POUbVtx6RKVNWszd9ERB9Bb6` to keep your application secure. 
     - Here's a site that can help you: [Password Generator Plus](https://passwordsgenerator.net).
     - If you skip this step, create a secret with less than eight characters, or leave it as `superDuperSecret`, you'll get a big warning message each time you start your server.
-- Start your PostgreSQL database (if not running already) by using opening up the [Postgres](https://postgresapp.com) application.
 - Run `npm run server` to start the server.
 - Run `npm run client` to start the client.
 - Navigate to `localhost:5173`.
@@ -50,12 +49,12 @@ Much of the code code is descriptively commented. We recommend reading through t
 For example, you're going to need to create new React Routes and Nav links as you build out your application. To do so, you'll first need a clear understanding of:
 
 - How the `<Route>`s in `App.jsx` function.
-- How the `<Link>`s in `Nav.jsx` function.
+- How the `<NavLink>`s in `Nav.jsx` function.
 
 
 ## Don't Forget to Update the Documentation
 
-Don't forget to customize this README file, as well as *the code comments in this project*, to read less like a starter repo and more like a finished project.
+Don't forget to refactor this README file, as well as *the code comments in this project*, to read less like a starter repo and more like a finished project.
 
 ## Have Fun
 
@@ -64,9 +63,8 @@ Remember. This is only a two-week sprint! The goal is to:
 - **Take the most clear and straightforward path to MVP!**
 - Ensure your MVP functions as expected.
     - If you're going to build more stuff on top of it, you need to be able to trust it!
-- Style it up. 🙂
 
 Once you've attained that, you'll have the opportunity to:
 
 - Take stock of how much time is left, as well as how much bandwidth you have.
-- Reason about which stretch goal to attempt.
+- Reason about which stretch goal(s) to attempt.
