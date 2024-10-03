@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import useStore from '../../zustand/store';
 
 
@@ -12,10 +12,10 @@ function Nav() {
         !user.id && (
           <>
             <li>
-              <Link to="/login">Login</Link>
+              <NavLink to="/login">Login</NavLink>
             </li>
             <li>
-              <Link to="/registration">Register</Link>
+              <NavLink to="/registration">Register</NavLink>
             </li>
           </>
         )
@@ -24,14 +24,14 @@ function Nav() {
         user.id && (
           <>
             <li>
-              <Link to="/">Home</Link>
+              <NavLink to="/">Home</NavLink>
             </li>
           </>
         )
       }
       {/* Show these links regardless of auth status: */}
         <li>
-          <Link to="/about">About</Link>
+          <NavLink to="/about">About</NavLink>
         </li>
       </ul>
     </nav>

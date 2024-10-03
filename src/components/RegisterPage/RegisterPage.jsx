@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useStore from '../../zustand/store';
 
 
@@ -7,6 +7,14 @@ function RegisterPage() {
   const [password, setPassword] = useState('');
   const register = useStore((state) => state.register)
   const errorMessage = useStore((state) => state.authErrorMessage);
+  const setAuthErrorMessage = useStore((state) => state.setAuthErrorMessage);
+
+  useEffect(() => {
+    // Clear the auth error message when the component unmounts:
+    return () => {
+      setAuthErrorMessage('');
+    }
+  }, [])
 
   const handleRegister = (event) => {
     event.preventDefault();
@@ -18,7 +26,7 @@ function RegisterPage() {
   };
 
   return (
-    <div>
+    <>
       <h2>Register Page</h2>
       <form onSubmit={handleRegister}>
         <label htmlFor="username">Username:</label>
@@ -46,7 +54,7 @@ function RegisterPage() {
           <h3>{errorMessage}</h3>
         )
       }
-    </div>
+    </>
   );
 }
 

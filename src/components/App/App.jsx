@@ -1,10 +1,9 @@
 import { useEffect } from 'react';
 import {
-  HashRouter as Router,
-  Redirect,
+  Routes,
   Route,
-  Switch,
-} from 'react-router-dom';
+  Navigate
+} from "react-router-dom";
 
 import useStore from '../../zustand/store';
 import Nav from '../Nav/Nav';
@@ -22,45 +21,64 @@ function App() {
   }, [fetchUser]);
 
   return (
-    <Router>
-      <h1>Prime Solo Project</h1>
-      <Nav />
-      <Switch>
-        <Route exact path="/">
-          {
-            user.id ?
-            <HomePage /> // Render HomePage for authenticated user.
-              :
-            <Redirect to="/login" /> // Redirect unauthenticated user.
-          }
-        </Route>
-        <Route exact path="/login">
-          {
-            user.id ?
-            <Redirect to="/" /> // Redirect authenticated user.
-              :
-            <LoginPage /> // Render LoginPage for unauthenticated user.
-          }
-        </Route>
-        <Route exact path="/registration">
-          {
-            user.id ?
-            <Redirect to="/" /> // Redirect authenticated user:
-              :
-            <RegisterPage /> // Render RegisterPage for unauthenticated user:
-          }
-        </Route>
-        <Route exact path="/about">
-          <>
-            <h2>About Page</h2>
-            <p>🌵🦊🌈🌍</p>
-          </>
-        </Route>
-        <Route>
-          <h1>404 Page</h1>
-        </Route>
-      </Switch>
-    </Router>
+    <>
+      <header>
+        <h1>Prime Solo Project</h1>
+        <Nav />
+      </header>
+      <main>
+        <Routes>
+          <Route 
+            exact path="/"
+            element={
+              user.id ? (
+                <HomePage /> // Render HomePage for authenticated user.
+              ) : (
+                <Navigate to="/login" replace /> // Redirect unauthenticated user.
+              )
+            }
+          />
+          <Route 
+            exact path="/login"
+            element={
+              user.id ? (
+                <Navigate to="/" replace /> // Redirect authenticated user.
+              ) : (
+                <LoginPage /> // Render LoginPage for unauthenticated user.
+              )
+            }
+          />
+          <Route 
+            exact path="/registration"
+            element={
+              user.id ? (
+                <Navigate to="/" replace /> // Redirect authenticated user.
+              ) : (
+                <RegisterPage /> // Render RegisterPage for unauthenticated user.
+              )
+            }
+          />
+          <Route 
+            exact path="/about"
+            element={
+              <>
+                <h2>About Page</h2>
+                <p>🌵🦊🌈🌍</p>
+              </>
+            }
+          />
+          <Route
+            path="*"
+            element={
+              <h2>404 Page</h2>
+            } 
+          />
+        </Routes>
+      </main>
+      <footer>
+        <p>Copyright © {new Date().getFullYear()}</p>
+      </footer>
+    </>
   );
 }
 
