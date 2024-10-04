@@ -83,7 +83,7 @@ function App() {
                   accept the fact that their brains aren’t equal to the task.
                   Their egos keep them from being great programmers.
                   The more you learn to compensate for your small brain, the better a programmer you’ll be.
-                  <span className="squiggle">The more humble you are, the faster you’ll improve.</span>
+                  <span className="squiggle"> The more humble you are, the faster you’ll improve.</span>
                 </p>
                 <p>
                   --From Steve McConnell's <em>Code Complete</em>.
