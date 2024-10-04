@@ -95,3 +95,10 @@ button:hover, button:focus {
   box-shadow: 0 0 3px 1px #20c997;
   transition: 0.7s;
 }
+
+/* Fun Squiggle Underline Style: */
+.squiggle {
+  text-decoration: wavy underline;
+  text-decoration-color: #20c997;
+  text-decoration-thickness: 2px;
+}
