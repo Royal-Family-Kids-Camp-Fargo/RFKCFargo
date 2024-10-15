@@ -1,122 +1,110 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import {
-  HashRouter as Router,
-  Redirect,
+  Routes,
   Route,
-  Switch,
-} from 'react-router-dom';
+  Navigate
+} from "react-router-dom";
 
 import useStore from '../../zustand/store';
 import Nav from '../Nav/Nav';
-import Footer from '../Footer/Footer';
-
-import ProtectedRoute from '../ProtectedRoute/ProtectedRoute';
-
-import AboutPage from '../AboutPage/AboutPage';
-import UserPage from '../UserPage/UserPage';
-import InfoPage from '../InfoPage/InfoPage';
-import LandingPage from '../LandingPage/LandingPage';
+import HomePage from '../HomePage/HomePage';
 import LoginPage from '../LoginPage/LoginPage';
 import RegisterPage from '../RegisterPage/RegisterPage';
 
-import './App.css';
 
 function App() {
+  const user = useStore((state) => state.user);
+  const fetchUser = useStore((state) => state.fetchUser);
 
-  const user = useStore( (state) => state.user);
-  const fetchUser = useStore( state => state.fetchUser)
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
 
   return (
-    <Router>
-      <div>
+    <>
+      <header>
+        <h1>Prime Solo Project</h1>
         <Nav />
-        <Switch>
-          {/* Visiting localhost:5173 will redirect to localhost:5173/home */}
-          <Redirect exact from="/" to="/home" />
-
-          {/* Visiting localhost:5173/about will show the about page. */}
-          <Route
-            // shows AboutPage at all times (logged in or not)
-            exact
-            path="/about"
-          >
-            <AboutPage />
-          </Route>
-
-          {/* For protected routes, the view could show one of several things on the same route.
-            Visiting localhost:5173/user will show the UserPage if the user is logged in.
-            If the user is not logged in, the ProtectedRoute will show the LoginPage (component).
-            Even though it seems like they are different pages, the user is always on localhost:5173/user */}
-          <ProtectedRoute
-            // logged in shows UserPage else shows LoginPage
-            exact
-            path="/user"
-          >
-            <UserPage />
-          </ProtectedRoute>
-
-          <ProtectedRoute
-            // logged in shows InfoPage else shows LoginPage
-            exact
-            path="/info"
-          >
-            <InfoPage />
-          </ProtectedRoute>
-
-          <Route
-            exact
-            path="/login"
-          >
-            {user.id ?
-              // If the user is already logged in, 
-              // redirect to the /user page
-              <Redirect to="/user" />
-              :
-              // Otherwise, show the login page
-              <LoginPage />
+      </header>
+      <main>
+        <Routes>
+          <Route 
+            exact path="/"
+            element={
+              user.id ? (
+                <HomePage /> // Render HomePage for authenticated user.
+              ) : (
+                <Navigate to="/login" replace /> // Redirect unauthenticated user.
+              )
             }
-          </Route>
-
-          <Route
-            exact
-            path="/registration"
-          >
-            {user.id ?
-              // If the user is already logged in, 
-              // redirect them to the /user page
-              <Redirect to="/user" />
-              :
-              // Otherwise, show the registration page
-              <RegisterPage />
+          />
+          <Route 
+            exact path="/login"
+            element={
+              user.id ? (
+                <Navigate to="/" replace /> // Redirect authenticated user.
+              ) : (
+                <LoginPage /> // Render LoginPage for unauthenticated user.
+              )
             }
-          </Route>
-
-          <Route
-            exact
-            path="/home"
-          >
-            {user.id ?
-              // If the user is already logged in, 
-              // redirect them to the /user page
-              <Redirect to="/user" />
-              :
-              // Otherwise, show the Landing page
-              <LandingPage />
+          />
+          <Route 
+            exact path="/registration"
+            element={
+              user.id ? (
+                <Navigate to="/" replace /> // Redirect authenticated user.
+              ) : (
+                <RegisterPage /> // Render RegisterPage for unauthenticated user.
+              )
             }
-          </Route>
-
-          {/* If none of the other routes matched, we will show a 404. */}
-          <Route>
-            <h1>404</h1>
-          </Route>
-        </Switch>
-        <Footer />
-      </div>
-    </Router>
+          />
+          <Route 
+            exact path="/about"
+            element={
+              <>
+                <h2>About Page</h2>
+                <p>
+                  Intelligence doesn’t seem like an aspect of personal character, and it isn’t.
+                  Coincidentally, great intelligence is only loosely connected to being a good programmer.
+                </p>
+                <p>
+                  What? You don’t have to be superintelligent?
+                </p>
+                <p>
+                  No, you don’t. Nobody is really smart enough to program computers.
+                  Fully understanding an average program requires an almost limitless capacity
+                  to absorb details and an equal capacity to comprehend them all at the same time.
+                  The way you focus your intelligence is more important than how much intelligence you have…
+                </p>
+                <p>
+                  …most of programming is an attempt to compensate for the strictly limited size of our skulls.
+                  The people who are the best programmers are the people who realize how small their brains are.
+                  They are humble. The people who are the worst at programming are the people who refuse to
+                  accept the fact that their brains aren’t equal to the task.
+                  Their egos keep them from being great programmers.
+                  The more you learn to compensate for your small brain, the better a programmer you’ll be.
+                  <span className="squiggle"> The more humble you are, the faster you’ll improve.</span>
+                </p>
+                <p>
+                  --From Steve McConnell's <em>Code Complete</em>.
+                </p>
+              </>
+            }
+          />
+          <Route
+            path="*"
+            element={
+              <h2>404 Page</h2>
+            } 
+          />
+        </Routes>
+      </main>
+      <footer>
+        <p>Copyright © {new Date().getFullYear()}</p>
+      </footer>
+    </>
   );
 }
+
 
 export default App;

@@ -1,13 +1,15 @@
 const rejectUnauthenticated = (req, res, next) => {
-  // check if logged in
   if (req.isAuthenticated()) {
-    // They were authenticated! User may do the next thing
-    // Note! They may not be Authorized to do all things
+    // We've verified the request came from an authenticated user, so
+    // we call `next()` to advance to the next middleware function or
+    // the route's callback function.
     next();
   } else {
-    // failure best handled on the server. do redirect here.
+    // The request came from an unauthenticated user, so we reply with
+    // HTTP status code 403:
     res.sendStatus(403);
   }
 };
+
 
 module.exports = { rejectUnauthenticated };
