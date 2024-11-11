@@ -1,24 +1,5 @@
 -------------------------------------------------------
 --------------------------------------------------
--- START FROM SCRATCH:
-DROP TRIGGER IF EXISTS "on_user_update" ON "user";
-DROP TABLE IF EXISTS "user";
-
-
--------------------------------------------------------
---------------------------------------------------
--- TABLE SCHEMAS:
-CREATE TABLE "user" (
-  "id" SERIAL PRIMARY KEY,
-  "username" VARCHAR (80) UNIQUE NOT NULL,
-  "password" VARCHAR (1000) NOT NULL,
-  "inserted_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
-  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-
--------------------------------------------------------
---------------------------------------------------
 -- SEED DATA:
 --   You'll need to actually register users via the application in order to get hashed
 --   passwords. Once you've done that, you can modify this INSERT statement to include
@@ -57,3 +38,107 @@ CREATE TRIGGER on_user_update
 BEFORE UPDATE ON "user"
 FOR EACH ROW
 EXECUTE PROCEDURE set_updated_at_to_now();
+
+
+-- database name: rfkc
+-- 14 tables
+
+CREATE TABLE "user" (
+"id" SERIAL PRIMARY KEY,
+"email" VARCHAR (150) NOT NULL,
+"password" VARCHAR (1000) NOT NULL,
+"firs_name" VARCHAR (35),
+"last_name" VARCHAR(30),
+"created_at" timestamp default (now() at time zone 'utc'),
+"updated_at" timestamp default (now() at time zone 'utc')
+);
+
+CREATE TABLE "location" (
+	"id" SERIAL PRIMARY KEY,
+	"name" VARCHAR (255) NOT NULL
+);
+
+CREATE TABLE "user_location" (
+	"user_id" INT references "user" on delete cascade,
+	"location_id" INT references "location" on delete cascade,
+  "internal" BOOLEAN default 'false'
+);
+
+CREATE TABLE "donation" (
+"id" SERIAL PRIMARY KEY,
+"user_id" INT references "user",
+"amount" INT,
+"created_at" timestamp default (now() at time zone 'utc'),
+"updated_at" timestamp default (now() at time zone 'utc')
+);
+
+CREATE TABLE "pipeline" (
+"id" SERIAL PRIMARY KEY,
+"name" VARCHAR(32)
+);
+
+CREATE TABLE "pipeline_status" (
+"id" SERIAL PRIMARY KEY,
+"pipeline_id" INT references "pipeline" on delete cascade,
+"order" int not null,
+"name" VARCHAR (150)
+);
+
+CREATE TABLE "user_status" (
+"user_id" INT references "user" on delete cascade,
+"p_s_id" INT references "pipeline_status" on delete cascade
+);
+
+CREATE TABLE "forms" (
+"id" SERIAL PRIMARY KEY,
+"name" VARCHAR (150)
+);
+
+CREATE TABLE "submission" (
+"id" SERIAL PRIMARY KEY,
+"user_id" INT references "user",
+"form_id" INT references "forms",
+"started_at" timestamp default (now() at time zone 'utc'),
+"finished_at" timestamp default (now() at time zone 'utc')
+);
+
+CREATE TABLE "sections"(
+"id" SERIAL PRIMARY KEY,
+"name" VARCHAR (150) not null,
+"description" varchar(500) default ''
+);
+
+CREATE TABLE "form_section" (
+"id" SERIAL PRIMARY KEY,
+"form_id" INT references "forms" on delete cascade,
+"section_id" INT references "sections" on delete cascade,
+"order" INT not null
+);
+
+CREATE TABLE "question"(
+"id" SERIAL PRIMARY KEY,
+"question" VARCHAR (500),
+"description" VARCHAR (500),
+"answer_type" VARCHAR (30),
+"order" INT not null,
+"section_id" INT references "sections", 
+"archived" BOOLEAN default 'false',
+"created_at" timestamp default (now() at time zone 'utc'),
+"updated_at" timestamp default (now() at time zone 'utc')
+);
+
+CREATE TABLE "answer" (
+"id" SERIAL PRIMARY KEY,
+"question_id" INT references "question",
+"submission_id" INT references "submission" on delete cascade,
+"user_id" INT references "user",
+"answer" VARCHAR(1000),
+"created_at" timestamp default (now() at time zone 'utc'),
+"updated_at" timestamp default (now() at time zone 'utc')
+);
+
+CREATE TABLE "multiple_choice_answers" (
+"id" SERIAL PRIMARY KEY,
+"question_id" INT references "question" on delete cascade,
+"answer" VARCHAR (1000)
+);
