@@ -42,7 +42,7 @@ const swaggerOptions = {
 // Initialize Swagger JSDoc
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 // Swagger UI setup
-app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Use process.env.PORT if it exists, otherwise use 5001:
 const PORT = process.env.PORT || 5001;

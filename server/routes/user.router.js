@@ -3,19 +3,60 @@ const encryptLib = require('../modules/encryption');
 const pool = require('../modules/pool');
 const userStrategy = require('../strategies/user.strategy');
 
-
 const router = express.Router();
 
 // If the request came from an authenticated user, this route
 // sends back an object containing that user's information.
 // Otherwise, it sends back an empty object to indicate there
 // is not an active session.
+/**
+ * @swagger
+ * /login:
+ *   get:
+ *     summary: Get the current authenticated user or an empty object if not authenticated
+ *     tags: [session, authentication, user]
+responses:
+ *       200:
+ *         description: Login status and user data if authenticated
+ *         content: 
+ *           application/json:
+ *             schema: 
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   description: The authenticated user object, returns empty if not authenticated
+ *                 message:
+ *                   type: string
+ *                   description: A message providing context about the current status, e.g., "User not authenticated"
+ *       400:
+ *         description: Bad request, invalid request format or missing parameters
+ *       401:
+ *         description: Unauthorized, user is not authenticated
+ *       404:
+ *         description: Not found, in case the user is not found or the endpoint is incorrect
+ */
 router.get('/', (req, res) => {
   if (req.isAuthenticated()) {
     res.send(req.user);
   } else {
     res.send({});
   }
+});
+
+router.get('/:userId', (req, res) => {
+  const queryText = `
+  SELECT id, username, first_name, last_name, created_at, updated_at FROM "user" WHERE id = $1;
+  `;
+  pool
+    .query(queryText, [req.params.userId])
+    .then((result) => {
+      res.send(result.rows);
+    })
+    .catch((error) => {
+      console.log('error getting user by id', error);
+      res.sendStatus(500);
+    });
 });
 
 // Handles the logic for creating a new user. The one extra wrinkle here is
@@ -28,30 +69,30 @@ router.get('/', (req, res) => {
  *     tags: [User]
  *     requestBody:
  *       required: true
- *       content: 
+ *       content:
  *         application/json:
- *           schema: 
+ *           schema:
  *             type: object
  *             required:
  *               - email
  *               - password
  *             properties:
- *               email: 
+ *               email:
  *                 type: string
  *                 description: Email of the user
- *               password: 
+ *               password:
  *                 type: string
  *                 description: Password of the user
- *               first_name: 
+ *               first_name:
  *                 type: string
  *                 description: First name of the user
- *               last_name: 
+ *               last_name:
  *                 type: string
  *                 description: Last name of the user
  *     responses:
  *       201:
  *         description: User registered successfully
- *         content: 
+ *         content:
  *           application/json:
  *             schema:
  *               type: object
@@ -61,18 +102,21 @@ router.get('/', (req, res) => {
 router.post('/register', (req, res, next) => {
   const username = req.body.username;
   const hashedPassword = encryptLib.encryptPassword(req.body.password);
+  const first_name = req.body.first_name;
+  const last_name = req.body.last_name;
 
   const sqlText = `
     INSERT INTO "user"
-      ("username", "password")
+      ("username", "password", "first_name", "last_name")
       VALUES
-      ($1, $2);
+      ($1, $2, $3, $4);
   `;
-  const sqlValues = [username, hashedPassword];
+  const sqlValues = [username, hashedPassword, first_name, last_name];
 
-  pool.query(sqlText, sqlValues)
+  pool
+    .query(sqlText, sqlValues)
     .then(() => {
-      res.sendStatus(201)
+      res.sendStatus(201);
     })
     .catch((dbErr) => {
       console.log('POST /api/user/register error: ', dbErr);
@@ -93,24 +137,24 @@ router.post('/register', (req, res, next) => {
  *     tags: [Session, no-nlapi]
  *     requestBody:
  *       required: true
- *       content: 
+ *       content:
  *         application/json:
- *           schema: 
+ *           schema:
  *             properties:
- *               login: 
+ *               login:
  *                 type: string
  *                 description: email of user
- *               password: 
+ *               password:
  *                 type: string
  *                 description: you can't see me
  *     responses:
  *       200:
  *         description: Login successful
- *         content: 
+ *         content:
  *           application/json:
- *             schema: 
+ *             schema:
  *               properties:
- *                 message: 
+ *                 message:
  *                   type: string
  *                   description: message of response
  *       400:
@@ -124,12 +168,11 @@ router.post('/login', userStrategy.authenticate('local'), (req, res) => {
 router.post('/logout', (req, res, next) => {
   // Use passport's built-in method to log out the user.
   req.logout((err) => {
-    if (err) { 
-      return next(err); 
+    if (err) {
+      return next(err);
     }
     res.sendStatus(200);
   });
 });
-
 
 module.exports = router;
