@@ -104,13 +104,21 @@ router.get('/:userId',rejectUnauthenticated, (req, res) => {
 	) as user_donations;
     `;
     pool.query(queryText, [req.params.userId]).then(response => {
-        let newResponse = [
-            ...response.rows[0].user_submissions,
-            ...response.rows[0].user_donations
-        ];
+        let newResponse = []
+        if(response.rows[0].user_submissions){
+            newResponse = [
+                ...response.rows[0].user_submissions,
+            ];
+        }
+        if(response.rows[0].user_donations){
+            newResponse = [
+                ...newResponse,
+                ...response.rows[0].user_donations
+            ];
+        }
         newResponse.sort(function(a, b){ return new Date(a.finished_at).getTime() - new Date(b.finished_at).getTime()});
         console.log(newResponse);
-        res.send(newResponse)
+        res.send(newResponse).status(200)
     }).catch(err => {
         console.error('Error grabbing actions', err);
         res.sendStatus(500);
@@ -250,6 +258,122 @@ router.put('/donation', rejectUnauthenticated, (req, res) => {
         res.sendStatus(200);
     }).catch(err => {
         console.error('Error updating donation', err);
+        res.send(500);
+    })
+})
+
+/**
+ * @swagger
+ * openapi: 3.0.0
+ * info:
+ *   title: Donations API
+ *   version: 1.0.0
+ *   description: API for managing donations.
+ * paths:
+ *   /api/actions/donation/{donationId}:
+ *     delete:
+ *       tags:
+ *         - donations
+ *       summary: delete a donation record
+ *       description: Deletes a record for a donation action
+ *       parameters:
+ *         - name: donationId
+ *           in: path
+ *           required: true
+ *           description: The ID of the donation to be deleted
+ *           schema:
+ *             type: string
+ *       responses:
+ *         '200':
+ *           description: Donation successfully deleted.
+ *         '400':
+ *           description: Bad request. Invalid input.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   error:
+ *                     type: string
+ *                     description: Error message detailing the invalid input.
+ *         '500':
+ *           description: Internal server error.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   error:
+ *                     type: string
+ *                     description: Error message indicating an internal server error.
+ */
+router.delete('/donation/:donationId', rejectUnauthenticated, (req, res) => {
+    const queryText = `
+    delete from donation 
+    where id = $1;
+    `
+    pool.query(queryText, [req.params.donationId]).then(response => {
+        res.sendStatus(200);
+    }).catch(err => {
+        console.error('Error deleting donation', err);
+        res.send(500);
+    })
+})
+
+/**
+ * @swagger
+ * openapi: 3.0.0
+ * info:
+ *   title: Donations API
+ *   version: 1.0.0
+ *   description: API for managing donations.
+ * paths:
+ *   /api/actions/donation/{donationId}:
+ *     get:
+ *       tags:
+ *         - donations
+ *       summary: get a donation record by id
+ *       description: fetches a record for a donation action
+ *       parameters:
+ *         - name: donationId
+ *           in: path
+ *           required: true
+ *           description: The ID of the donation to be deleted
+ *           schema:
+ *             type: string
+ *       responses:
+ *         '200':
+ *           description: Donation successfully fetched.
+ *         '400':
+ *           description: Bad request. Invalid input.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   error:
+ *                     type: string
+ *                     description: Error message detailing the invalid input.
+ *         '500':
+ *           description: Internal server error.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   error:
+ *                     type: string
+ *                     description: Error message indicating an internal server error.
+ */
+router.get('/donation/:donationId', rejectUnauthenticated, (req, res) => {
+    const queryText = `
+    select * from donation 
+    where id = $1;
+    `
+    pool.query(queryText, [req.params.donationId]).then(response => {
+        res.send(response.rows[0]);
+    }).catch(err => {
+        console.error('Error getting donation', err);
         res.send(500);
     })
 })
