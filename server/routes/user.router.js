@@ -15,7 +15,7 @@ const router = express.Router();
  * /api/user:
  *   get:
  *     summary: Get the current authenticated user or an empty object if not authenticated
- *     tags: [session]
+ *     tags: [Session]
  *     responses:
  *       200:
  *         description: Successfully retrieved user data if authenticated, or an empty object if not authenticated
@@ -48,11 +48,11 @@ router.get('/', (req, res) => {
 
 /**
  * @swagger
- * /user/{userId}:
+ * /api/user/{userId}:
  *   get:
  *     summary: Get user information by user ID
  *     description: Fetches user details by the provided user ID. The route returns the user's information (username, first name, last name, etc.) if the user exists. If there’s an error or the user doesn’t exist, an error message will be returned.
- *     tags: [user, session]
+ *     tags: [User]
  *     parameters:
  *       - in: path
  *         name: userId
@@ -224,12 +224,12 @@ router.post('/login', userStrategy.authenticate('local'), (req, res) => {
 // Clear all server session information about this user:
 /**
  * @swagger
- * /logout:
+ * /api/user/logout:
  *   post:
  *     summary: Logout a user
  *     description: Logs out the user by clearing their session.
  *     tags:
- *       - Authentication
+ *       - Session
  *     responses:
  *       200:
  *         description: Successfully logged out
@@ -255,7 +255,7 @@ router.post('/logout', (req, res, next) => {
  *     summary: Update user information
  *     description: This endpoint allows users to update their username, password, first name, and last name.
  *     tags:
- *       - Users
+ *       - User
  *     requestBody:
  *       description: User data to update
  *       required: true
