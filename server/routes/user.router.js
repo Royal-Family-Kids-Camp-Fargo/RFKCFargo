@@ -2,6 +2,7 @@ const express = require('express');
 const encryptLib = require('../modules/encryption');
 const pool = require('../modules/pool');
 const userStrategy = require('../strategies/user.strategy');
+const { rejectUnauthenticated } = require('../modules/authentication-middleware');
 
 const router = express.Router();
 
@@ -13,29 +14,30 @@ const router = express.Router();
  * @swagger
  * /login:
  *   get:
- *     summary: Get the current authenticated user or an empty object if not authenticated
+ *     summary: Get the current authenticated user's information or an empty object if not authenticated
  *     tags: [session, authentication, user]
-responses:
+ *     responses:
  *       200:
- *         description: Login status and user data if authenticated
- *         content: 
+ *         description: Successfully retrieved user data if authenticated, or an empty object if not authenticated
+ *         content:
  *           application/json:
- *             schema: 
+ *             schema:
  *               type: object
  *               properties:
  *                 user:
  *                   type: object
- *                   description: The authenticated user object, returns empty if not authenticated
+ *                   description: The authenticated user object; returns an empty object if the user is not authenticated
  *                 message:
  *                   type: string
- *                   description: A message providing context about the current status, e.g., "User not authenticated"
+ *                   description: A message providing context about the current session, e.g., "User not authenticated" if no active session exists
  *       400:
  *         description: Bad request, invalid request format or missing parameters
  *       401:
- *         description: Unauthorized, user is not authenticated
+ *         description: Unauthorized, user is not authenticated (if no active session is found)
  *       404:
- *         description: Not found, in case the user is not found or the endpoint is incorrect
+ *         description: Not found, in case the endpoint is incorrectly configured or the resource is not available
  */
+
 router.get('/', (req, res) => {
   if (req.isAuthenticated()) {
     res.send(req.user);
@@ -44,7 +46,61 @@ router.get('/', (req, res) => {
   }
 });
 
-router.get('/:userId', (req, res) => {
+/**
+ * @swagger
+ * /user/{userId}:
+ *   get:
+ *     summary: Get user information by user ID
+ *     description: Fetches user details by the provided user ID. The route returns the user's information (username, first name, last name, etc.) if the user exists. If there’s an error or the user doesn’t exist, an error message will be returned.
+ *     tags: [user, session]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: The ID of the user to retrieve
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved user information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     description: The user's ID
+ *                   username:
+ *                     type: string
+ *                     description: The user's username
+ *                   first_name:
+ *                     type: string
+ *                     description: The user's first name
+ *                   last_name:
+ *                     type: string
+ *                     description: The user's last name
+ *                   created_at:
+ *                     type: string
+ *                     format: date-time
+ *                     description: The timestamp when the user was created
+ *                   updated_at:
+ *                     type: string
+ *                     format: date-time
+ *                     description: The timestamp when the user was last updated
+ *       400:
+ *         description: Bad request, invalid user ID format or missing parameters
+ *       401:
+ *         description: Unauthorized, user is not authenticated
+ *       404:
+ *         description: User not found, no user exists with the provided ID
+ *       500:
+ *         description: Internal server error, issue with the database or server
+ */
+
+router.get('/:userId', rejectUnauthenticated, (req, res) => {
   const queryText = `
   SELECT id, username, first_name, last_name, created_at, updated_at FROM "user" WHERE id = $1;
   `;
@@ -59,8 +115,8 @@ router.get('/:userId', (req, res) => {
     });
 });
 
-// Handles the logic for creating a new user. The one extra wrinkle here is
-// that we hash the password before inserting it into the database.
+// Handles the logic for creating a new user.
+// The password is hashed before being added to the database.
 /**
  * @swagger
  * /register:
@@ -134,7 +190,7 @@ router.post('/register', (req, res, next) => {
  * /login:
  *   post:
  *     summary: Login a user
- *     tags: [Session, no-nlapi]
+ *     tags: [Session, user]
  *     requestBody:
  *       required: true
  *       content:
@@ -165,6 +221,22 @@ router.post('/login', userStrategy.authenticate('local'), (req, res) => {
 });
 
 // Clear all server session information about this user:
+/**
+ * @swagger
+ * /logout:
+ *   post:
+ *     summary: Logout a user
+ *     description: Logs out the user by clearing their session.
+ *     tags:
+ *       - Authentication
+ *     responses:
+ *       200:
+ *         description: Successfully logged out
+ *       500:
+ *         description: Server error while logging out
+ *     security:
+ *       - sessionAuth: []
+ */
 router.post('/logout', (req, res, next) => {
   // Use passport's built-in method to log out the user.
   req.logout((err) => {
@@ -173,6 +245,75 @@ router.post('/logout', (req, res, next) => {
     }
     res.sendStatus(200);
   });
+});
+
+/**
+ * @swagger
+ * /api/user:
+ *   put:
+ *     summary: Update user information
+ *     description: This endpoint allows users to update their username, password, first name, and last name.
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       description: User data to update
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: The user's new username.
+ *               password:
+ *                 type: string
+ *                 description: The user's new password.
+ *               first_name:
+ *                 type: string
+ *                 description: The user's first name.
+ *               last_name:
+ *                 type: string
+ *                 description: The user's last name.
+ *     responses:
+ *       200:
+ *         description: User information updated successfully.
+ *       400:
+ *         description: Bad request, missing required fields or invalid data.
+ *       500:
+ *         description: Internal server error, problem updating user information.
+ *     security:
+ *       - bearerAuth: []
+ */
+
+router.put('/', rejectUnauthenticated, (req, res, next) => {
+  const username = req.body.username;
+  const hashedPassword = encryptLib.encryptPassword(req.body.password);
+  const first_name = req.body.first_name;
+  const last_name = req.body.last_name;
+
+  const sqlText = `
+    UPDATE "user"
+    SET 
+      "username" = $1,
+      "password" = $2,
+      "first_name" = $3,
+      "last_name" = $4
+    WHERE "id" = $5;
+  `;
+
+  const sqlValues = [req.body.username, hashedPassword, req.body.first_name, req.body.last_name, req.user.id];
+
+  pool
+    .query(sqlText, sqlValues)
+    .then((result) => {
+      console.log('User information has been updated');
+      res.sendStatus(200);
+    })
+    .catch((error) => {
+      console.log(`Error making database query when updating user info ${sqlText}`, error);
+      res.sendStatus(500);
+    });
 });
 
 module.exports = router;
