@@ -11,10 +11,10 @@ const router = express.Router();
 // is not an active session.
 /**
  * @swagger
- * /login:
+ * /api/user:
  *   get:
  *     summary: Get the current authenticated user or an empty object if not authenticated
- *     tags: [session, authentication, user]
+ *     tags: [session]
 responses:
  *       200:
  *         description: Login status and user data if authenticated
@@ -63,7 +63,7 @@ router.get('/:userId', (req, res) => {
 // that we hash the password before inserting it into the database.
 /**
  * @swagger
- * /register:
+ * /api/user/register:
  *   post:
  *     summary: Register a new user
  *     tags: [User]
@@ -129,12 +129,13 @@ router.post('/register', (req, res, next) => {
 // library to instantiate a session if the request body's username and
 // password are correct.
 // You can find this middleware function in /server/strategies/user.strategy.js.
+
 /**
  * @swagger
- * /login:
+ * /api/user/login:
  *   post:
  *     summary: Login a user
- *     tags: [Session, no-nlapi]
+ *     tags: [Session]
  *     requestBody:
  *       required: true
  *       content:
