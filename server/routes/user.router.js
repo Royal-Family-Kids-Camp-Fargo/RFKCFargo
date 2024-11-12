@@ -130,12 +130,12 @@ router.get('/:userId', rejectUnauthenticated, (req, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - email
+ *               - username
  *               - password
  *             properties:
- *               email:
+ *               username:
  *                 type: string
- *                 description: Email of the user
+ *                 description: Username of the user
  *               password:
  *                 type: string
  *                 description: Password of the user
@@ -198,7 +198,7 @@ router.post('/register', (req, res, next) => {
  *         application/json:
  *           schema:
  *             properties:
- *               login:
+ *               username:
  *                 type: string
  *                 description: email of user
  *               password:
