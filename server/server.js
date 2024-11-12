@@ -38,7 +38,6 @@ const swaggerOptions = {
     },
     apis: ["./server/routes/*.js", "./server/models/*.js"],
   };
-
 // Initialize Swagger JSDoc
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 // Swagger UI setup
@@ -55,7 +54,7 @@ const passport = require('./strategies/user.strategy');
 const userRouter = require('./routes/user.router');
 const pipelineRouter = require('./routes/pipeline.router');
 const formRouter = require('./routes/form.router');
-const actionRouter = require('./routes/action.router')
+const actionRouter = require('./routes/action.router');
 
 // Apply middleware:
 app.use(express.json());
@@ -67,6 +66,9 @@ app.use(passport.session());
 
 // Apply router files:
 app.use('/api/user', userRouter);
+app.use('/api/actions', actionRouter);
+app.use('/api/form', formRouter);
+app.use('/api/pipeline', pipelineRouter);
 
 // Start the server:
 app.listen(PORT, () => {
