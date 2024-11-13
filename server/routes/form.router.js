@@ -14,14 +14,25 @@ const router = express.Router();
  *  delete form
  * 
  *  Post Sections
- *  put sections
  *  get sections w/ questions
  * 
- *  Post form section relations
- *  Post questions
+ *  archive questions
  * 
  * Submission
  * Post Submissions + answers in the submission
  */
+
+router.post('/', (req, res) => {
+    const queryText = `
+        insert into forms("name")
+        values($1);
+    `
+    pool.query(queryText, [req.body.name]).then(response => {
+        res.send(200);
+    }).catch(err => {
+        console.error('Error posting form', err);
+        res.send(500);
+    })
+})
 
 module.exports = router;

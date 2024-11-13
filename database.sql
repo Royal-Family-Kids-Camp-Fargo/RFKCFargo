@@ -3,7 +3,7 @@
 
 CREATE TABLE "user" (
 "id" SERIAL PRIMARY KEY,
-"email" VARCHAR (150) NOT NULL unique,
+"username" VARCHAR (150) NOT NULL unique,
 "password" VARCHAR (1000) NOT NULL,
 "first_name" VARCHAR (35),
 "last_name" VARCHAR(30),
