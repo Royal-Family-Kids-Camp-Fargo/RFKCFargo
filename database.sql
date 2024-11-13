@@ -1,5 +1,5 @@
 -- database name: rfkc
--- 14 tables
+-- 13 tables
 
 CREATE TABLE "user" (
 "id" SERIAL PRIMARY KEY,
@@ -44,7 +44,7 @@ CREATE TABLE "pipeline_status" (
 
 CREATE TABLE "user_status" (
 "user_id" INT references "user" on delete cascade,
-"p_s_id" INT references "pipeline_status" on delete cascade
+"pipeline_status_id" INT references "pipeline_status" on delete cascade
 );
 
 CREATE TABLE "forms" (
@@ -63,13 +63,8 @@ CREATE TABLE "submission" (
 CREATE TABLE "sections"(
 "id" SERIAL PRIMARY KEY,
 "name" VARCHAR (150) not null,
-"description" varchar(500) default ''
-);
-
-CREATE TABLE "form_section" (
-"id" SERIAL PRIMARY KEY,
+"description" varchar(500) default '',
 "form_id" INT references "forms" on delete cascade,
-"section_id" INT references "sections" on delete cascade,
 "order" INT not null
 );
 

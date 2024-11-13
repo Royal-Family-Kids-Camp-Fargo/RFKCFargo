@@ -8,12 +8,6 @@ const { rejectUnauthenticated } = require('../modules/authentication-middleware'
 
 const router = express.Router();
 
-/** 
- * need donation post, get, put, delete
- * 
- * 
- */
-
 /**
  * @swagger
  * /api/actions/{userId}:
