@@ -1,3 +1,8 @@
+/**
+ * I'd recomment splitting this file into two files. One for sesssions and one for users.
+ * Sessions should handle login, logout, and password reset.
+ * Users should handle CRUD for users.
+ */
 const express = require('express');
 const encryptLib = require('../modules/encryption');
 const pool = require('../modules/pool');
@@ -101,6 +106,7 @@ router.get('/', (req, res) => {
  */
 
 router.get('/:userId', rejectUnauthenticated, (req, res) => {
+  // TODO: Add a check to see if the user is in the chapter_user table for the logged in user. Return a 404 if the user is not found. 
   const queryText = `
   SELECT id, username, first_name, last_name, created_at, updated_at FROM "user" WHERE id = $1;
   `;

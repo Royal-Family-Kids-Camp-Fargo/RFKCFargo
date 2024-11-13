@@ -1,3 +1,7 @@
+/**
+ * I'd recommend splitting this file into three files. One for submissions and one for donations and one for the action endpoint.
+ */
+
 const express = require('express');
 const pool = require('../modules/pool');
 const { rejectUnauthenticated } = require('../modules/authentication-middleware');

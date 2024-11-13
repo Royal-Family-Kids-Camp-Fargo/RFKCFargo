@@ -1,3 +1,11 @@
+/**
+ * I highly recommend splitting this file into multiple files as it's going to get very long having pipeline, status, and user status in the same file and CRUD for each. 
+ * 
+ * Generally, each 'asset' you should have a different router file. (i.e. pipeline, pipeline status, user pipeline status)
+ * 
+ * It's also common practice to name your routes similar to the table names in the database. (i.e. /api/pipeline, /api/pipeline_status, /api/user_pipeline_status)
+ * 
+ */
 const express = require('express');
 const pool = require('../modules/pool');
 const { rejectUnauthenticated } = require('../modules/authentication-middleware');
@@ -50,6 +58,7 @@ const router = express.Router();
  *
  */
 router.post('/', rejectUnauthenticated, (req, res) => {
+  // TODO: Add chapter id to the pipeline table based on the logged in user's chapter. 
   const newLogQuery = `
   INSERT INTO "pipeline" 
     ("name")
@@ -152,6 +161,7 @@ router.post('/status', rejectUnauthenticated, (req, res) => {
  */
 router.post('/userstatus', rejectUnauthenticated, (req, res) => {
     console.log("req.body", req.body)
+  // I'd recommend using the column name pipeline_status_id instead of p_s_id -> it's more readable and will be easier for other developers to understand when picking up the project later.
   const newLogQuery = `
   INSERT INTO "user_status" 
     ("user_id", "p_s_id")
