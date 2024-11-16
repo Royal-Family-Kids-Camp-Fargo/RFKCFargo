@@ -300,59 +300,6 @@ router.delete('/:id', rejectUnauthenticated, (req, res) => {
     });
 });
 
-/**
- * @swagger
- * api/pipeline/{id}:
- *   put:
- *     summary: Update the name of a pipeline
- *     description: Updates the name of an existing pipeline identified by the pipeline ID.
- *     tags:
- *       - Pipeline
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: The ID of the pipeline to update.
- *         schema:
- *           type: integer
- *           example: 1
- *       - in: body
- *         name: name
- *         required: true
- *         description: The new name to update the pipeline with.
- *         schema:
- *           type: object
- *           properties:
- *             name:
- *               type: string
- *               example: "Updated Pipeline Name"
- *     responses:
- *       '200':
- *         description: Successfully updated the pipeline name.
- *       '404':
- *         description: Pipeline with the given ID not found.
- *       '500':
- *         description: Internal server error while updating the pipeline.
- */
-router.put('/:id', rejectUnauthenticated, (req, res) => {
-  let pipelineId = req.params.id;
-  let newPipelineName = req.body.name;
-  let sqlQuery = `UPDATE "pipeline" SET "name"=$1 WHERE "id"= $2;`;
-  pool
-    .query(sqlQuery, [newPipelineName, pipelineId])
-    .then((result) => {
-      console.log(`Pipeline with ID ${pipelineId} name updated successfully`);
-      res.sendStatus(200);
-    })
-    .catch((error) => {
-      console.log(`Error updating pipeline name for ID ${pipelineId}:`, error);
-      res.sendStatus(500);
-    });
-});
-//
-// END PIPELINE
-//
-
 //
 //PIPELINE STATUS
 //
@@ -481,7 +428,7 @@ router.delete('/pipeline_status/:id', rejectUnauthenticated, (req, res) => {
  *       500:
  *         description: Internal server error. Something went wrong while processing the update request.
  */
-router.put('pipeline_status/:id', rejectUnauthenticated, (req, res) => {
+router.put('/pipeline_status/:id', rejectUnauthenticated, (req, res) => {
   let pipelineStatusId = req.params.id;
   let pipelineStatusOrder = req.body.order;
   let pipelineStatusName = req.body.name;
@@ -587,9 +534,12 @@ router.post('/user_status', rejectUnauthenticated, (req, res) => {
  *       '500':
  *         description: Internal Server Error (failure to update user status).
  */
-router.put('/user_status/:userId', rejectUnauthenticated, (req, res) => {
-  const userId = req.params.userId;
-  const newPipelineStatusId = req.body.pipeline_status_id;
+router.put('/user_status', rejectUnauthenticated, (req, res) => {
+  //we need to know
+  //1. the pipeline id
+  //2. the user to advance to next swim lane, ie jenny 'interview' -> 'background check'
+  //3. know the next swimlane
+  console.log('req body', req.body); // {user_id: 1, pipeline_status_id: 4}
 
   const updateUserStatusQuery = `
     UPDATE "user_status"
@@ -598,9 +548,9 @@ router.put('/user_status/:userId', rejectUnauthenticated, (req, res) => {
   `;
 
   pool
-    .query(updateUserStatusQuery, [newPipelineStatusId, userId])
+    .query(updateUserStatusQuery, [req.body.pipeline_status_id, req.body.user_id])
     .then(() => {
-      console.log(`User ${userId} moved to pipeline status ${newPipelineStatusId}`);
+      console.log(`User ${req.body.user_id} moved to pipeline status ${req.body.pipeline_status_id}`);
       res.sendStatus(200);
     })
     .catch((error) => {
@@ -630,7 +580,7 @@ router.put('/user_status/:userId', rejectUnauthenticated, (req, res) => {
  *       '500':
  *         description: Internal Server Error (failure to delete user status).
  */
-router.put('/user_status/remove', rejectUnauthenticated, (req, res) => {
+router.delete('/user_status/remove', rejectUnauthenticated, (req, res) => {
   const userId = req.body.user_id;
   const pipelineId = req.body.pipeline_id;
 
@@ -658,5 +608,59 @@ router.put('/user_status/remove', rejectUnauthenticated, (req, res) => {
  * will need to post user statuses
  *
  */
+
+/**
+ * @swagger
+ * api/pipeline/{id}:
+ *   put:
+ *     summary: Update the name of a pipeline
+ *     description: Updates the name of an existing pipeline identified by the pipeline ID.
+ *     tags:
+ *       - Pipeline
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The ID of the pipeline to update.
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *       - in: body
+ *         name: name
+ *         required: true
+ *         description: The new name to update the pipeline with.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             name:
+ *               type: string
+ *               example: "Updated Pipeline Name"
+ *     responses:
+ *       '200':
+ *         description: Successfully updated the pipeline name.
+ *       '404':
+ *         description: Pipeline with the given ID not found.
+ *       '500':
+ *         description: Internal server error while updating the pipeline.
+ */
+
+router.put('/:id', rejectUnauthenticated, (req, res) => {
+  let pipelineId = req.params.id;
+  let newPipelineName = req.body.name;
+  let sqlQuery = `UPDATE "pipeline" SET "name"=$1 WHERE "id"= $2;`;
+  pool
+    .query(sqlQuery, [newPipelineName, pipelineId])
+    .then((result) => {
+      console.log(`Pipeline with ID ${pipelineId} name updated successfully`);
+      res.sendStatus(200);
+    })
+    .catch((error) => {
+      console.log(`Error updating pipeline name for ID ${pipelineId}:`, error);
+      res.sendStatus(500);
+    });
+});
+//
+// END PIPELINE
+//
 
 module.exports = router;
