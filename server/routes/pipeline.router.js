@@ -3,6 +3,51 @@ const pool = require('../modules/pool');
 const { rejectUnauthenticated } = require('../modules/authentication-middleware');
 
 const router = express.Router();
+
+//
+// FUSSY SEARCH
+//
+
+router.get('/search', (req, res) => {
+  const searchTerm = req.query.term;
+  const [firstNamePart, lastNamePart] = searchTerm.split(' ');
+
+  console.log('First Name Part:', firstNamePart);
+  console.log('Last Name Part:', lastNamePart);
+
+  const sqlQuery = `
+    SELECT 
+      "username", 
+      "first_name", 
+      "last_name", 
+      GREATEST(
+        similarity("first_name", $1), 
+        similarity("last_name", $2)
+      ) AS similarity_score
+    FROM "user"
+    WHERE 
+      similarity("first_name", $1) > 0.2
+      AND similarity("last_name", $2) > 0.2
+    ORDER BY similarity_score DESC;
+  `;
+
+  pool
+    .query(sqlQuery, [firstNamePart, lastNamePart])
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return res.status(404).send('No matching users found');
+      }
+      res.send(result.rows);
+    })
+    .catch((error) => {
+      console.error('Error executing fuzzy search query:', error);
+      res.status(500).send('Internal Server Error');
+    });
+});
+//
+// END FUSSY SEARCH
+//
+
 //
 //PIPELINE
 //
@@ -49,54 +94,6 @@ router.get('/', (req, res) => {
     });
 });
 
-/**
- * @swagger
- * /api/pipeline/:pipelineId':
- *   get:
- *     summary: Get the Kanban board data with user pipeline statuses
- *     description: Fetches all users' pipeline statuses and orders them based on pipeline status order.
- *     tags:
- *       - Pipeline
- *     responses:
- *       '200':
- *         description: Successfully fetched Kanban data with user pipeline statuses.
- *         tags:
- *         - Pipeline
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   pipeline_name:
- *                     type: string
- *                     description: The name of the pipeline.
- *                     example: "Sales"
- *                   pipeline_status_id:
- *                     type: integer
- *                     description: The ID of the pipeline status.
- *                     example: 1
- *                   pipeline_status_name:
- *                     type: string
- *                     description: The name of the pipeline status.
- *                     example: "interview scheduled"
- *                   order:
- *                     type: integer
- *                     description: The order in which the pipeline status appears in the Kanban.
- *                     example: 1
- *                   user_id:
- *                     type: integer
- *                     description: The ID of the user.
- *                     example: 1
- *                   username:
- *                     type: string
- *                     description: The username of the user.
- *                     example: "john"
- *       '500':
- *         description: Internal Server Error (failure to fetch data from the database).
- */
-
 ///   will add location column later on so that internal users at a specific location can only edit pipelines for their location
 router.get('/:pipelineId', (req, res) => {
   const pipelineId = req.params.pipelineId; //for example, the Volunteer_fargo pipeline Id
@@ -136,7 +133,6 @@ WHERE
   pool
     .query(sqlQuery, [pipelineId])
     .then((result) => {
-      // res.json(result.rows);
       res.send(result.rows[0].pipeline);
     })
     .catch((error) => {
@@ -643,6 +639,9 @@ router.delete('/user_status/remove', rejectUnauthenticated, (req, res) => {
  *       '500':
  *         description: Internal server error while updating the pipeline.
  */
+//
+
+///pipeline
 
 router.put('/:id', rejectUnauthenticated, (req, res) => {
   let pipelineId = req.params.id;
