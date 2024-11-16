@@ -2,62 +2,6 @@ const express = require('express');
 const pool = require('../modules/pool');
 const { rejectUnauthenticated } = require('../modules/authentication-middleware');
 
-/*
-
-{ //this object is the entire pipeline, ie, for a site such as Sioux Falls
-    pipeline: "Volunteer_fargo", // in our DB has an id of 1
-    statuses:[ // this key contains the array of swimlane objects
-        { // this object describes the swim lane
-            status: "Interview", 
-            applicants: 
-              [
-                { // this object describes the individual
-                    user_firstName:"Jenny"
-                    id: 1
-                    username: "jenny@email.com"
-                },
-                { user_firstName: "Bobby",
-                 id: 2,
-                 username: "bobby@email.com"
-                }
-              ]
-        },
-        {status: "Application Review"
-            applicants:
-            [ 
-              {
-                user_firstName: "Jill"
-                id:6
-                username:jill@email.com
-            }
-            {
-                user_firstName:"Jack"
-                id: 7
-                username:jack@email.com
-            }
-        {status: "Application Submitted"
-            applicants:
-            [ 
-              {
-                user_firstName: "John"
-                id:3
-                username:john@email.com
-            }
-            {
-                user_firstName:"Jane"
-                id: 7
-                username:jane@email.com
-            }
- 
-                
-            ]
-        }
-    ] // end of statusus array
-} //end of pipeline object
-    
-*/
-// swim lanes: 1.Application Submitted, 2.Application Review, 3.Interview, 4.Background Check 5. Verified/Accepted
-
 const router = express.Router();
 //
 //PIPELINE
@@ -155,51 +99,105 @@ router.get('/', (req, res) => {
 
 ///   will add location column later on so that internal users at a specific location can only edit pipelines for their location
 router.get('/:pipelineId', (req, res) => {
-  const pipelineId = req.params.pipelineId; //for example, the Fargo volunteer pipeline Id
-  console.log('Pipeline Id', pipelineId); // we are testing id 1 which is Volunteer_fargo
-  //   const sqlQuery = `
-  //      SELECT
-  //   pipeline.name AS pipeline_name,
-  //   pipeline_status.id AS pipeline_status_id,
-  //   pipeline_status.name AS pipeline_status_name,
-  //   pipeline_status.order,
-  //   "user".id AS user_id,
-  //   "user".username
-  // FROM
-  //   "user_status"
-  // JOIN
-  //   pipeline_status ON "user_status".pipeline_status_id = pipeline_status.id
-  // JOIN
-  //   pipeline ON pipeline_status.pipeline_id = pipeline.id
-  // JOIN
-  //   "user" ON "user_status".user_id = "user".id
-  // WHERE
-  // pipeline.id = $1
-  // ORDER BY
-  //   pipeline_status.order;
-  //   `;
+  const pipelineId = req.params.pipelineId; //for example, the Volunteer_fargo pipeline Id
   const sqlQuery = `
+SELECT 
+    json_build_object(
+        'pipeline_name', "pipeline"."name", 
+        'statuses', (
+            SELECT json_agg(
+                json_build_object(
+                    'status', "pipeline_status"."name", 
+                    'applicants', (
+                        SELECT json_agg(
+                            json_build_object(
+                                'user_firstName', "user"."first_name",
+                                'id', "user"."id",
+                                'username', "user"."username"
+                            )
+                        )
+                        FROM "user"
+                        JOIN "user_status" ON "user_status"."user_id" = "user"."id"
+                        WHERE "user_status"."pipeline_status_id" = "pipeline_status"."id"
+                    )
+                )
+            )
+            FROM "pipeline_status"
+            WHERE "pipeline_status"."pipeline_id" = "pipeline"."id"
+        )
+    ) AS pipeline
+FROM 
+    "pipeline"
+WHERE 
+    "pipeline"."id" = $1; 
 
-
-SELECT "pipeline"."id" AS pipelineId, "pipeline"."name" AS pipeline_name, json_agg("pipeline_status"."name") AS pipeline_status_name 
-FROM "pipeline"
-JOIN "pipeline_status" ON "pipeline"."id" = "pipeline_status"."pipeline_id"
-WHERE "pipeline"."id"=$1
-GROUP BY "pipeline"."id"; 
 `;
 
   pool
     .query(sqlQuery, [pipelineId])
     .then((result) => {
       // res.json(result.rows);
-      res.send(result.rows[0]);
+      res.send(result.rows[0].pipeline);
     })
     .catch((error) => {
       console.error('Error fetching Kanban data:', error);
       res.sendStatus(500);
     });
 });
-
+/* THIS IS THE STRUTURE for the pipeline by Id
+{ //this object is the entire pipeline, ie, for a site such as Sioux Falls
+    pipeline_name: "Volunteer_fargo", // in our DB has an id of 1
+    statuses:[ // this key contains the array of swimlane objects
+        { // this object describes the swim lane
+            status: "Interview", 
+            applicants: 
+              [
+                { // this object describes the individual
+                    user_firstName:"Jenny"
+                    id: 1
+                    username: "jenny@email.com"
+                },
+                { user_firstName: "Bobby",
+                 id: 2,
+                 username: "bobby@email.com"
+                }
+              ]
+        },
+        {status: "Application Review"
+            applicants:
+            [ 
+              {
+                user_firstName: "Jill"
+                id:6
+                username:jill@email.com
+            }
+            {
+                user_firstName:"Jack"
+                id: 7
+                username:jack@email.com
+            }
+        {status: "Application Submitted"
+            applicants:
+            [ 
+              {
+                user_firstName: "John"
+                id:3
+                username:john@email.com
+            }
+            {
+                user_firstName:"Jane"
+                id: 7
+                username:jane@email.com
+            }
+ 
+                
+            ]
+        }
+    ] // end of statusus array
+} //end of pipeline object
+    
+*/
+// swim lanes: 1.Application Submitted, 2.Application Review, 3.Interview, 4.Background Check 5. Verified/Accepted
 /**
  * @swagger
  * paths:
