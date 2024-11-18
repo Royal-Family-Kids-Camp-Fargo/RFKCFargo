@@ -3,6 +3,7 @@
  * Sessions should handle login, logout, and password reset.
  * Users should handle CRUD for users.
  */
+
 const express = require('express');
 const encryptLib = require('../modules/encryption');
 const pool = require('../modules/pool');
