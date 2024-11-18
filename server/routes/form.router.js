@@ -15,7 +15,6 @@ const router = express.Router();
  * 
  *  Post Sections
  *  get sections w/ questions
- * 
  *  archive questions
  * 
  * Submission
