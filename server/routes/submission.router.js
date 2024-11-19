@@ -30,7 +30,7 @@ router.get('/:submissionId', (req, res) => {
                     where question.id = answer.question_id
                 ),
                 'answer', answer.answer,
-                'answer_id', answer.id,
+                'answer_id', answer.id
                 )
             )
             from answer
