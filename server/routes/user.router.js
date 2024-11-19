@@ -107,9 +107,15 @@ router.get('/', (req, res) => {
  */
 
 router.get('/:userId', rejectUnauthenticated, (req, res) => {
-  // TODO: Add a check to see if the user is in the chapter_user table for the logged in user. Return a 404 if the user is not found. 
+  // TODO: Add a check to see if the user is in the chapter_user table for the logged in user. Return a 404 if the user is not found.
   const queryText = `
-  SELECT id, username, first_name, last_name, created_at, updated_at FROM "user" WHERE id = $1;
+     SELECT "user"."id", "user"."username", "user"."first_name", "user"."last_name", "user"."phone_number", "location"."name" AS "location_name" , "pipeline_status"."name" AS "pipeline_status_name", "pipeline"."name" AS "pipeline_name" FROM "user" 
+      JOIN "user_location" ON "user_location"."user_id" = "user"."id"
+      JOIN "location" ON "location"."id" = "user_location"."location_id"
+      JOIN "user_status" ON "user_status"."user_id" = "user"."id"
+      JOIN "pipeline_status" ON "pipeline_status"."id"= "user_status"."pipeline_status_id"
+      JOIN "pipeline" ON "pipeline"."id" = "pipeline_status"."pipeline_id"
+     WHERE "user"."id" = $1;
   `;
   pool
     .query(queryText, [req.params.userId])

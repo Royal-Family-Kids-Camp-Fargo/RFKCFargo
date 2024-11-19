@@ -1,12 +1,14 @@
 import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
+
 import useStore from '../../zustand/store';
 import Nav from '../Nav/Nav';
 import HomePage from '../HomePage/HomePage';
 import LoginPage from '../LoginPage/LoginPage';
 import RegisterPage from '../RegisterPage/RegisterPage';
 import Pipeline from '../Pipeline/Pipeline';
+import Profile from '../Profile/Profile';
 
 function App() {
   const user = useStore((state) => state.user);
@@ -46,8 +48,10 @@ function App() {
               )
             }
           />
+          <Route exact path='/profile/:userId' Component={Profile} />
 
           <Route exact path='/pipeline' Component={Pipeline} />
+
           <Route
             exact
             path='/registration'
