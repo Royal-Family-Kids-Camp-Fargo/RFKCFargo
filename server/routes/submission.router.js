@@ -47,6 +47,28 @@ router.get('/:submissionId', (req, res) => {
     });
 })
 
+// deletes submission by id. Answers get cascade deleted upon submission deletion.
+router.delete('/:submissionId', (req, res) => {
+    const queryText = `
+        delete from submission where id = $1;
+    `
+    pool.query(queryText, [req.params.submissionId]).then(reponse => {
+        res.send(201);
+    }).catch(err => {
+        console.error('Error deleting submission', err);
+        res.send(500);
+    })
+})
+
+// Put for submission. Saves progress.
+
+
+// Post for submission. Saves progress and sets submission to finished.
+
+router.post('/', (req, res) => {
+    // req.body contains the form_id, user_id, and a list of potential answers
+
+})
 
 
 module.exports = router;
