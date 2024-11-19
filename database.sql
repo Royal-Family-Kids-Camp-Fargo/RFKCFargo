@@ -7,6 +7,7 @@ CREATE TABLE "user" (
 "password" VARCHAR (1000) NOT NULL,
 "first_name" VARCHAR (35),
 "last_name" VARCHAR(30),
+"phone_number" VARCHAR(15),
 "created_at" timestamp default (now() at time zone 'utc'),
 "updated_at" timestamp default (now() at time zone 'utc')
 );
