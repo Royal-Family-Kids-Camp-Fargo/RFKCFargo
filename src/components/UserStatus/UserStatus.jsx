@@ -39,6 +39,7 @@ export default function UserStatus({ person }) {
     return (
       <div key={person.id} style={{ border: '1px solid black' }} onClick={() => goToProfile(person.id)}>
         <p>
+
           {person.user_firstName} {person.user_lastName}
         </p>
         <p> {person.phoneNumber}</p>
