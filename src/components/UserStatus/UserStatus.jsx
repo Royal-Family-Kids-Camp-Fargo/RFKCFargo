@@ -1,16 +1,31 @@
 import { useState } from 'react';
 import useStore from '../../zustand/store';
+import axios from 'axios';
 
 export default function UserStatus({ person }) {
   const statuses = useStore((state) => state.selectedPipeline.statuses);
   const [pipelineStatus, setPipelineStatus] = useState('');
+  const mySelectedPipeline = useStore((state) => state.selectedPipeline);
+  const fetchPipelineById = useStore((state) => state.fetchPipelineById);
 
   const moveLane = (p) => {
     console.log('moving person to next lane...', p);
     console.log('pipeline status to move to...', pipelineStatus);
 
     // need pipeline_status_id AND the user_id
+    // axios call to endpoint PUT: /api/pipeline/user_status
+    // build up the object: {pipeline_status_id: pipelineStatus, user_id: p.id}
+    axios
+      .put('/api/pipeline/user_status', { pipeline_status_id: pipelineStatus, user_id: p.id })
+      .then((response) => {
+        console.log('moved swim lanes OK');
+        // look to refresh the data...
+        console.log('mySelectedPipeline', mySelectedPipeline);
+        fetchPipelineById(mySelectedPipeline.pipeline_id);
+      })
+      .catch((error) => console.log('Error in moving swim lanes', error));
   };
+
   if (person.id) {
     return (
       <div key={person.id}>
