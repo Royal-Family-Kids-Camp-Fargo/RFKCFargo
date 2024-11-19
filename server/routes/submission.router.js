@@ -61,7 +61,44 @@ router.delete('/:submissionId', (req, res) => {
 })
 
 // Put for submission. Saves progress.
+router.put('/', async (req, res) => {
+    const OldSubmission = req.body.OldSubmission;
+    const NewSubmission = req.body.NewSubmission;
+    const oldAnswerIds = [];
+    for(let i = 0; i < OldSubmission.answers.length; i++){
+        oldAnswerIds.push(OldSubmission.answers[i].answer_id);
+    }
 
+    // I could just do a 'delete where submission id = req.params' but I need to do the delete second to ensure the safety of the data.
+    const clearQuery = `
+        delete from answer
+        where id in (${oldAnswerIds.join(', ')});
+    `;
+
+    const addQuery = `
+        insert into answer ( "submission_id", "question_id", "user_id", "answer")
+        values 
+    `;
+    let sanitizedAnswers = [];
+    let sanitizedAnswersTracker = 1;
+    for(let i = 0; i < NewSubmission.answers.length; i++){
+        sanitizedAnswers.push(NewSubmission.answers[i].answer);
+        addQuery +=`
+        ( ${NewSubmission.id}, ${NewSubmission.answers[i].question[0].question_Id}, ${req.user.id}, $${sanitizedAnswersTracker++})
+        `;
+        if( i < NewSubmission.answers.length - 1){
+            addQuery += ',';
+        }
+    }
+    try {
+        await pool.query(addQuery, [...sanitizedAnswers]);
+        await pool.query(clearQuery);
+        res.send(200);
+    } catch (error) {
+        console.log('Error saving form progress.', err);
+        res.send(error).status(500);
+    }
+})
 
 // Post for submission. Saves progress and sets submission to finished.
 
