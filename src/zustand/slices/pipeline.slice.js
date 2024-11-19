@@ -14,6 +14,7 @@ const createPipelineSlice = (set, get) => ({
       set({ pipelines: [] });
     }
   },
+
   fetchPipelineById: async (pipelineId) => {
     // Retrieves the selected pipeline from /api/pipeline/:pipelineId endpoint.
     // going to need a pipeline id as a payload from Pipeline component
