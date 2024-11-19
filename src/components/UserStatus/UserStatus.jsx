@@ -38,7 +38,11 @@ export default function UserStatus({ person }) {
   if (person.id) {
     return (
       <div key={person.id} style={{ border: '1px solid black' }} onClick={() => goToProfile(person.id)}>
-        {person.user_firstName}
+        <p>
+
+          {person.user_firstName} {person.user_lastName}
+        </p>
+        <p> {person.phoneNumber}</p>
 
         <div>
           <label htmlFor='PipelineStatus'>Pipeline status</label>

@@ -115,11 +115,13 @@ SELECT
                             SELECT json_agg(
                                 json_build_object(
                                     'user_firstName', "user"."first_name",
+                                    'user_lastName', "user"."last_name",
                                     'id', "user"."id",
                                     'username', "user"."username",
                                     'pipeline_status_id', "pipeline_status"."id",
                                     'status', "pipeline_status"."name",
-                                    'order', "pipeline_status"."order"
+                                    'order', "pipeline_status"."order",
+                                    'phoneNumber', "user"."phone_number"
                                 )
                             )
                             FROM "user"
