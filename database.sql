@@ -19,7 +19,7 @@ CREATE TABLE "location" (
 CREATE TABLE "user_location" (
 	"user_id" INT references "user" on delete cascade,
 	"location_id" INT references "location" on delete cascade,
-  "internal" BOOLEAN default 'false'
+ 	"internal" BOOLEAN default 'false'
 );
 
 CREATE TABLE "donation" (
