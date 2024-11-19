@@ -100,17 +100,23 @@ router.get('/:pipelineId', (req, res) => {
   const sqlQuery = `
 SELECT 
     json_build_object(
+        'pipeline_id', "pipeline"."id",
         'pipeline_name', "pipeline"."name", 
         'statuses', (
             SELECT json_agg(
                 json_build_object(
-                    'status', "pipeline_status"."name", 
+                    'pipeline_status_id', "pipeline_status"."id",
+                    'status', "pipeline_status"."name",
+                    'order', "pipeline_status"."order",
                     'applicants', (
                         SELECT json_agg(
                             json_build_object(
                                 'user_firstName', "user"."first_name",
                                 'id', "user"."id",
-                                'username', "user"."username"
+                                'username', "user"."username",
+                                'pipeline_status_id', "pipeline_status"."id",
+                                'status', "pipeline_status"."name",
+                                'order', "pipeline_status"."order"
                             )
                         )
                         FROM "user"
@@ -121,6 +127,7 @@ SELECT
             )
             FROM "pipeline_status"
             WHERE "pipeline_status"."pipeline_id" = "pipeline"."id"
+            
         )
     ) AS pipeline
 FROM 
@@ -337,7 +344,7 @@ router.delete('/:id', rejectUnauthenticated, (req, res) => {
  *       '401':
  *         description: Unauthorized
  */
-router.post('/status', rejectUnauthenticated, (req, res) => {
+router.post('/pipeline_status', rejectUnauthenticated, (req, res) => {
   const newLogQuery = `
   INSERT INTO "pipeline_status" 
     ("pipeline_id", "order", "name")
@@ -479,11 +486,11 @@ router.put('/pipeline_status/:id', rejectUnauthenticated, (req, res) => {
 router.post('/user_status', rejectUnauthenticated, (req, res) => {
   const newLogQuery = `
   INSERT INTO "user_status" 
-    ("user_id", "p_s_id")
+    ("user_id", "pipeline_status_id")
     VALUES ($1, $2);
   `;
   pool
-    .query(newLogQuery, [req.body.user_id, req.body.p_s_id])
+    .query(newLogQuery, [req.body.user_id, req.body.pipeline_status_id])
     .then((results) => {
       console.log(
         `User status created: User ID ${req.body.user_id} moved to Pipeline Status ID ${req.body.pipeline_status_id}`
