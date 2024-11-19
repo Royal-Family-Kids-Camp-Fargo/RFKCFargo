@@ -6,6 +6,7 @@ function RegisterPage() {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const register = useStore((state) => state.register);
   const errorMessage = useStore((state) => state.authErrorMessage);
   const setAuthErrorMessage = useStore((state) => state.setAuthErrorMessage);
@@ -25,6 +26,7 @@ function RegisterPage() {
       password: password,
       first_name: firstName,
       last_name: lastName,
+      phone_number: phoneNumber,
     });
   };
 
@@ -42,7 +44,16 @@ function RegisterPage() {
         <input type='text' id='firstName' required value={firstName} onChange={(e) => setFirstName(e.target.value)} />
 
         <label htmlFor='lastName'>Last Name</label>
-        <input type='text' id='password' required value={lastName} onChange={(e) => setLastName(e.target.value)} />
+        <input type='text' id='lastName' required value={lastName} onChange={(e) => setLastName(e.target.value)} />
+
+        <label htmlFor='phoneNumber'>Phone Number</label>
+        <input
+          type='text'
+          id='phoneNumber'
+          required
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
+        />
 
         <button type='submit'>Register</button>
       </form>

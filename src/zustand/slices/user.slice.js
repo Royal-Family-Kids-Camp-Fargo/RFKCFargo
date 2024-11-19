@@ -5,9 +5,9 @@ import axios from 'axios';
 // inside every request's header
 axios.defaults.withCredentials = true;
 
-
 const createUserSlice = (set, get) => ({
   user: {},
+  userById: {},
   authErrorMessage: '',
   fetchUser: async () => {
     //  Retrieves the current user's data from the /api/user endpoint.
@@ -16,9 +16,19 @@ const createUserSlice = (set, get) => ({
       set({ user: data });
     } catch (err) {
       console.log('fetchUser error:', err);
-      set({user : {}});
+      set({ user: {} });
     }
   },
+  fetchUserById: async (userId) => {
+    try {
+      const { data } = await axios.get(`/api/user/${userId}`);
+      set({ userById: data[0] }); //this was an array, index 0 to get the only one
+    } catch (err) {
+      console.error('fetchUserById error:', err);
+      set({ userById: {} });
+    }
+  },
+
   register: async (newUserCredentials) => {
     // Registers a new user by sending a POST request to
     // /api/user/register, and then attempts to log them in.
@@ -34,7 +44,7 @@ const createUserSlice = (set, get) => ({
   logIn: async (userCredentials) => {
     // Logs in an existing user by sending a POST request
     // to /api/user/login and then retrieves their data.
-    get().setAuthErrorMessage('')
+    get().setAuthErrorMessage('');
     try {
       await axios.post('/api/user/login', userCredentials);
       get().fetchUser();
@@ -50,21 +60,20 @@ const createUserSlice = (set, get) => ({
       }
     }
   },
-  logOut : async () => {
+  logOut: async () => {
     // Logs out the current user by sending a POST request to
     // /api/user/logout, and then clears their data.
     try {
       await axios.post('/api/user/logout');
-      set({user : {}});
+      set({ user: {} });
     } catch (err) {
       console.log('logOut error:', err);
     }
   },
   setAuthErrorMessage: (message) => {
     // Sets an error message for authentication-related issues.
-    set({authErrorMessage : message})
-  }
-})
-
+    set({ authErrorMessage: message });
+  },
+});
 
 export default createUserSlice;
