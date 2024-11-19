@@ -98,48 +98,94 @@ router.get('/', (req, res) => {
 router.get('/:pipelineId', (req, res) => {
   const pipelineId = req.params.pipelineId; //for example, the Volunteer_fargo pipeline Id
   const sqlQuery = `
+
 SELECT 
     json_build_object(
         'pipeline_id', "pipeline"."id",
         'pipeline_name', "pipeline"."name", 
         'statuses', (
-            SELECT json_agg(
-                json_build_object(
-                    'pipeline_status_id', "pipeline_status"."id",
-                    'status', "pipeline_status"."name",
-                    'order', "pipeline_status"."order",
-                    'applicants', (
-                        SELECT json_agg(
-                            json_build_object(
-                                'user_firstName', "user"."first_name",
-                                'id', "user"."id",
-                                'username', "user"."username",
-                                'pipeline_status_id', "pipeline_status"."id",
-                                'status', "pipeline_status"."name",
-                                'order', "pipeline_status"."order"
+            SELECT json_agg(status_ordered)
+            FROM (
+                SELECT 
+                    json_build_object(
+                        'pipeline_status_id', "pipeline_status"."id",
+                        'status', "pipeline_status"."name",
+                        'order', "pipeline_status"."order",
+                        'applicants', (
+                            SELECT json_agg(
+                                json_build_object(
+                                    'user_firstName', "user"."first_name",
+                                    'id', "user"."id",
+                                    'username', "user"."username",
+                                    'pipeline_status_id', "pipeline_status"."id",
+                                    'status', "pipeline_status"."name",
+                                    'order', "pipeline_status"."order"
+                                )
                             )
+                            FROM "user"
+                            JOIN "user_status" ON "user_status"."user_id" = "user"."id"
+                            WHERE "user_status"."pipeline_status_id" = "pipeline_status"."id"
                         )
-                        FROM "user"
-                        JOIN "user_status" ON "user_status"."user_id" = "user"."id"
-                        WHERE "user_status"."pipeline_status_id" = "pipeline_status"."id"
-                    )
-                )
-            )
-            FROM "pipeline_status"
-            WHERE "pipeline_status"."pipeline_id" = "pipeline"."id"
-            
+                    ) AS status_ordered
+                FROM "pipeline_status"
+                WHERE "pipeline_status"."pipeline_id" = "pipeline"."id"
+                ORDER BY "pipeline_status"."order"
+            ) AS ordered_statuses
         )
     ) AS pipeline
 FROM 
     "pipeline"
 WHERE 
-    "pipeline"."id" = $1; 
+    "pipeline"."id" = $1;
 
 `;
+
+  //   const sqlQuery = `
+  // SELECT
+  //     json_build_object(
+  //         'pipeline_id', "pipeline"."id",
+  //         'pipeline_name', "pipeline"."name",
+  //         'statuses', (
+  //             SELECT json_agg(
+  //                 json_build_object(
+  //                     'pipeline_status_id', "pipeline_status"."id",
+  //                     'status', "pipeline_status"."name",
+  //                     'order', "pipeline_status"."order",
+  //                     'applicants', (
+  //                         SELECT json_agg(
+  //                             json_build_object(
+  //                                 'user_firstName', "user"."first_name",
+  //                                 'id', "user"."id",
+  //                                 'username', "user"."username",
+  //                                 'pipeline_status_id', "pipeline_status"."id",
+  //                                 'status', "pipeline_status"."name",
+  //                                 'order', "pipeline_status"."order"
+  //                             )
+  //                         )
+  //                         FROM "user"
+  //                         JOIN "user_status" ON "user_status"."user_id" = "user"."id"
+  //                         WHERE "user_status"."pipeline_status_id" = "pipeline_status"."id"
+
+  //                     )
+  //                 )
+  //             )
+  //             FROM "pipeline_status"
+  //             WHERE "pipeline_status"."pipeline_id" = "pipeline"."id"
+  //             ORDER BY "pipeline_status"."order"
+
+  //         )
+  //     ) AS pipeline
+  // FROM
+  //     "pipeline"
+  // WHERE
+  //     "pipeline"."id" = $1;
+
+  // `;
 
   pool
     .query(sqlQuery, [pipelineId])
     .then((result) => {
+      console.log('query result', result.rows[0].pipeline);
       res.send(result.rows[0].pipeline);
     })
     .catch((error) => {
