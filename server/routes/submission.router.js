@@ -72,7 +72,7 @@ router.put('/', async (req, res) => {
     // I could just do a 'delete where submission id = req.params' but I need to do the delete second to ensure the safety of the data.
     const clearQuery = `
         delete from answer
-        where id in (${oldAnswerIds.join(', ')});
+        where id in ( 0, ${oldAnswerIds.join(', ')});
     `;
 
     const addQuery = `
@@ -100,11 +100,32 @@ router.put('/', async (req, res) => {
     }
 })
 
-// Post for submission. Saves progress and sets submission to finished.
-
+// Put for submission. Sets submission to finished.
+router.put('/:submissionId/submit', (req, res) => {
+    const queryText = `
+        update submission
+        set finished_at = now()
+        where id = $1;
+    `
+    pool.query(queryText, [req.params.submissionId]).then(response => {
+        res.send(200);
+    }).catch(err => {
+        console.error('Error submitting submission.', err);
+        res.send(500);
+    })
+})
+// Post for new form
 router.post('/', (req, res) => {
-    // req.body contains the form_id, user_id, and a list of potential answers
-
+    const queryText = `
+        insert into submission ( user_id, form_id, started_at)\
+        values ( $1, $2, now() );
+    `
+    pool.query(queryText, [req.user.id, req.body.form_id]).then(response => {
+        res.send(200);
+    }).catch(err => {
+        console.error('Error posting new submission', err);
+        res.send(err).status(500);
+    })
 })
 
 
