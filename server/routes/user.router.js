@@ -21,7 +21,7 @@ const router = express.Router();
  * /api/user:
  *   get:
  *     summary: Get the current authenticated user or an empty object if not authenticated
- *     tags: [Session]
+ *     tags: Session
  *     responses:
  *       200:
  *         description: Successfully retrieved user data if authenticated, or an empty object if not authenticated
@@ -43,7 +43,6 @@ const router = express.Router();
  *       404:
  *         description: Not found, in case the endpoint is incorrectly configured or the resource is not available
  */
-
 router.get('/', (req, res) => {
   if (req.isAuthenticated()) {
     res.send(req.user);
@@ -54,58 +53,56 @@ router.get('/', (req, res) => {
 
 /**
  * @swagger
- * /api/user/{userId}:
+ * /api/user/:userId:
  *   get:
- *     summary: Get user information by user ID
- *     description: Fetches user details by the provided user ID. The route returns the user's information (username, first name, last name, etc.) if the user exists. If there’s an error or the user doesn’t exist, an error message will be returned.
- *     tags: [User]
+ *     summary: Get detailed user profile information by user ID
+ *     description: Retrieves user profile details, including username, first name, last name, phone number, name of pipeline(s) user is on, status on that pipeline, and location(s) user is attached to.
+ *     tags:
+ *       - Users
  *     parameters:
- *       - in: path
- *         name: userId
+ *       - name: userId
+ *         in: path
  *         required: true
- *         description: The ID of the user to retrieve
+ *         description: The ID of the user to retrieve.
  *         schema:
  *           type: integer
  *     responses:
  *       200:
- *         description: Successfully retrieved user information
+ *         description: Successfully retrieved user information.
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                     description: The user's ID
- *                   username:
- *                     type: string
- *                     description: The user's username
- *                   first_name:
- *                     type: string
- *                     description: The user's first name
- *                   last_name:
- *                     type: string
- *                     description: The user's last name
- *                   created_at:
- *                     type: string
- *                     format: date-time
- *                     description: The timestamp when the user was created
- *                   updated_at:
- *                     type: string
- *                     format: date-time
- *                     description: The timestamp when the user was last updated
- *       400:
- *         description: Bad request, invalid user ID format or missing parameters
- *       401:
- *         description: Unauthorized, user is not authenticated
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   description: User ID.
+ *                 username:
+ *                   type: string
+ *                   description: Username of the user.
+ *                 first_name:
+ *                   type: string
+ *                   description: First name of the user.
+ *                 last_name:
+ *                   type: string
+ *                   description: Last name of the user.
+ *                 phone_number:
+ *                   type: string
+ *                   description: User's phone number.
+ *                 location_name:
+ *                   type: string
+ *                   description: Name of the location associated with the user.
+ *                 pipeline_status_name:
+ *                   type: string
+ *                   description: Name of the user's pipeline status.
+ *                 pipeline_name:
+ *                   type: string
+ *                   description: Name of the pipeline associated with the user's status.
  *       404:
- *         description: User not found, no user exists with the provided ID
+ *         description: User not found or not in the chapter_user table.
  *       500:
- *         description: Internal server error, issue with the database or server
+ *         description: Server error while retrieving user information.
  */
-
 router.get('/:userId', rejectUnauthenticated, (req, res) => {
   // TODO: Add a check to see if the user is in the chapter_user table for the logged in user. Return a 404 if the user is not found.
   const queryText = `
@@ -123,7 +120,7 @@ router.get('/:userId', rejectUnauthenticated, (req, res) => {
       res.send(result.rows);
     })
     .catch((error) => {
-      console.log('error getting user by id', error);
+      console.log(`Error fetching user by ID ${req.params.userId} in route GET /:userId:`, error);
       res.sendStatus(500);
     });
 });
@@ -132,55 +129,61 @@ router.get('/:userId', rejectUnauthenticated, (req, res) => {
 // The password is hashed before being added to the database.
 /**
  * @swagger
- * /api/user/register:
+ * api/user/register:
  *   post:
  *     summary: Register a new user
- *     tags: [User]
+ *     description: Creates a new user in the system by storing their username, hashed password, first name, last name, and phone number in the database.
+ *     tags:
+ *       - Users
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - username
- *               - password
  *             properties:
  *               username:
  *                 type: string
- *                 description: Username of the user
+ *                 example: john@email.com
+ *                 description: email of the user.
  *               password:
  *                 type: string
- *                 description: Password of the user
+ *                 example: securepassword123
+ *                 description: Plain text password to be hashed and stored.
  *               first_name:
  *                 type: string
- *                 description: First name of the user
+ *                 example: John
+ *                 description: First name of the user.
  *               last_name:
  *                 type: string
- *                 description: Last name of the user
+ *                 example: Doe
+ *                 description: Last name of the user.
+ *               phone_number:
+ *                 type: string
+ *                 example: "1234567890"
+ *                 description: The user's phone number.
  *     responses:
  *       201:
- *         description: User registered successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               example: {}
+ *         description: User successfully created.
+ *       400:
+ *         description: Bad request, invalid input.
+ *       500:
+ *         description: Server error during registration.
  */
-
 router.post('/register', (req, res, next) => {
   const username = req.body.username;
   const hashedPassword = encryptLib.encryptPassword(req.body.password);
   const first_name = req.body.first_name;
   const last_name = req.body.last_name;
+  const phone_number = req.body.phone_number;
 
   const sqlText = `
     INSERT INTO "user"
-      ("username", "password", "first_name", "last_name")
+      ("username", "password", "first_name", "last_name", "phone_number")
       VALUES
       ($1, $2, $3, $4);
   `;
-  const sqlValues = [username, hashedPassword, first_name, last_name];
+  const sqlValues = [username, hashedPassword, first_name, last_name, phone_number];
 
   pool
     .query(sqlText, sqlValues)
@@ -188,7 +191,7 @@ router.post('/register', (req, res, next) => {
       res.sendStatus(201);
     })
     .catch((dbErr) => {
-      console.log('POST /api/user/register error: ', dbErr);
+      console.log('An unexpected error occurred while registering the user. error:', dbErr);
       res.sendStatus(500);
     });
 });
@@ -204,7 +207,7 @@ router.post('/register', (req, res, next) => {
  * /api/user/login:
  *   post:
  *     summary: Login a user
- *     tags: [Session]
+ *     tags: Session
  *     requestBody:
  *       required: true
  *       content:
@@ -216,7 +219,7 @@ router.post('/register', (req, res, next) => {
  *                 description: email of user
  *               password:
  *                 type: string
- *                 description: you can't see me
+ *                 description: password123
  *     responses:
  *       200:
  *         description: Login successful
@@ -226,7 +229,7 @@ router.post('/register', (req, res, next) => {
  *               properties:
  *                 message:
  *                   type: string
- *                   description: message of response
+ *                   description: error when logging in
  *       400:
  *         description: Invalid credentials
  */
@@ -263,69 +266,98 @@ router.post('/logout', (req, res, next) => {
 
 /**
  * @swagger
- * /api/user:
+ * /api/user/updateUser:
  *   put:
  *     summary: Update user information
- *     description: This endpoint allows users to update their username, password, first name, and last name.
+ *     description: Updates the user's information, including their username(email), first name, last name, and phone number.
  *     tags:
  *       - User
  *     requestBody:
- *       description: User data to update
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - username(email)
+ *               - first_name
+ *               - last_name
+ *               - phone_number
  *             properties:
  *               username:
  *                 type: string
- *                 description: The user's new username.
- *               password:
- *                 type: string
- *                 description: The user's new password.
+ *                 example: newuser123
+ *                 description: The updated username for the user.
  *               first_name:
  *                 type: string
- *                 description: The user's first name.
+ *                 example: Jane
+ *                 description: The updated first name of the user.
  *               last_name:
  *                 type: string
- *                 description: The user's last name.
+ *                 example: Doe
+ *                 description: The updated last name of the user.
+ *               phone_number:
+ *                 type: string
+ *                 example: "1234567890"
+ *                 description: The updated phone number of the user.
  *     responses:
  *       200:
- *         description: User information updated successfully.
+ *         description: User information successfully updated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User information updated successfully"
  *       400:
- *         description: Bad request, missing required fields or invalid data.
+ *         description: Bad request, missing required fields or invalid input.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "All fields are required"
+ *       401:
+ *         description: Unauthorized, user is not authenticated.
  *       500:
- *         description: Internal server error, problem updating user information.
- *     security:
- *       - bearerAuth: []
+ *         description: Server error occurred while updating user information.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "An error occurred while updating user information. Please try again later."
  */
-
-router.put('/', rejectUnauthenticated, (req, res, next) => {
+router.put('/updateUser', rejectUnauthenticated, (req, res, next) => {
   const username = req.body.username;
-  const hashedPassword = encryptLib.encryptPassword(req.body.password);
   const first_name = req.body.first_name;
   const last_name = req.body.last_name;
+  const phone_number = req.body.phone_number;
 
   const sqlText = `
     UPDATE "user"
     SET 
       "username" = $1,
-      "password" = $2,
-      "first_name" = $3,
-      "last_name" = $4
+      "first_name" = $2,
+      "last_name" = $3,
+      "phone_number" = $4
     WHERE "id" = $5;
   `;
-
-  const sqlValues = [req.body.username, hashedPassword, req.body.first_name, req.body.last_name, req.user.id];
-
+  const sqlValues = [username, first_name, last_name, phone_number, req.user.id];
   pool
     .query(sqlText, sqlValues)
     .then((result) => {
-      console.log('User information has been updated');
+      console.log('User information has been updated for user ID:', req.user.id);
       res.sendStatus(200);
     })
     .catch((error) => {
-      console.log(`Error making database query when updating user info ${sqlText}`, error);
+      console.log(`An error occured while updating user information`, error);
       res.sendStatus(500);
     });
 });
