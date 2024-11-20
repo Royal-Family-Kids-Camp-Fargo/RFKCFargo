@@ -298,11 +298,13 @@ WHERE
 router.post('/', rejectUnauthenticated, (req, res) => {
   const newLogQuery = `
   INSERT INTO "pipeline" 
-    ("name")
-    VALUES ($1);
+    ("name", "type")
+    VALUES ($1, $2) RETURNING id;
   `;
+  // will need to use the NEW pipeline id to insert new records into the pipeline_status
+  // const volunteer = [{order: 1, name: 'application submitted}, {...the other status go here}];
   pool
-    .query(newLogQuery, [req.body.name])
+    .query(newLogQuery, [req.body.name, req.body.type])
     .then((results) => {
       console.log('Pipeline name POSTed');
       res.sendStatus(201);
