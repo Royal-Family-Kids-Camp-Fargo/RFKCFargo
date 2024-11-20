@@ -105,40 +105,41 @@ INSERT INTO "forms" ("name") VALUES
 
 -- Seed data for sections
 INSERT INTO "sections" ("name", "description", "form_id", "order") VALUES
-('Personal Information', 'Basic details about the applicant', 1, 1),
-('Volunteer Experience', 'Details about past volunteering work', 1, 2),
-('Availability', 'Check your availability for volunteering', 1, 3),
-('Skills and Preferences', 'Specific skills and preferences related to volunteering', 1, 4);
+('Personal Information', 'Basic details about the applicant', (SELECT id FROM "forms" WHERE "name" = 'Volunteer Application Form'), 1),
+('Volunteer Experience', 'Details about past volunteering work', (SELECT id FROM "forms" WHERE "name" = 'Volunteer Application Form'), 2),
+('Availability', 'Check your availability for volunteering', (SELECT id FROM "forms" WHERE "name" = 'Volunteer Application Form'), 3),
+('Skills and Preferences', 'Specific skills and preferences related to volunteering', (SELECT id FROM "forms" WHERE "name" = 'Volunteer Application Form'), 4);
+
 
 -- Seed data for questions
 INSERT INTO "question" ("question", "description", "answer_type", "order", "section_id") VALUES
 -- Section 1: Personal Information
-('What is your full name?', 'Please enter your first and last name.', 'text', 1, 1),
-('What is your date of birth?', 'Enter in the format YYYY-MM-DD.', 'text', 2, 1),
-('What is your email address?', 'This will be used to contact you.', 'text', 3, 1),
-('What is your phone number?', 'Include country code if applicable.', 'text', 4, 1),
-('Do you have any dietary restrictions?', 'Specify if applicable.', 'multiple_choice', 5, 1),
+('What is your full name?', 'Please enter your first and last name.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Personal Information')),
+('What is your date of birth?', 'Enter in the format YYYY-MM-DD.', 'text', 2,  (SELECT id FROM "sections" WHERE "name" = 'Personal Information')),
+('What is your email address?', 'This will be used to contact you.', 'text', 3,  (SELECT id FROM "sections" WHERE "name" = 'Personal Information')),
+('What is your phone number?', 'Include country code if applicable.', 'text', 4,  (SELECT id FROM "sections" WHERE "name" = 'Personal Information')),
+('Do you have any dietary restrictions?', 'Specify if applicable.', 'multiple_choice', 5,  (SELECT id FROM "sections" WHERE "name" = 'Personal Information')),
 
 -- Section 2: Volunteer Experience
-('Have you volunteered with us before?', 'Provide details if applicable.', 'text', 1, 2),
-('How many years of volunteer experience do you have?', 'Specify in number of years.', 'text', 2, 2),
-('What type of volunteering have you done before?', 'List relevant types.', 'text', 3, 2),
-('Why are you interested in volunteering?', 'Briefly describe your motivation.', 'text', 4, 2),
-('What is your preferred volunteering activity?', 'Select one or more.', 'multiple_choice', 5, 2),
+('Have you volunteered with us before?', 'Provide details if applicable.', 'text', 1,  (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience')),
+('How many years of volunteer experience do you have?', 'Specify in number of years.', 'text', 2, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience')),
+('What type of volunteering have you done before?', 'List relevant types.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience')),
+('Why are you interested in volunteering?', 'Briefly describe your motivation.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience')),
+('What is your preferred volunteering activity?', 'Select one or more.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience')),
 
 -- Section 3: Availability
-('What days of the week are you available?', 'Select all that apply.', 'multiple_choice', 1, 3),
-('What time of the day works best for you?', 'Choose from the options.', 'multiple_choice', 2, 3),
-('How many hours can you commit each week?', 'Provide a rough estimate.', 'text', 3, 3),
-('Are you open to on-call volunteering?', 'Yes or No.', 'multiple_choice', 4, 3),
-('Do you have any upcoming commitments we should be aware of?', 'Provide details.', 'text', 5, 3),
+('What days of the week are you available?', 'Select all that apply.', 'multiple_choice', 1, (SELECT id FROM "sections" WHERE "name" = 'Availability')),
+('What time of the day works best for you?', 'Choose from the options.', 'multiple_choice', 2, (SELECT id FROM "sections" WHERE "name" = 'Availability')),
+('How many hours can you commit each week?', 'Provide a rough estimate.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Availability')),
+('Are you open to on-call volunteering?', 'Yes or No.', 'multiple_choice', 4, (SELECT id FROM "sections" WHERE "name" = 'Availability')),
+('Do you have any upcoming commitments we should be aware of?', 'Provide details.', 'text', 5, (SELECT id FROM "sections" WHERE "name" = 'Availability')),
 
 -- Section 4: Skills and Preferences
-('What skills do you bring to volunteering?', 'List relevant skills.', 'text', 1, 4),
-('Do you prefer working with children or adults?', 'Choose one.', 'multiple_choice', 2, 4),
-('Are you comfortable leading activities?', 'Yes or No.', 'multiple_choice', 3, 4),
-('Do you have any certifications related to volunteering?', 'Specify if applicable.', 'text', 4, 4),
-('What type of environment do you prefer?', 'Select one.', 'multiple_choice', 5, 4);
+('What skills do you bring to volunteering?', 'List relevant skills.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences')),
+('Do you prefer working with children or adults?', 'Choose one.', 'multiple_choice', 2, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences')),
+('Are you comfortable leading activities?', 'Yes or No.', 'multiple_choice', 3, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences')),
+('Do you have any certifications related to volunteering?', 'Specify if applicable.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences')),
+('What type of environment do you prefer?', 'Select one.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences'));
 
 -- Seed data for multiple_choice_answers
 INSERT INTO "multiple_choice_answers" ("question_id", "answer") VALUES
@@ -185,3 +186,42 @@ INSERT INTO "multiple_choice_answers" ("question_id", "answer") VALUES
 (20, 'Outdoor'),
 (20, 'Indoor'),
 (20, 'Flexible');
+
+-- username: test, password: password
+INSERT INTO "user" ("username","password","first_name","last_name","phone_number","created_at","updated_at")
+VALUES
+(E'test',E'$2a$10$yA4FmJp4bIGGFL.h9yQ1BOCIfrNForINAgDU9TdF/gzlmBJ7ZCvoO',E'jane',E'doe',NULL,E'2024-11-20 17:46:32.806801',E'2024-11-20 17:46:32.806801');
+
+INSERT INTO "submission" ("user_id", "form_id", "started_at", "finished_at")
+VALUES
+    (1, 1, NOW(), NOW());
+
+INSERT INTO "answer" ("question_id", "submission_id", "user_id", "answer", "created_at", "updated_at")
+VALUES
+    -- Section 1: Personal Information
+    (1, 1, 1, 'John Doe', NOW(), NOW()), 
+    (2, 1, 1, 'johndoe@example.com', NOW(), NOW()),
+    (3, 1, 1, '555-123-4567', NOW(), NOW()),
+    (4, 1, 1, 'I heard about this program through a friend.', NOW(), NOW()),
+    (5, 1, 1, 'No allergies.', NOW(), NOW()),
+
+    -- Section 2: Volunteer Experience
+    (6, 1, 1, 'Yes', NOW(), NOW()),
+    (7, 1, 1, 'Camp counselor, Logistics assistant', NOW(), NOW()),
+    (8, 1, 1, 'Yes, I worked as a teacher for 3 years.', NOW(), NOW()),
+    (9, 1, 1, 'Yes, I completed a safeguarding course.', NOW(), NOW()),
+    (10, 1, 1, 'I want to make a positive impact in the lives of children.', NOW(), NOW()),
+
+    -- Section 3: Availability
+    (11, 1, 1, 'Monday, Wednesday, Saturday', NOW(), NOW()),
+    (12, 1, 1, 'Yes', NOW(), NOW()),
+    (13, 1, 1, 'Evenings', NOW(), NOW()),
+    (14, 1, 1, 'Yes', NOW(), NOW()),
+    (15, 1, 1, 'Immediately', NOW(), NOW()),
+
+    -- Section 4: Skills and Preferences
+    (16, 1, 1, 'Team leadership, Conflict resolution, First aid', NOW(), NOW()),
+    (17, 1, 1, 'Organizing activities, Mentoring, Logistics', NOW(), NOW()),
+    (18, 1, 1, 'Yes', NOW(), NOW()),
+    (19, 1, 1, 'No', NOW(), NOW()),
+    (20, 1, 1, 'Outdoors', NOW(), NOW());
