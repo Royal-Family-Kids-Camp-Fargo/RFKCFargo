@@ -181,7 +181,7 @@ router.post('/register', (req, res, next) => {
     INSERT INTO "user"
       ("username", "password", "first_name", "last_name", "phone_number")
       VALUES
-      ($1, $2, $3, $4);
+      ($1, $2, $3, $4, $5);
   `;
   const sqlValues = [username, hashedPassword, first_name, last_name, phone_number];
 
