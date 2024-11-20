@@ -59,7 +59,7 @@ CREATE TABLE "submission" (
 "user_id" INT references "user",
 "form_id" INT references "forms",
 "started_at" timestamp default (now() at time zone 'utc'),
-"finished_at" timestamp default (now() at time zone 'utc')
+"finished_at" timestamp
 );
 
 CREATE TABLE "sections"(
@@ -109,6 +109,7 @@ INSERT INTO "sections" ("name", "description", "form_id", "order") VALUES
 ('Volunteer Experience', 'Details about past volunteering work', (SELECT id FROM "forms" WHERE "name" = 'Volunteer Application Form'), 2),
 ('Availability', 'Check your availability for volunteering', (SELECT id FROM "forms" WHERE "name" = 'Volunteer Application Form'), 3),
 ('Skills and Preferences', 'Specific skills and preferences related to volunteering', (SELECT id FROM "forms" WHERE "name" = 'Volunteer Application Form'), 4);
+
 
 -- Seed data for questions
 INSERT INTO "question" ("question", "description", "answer_type", "order", "section_id") VALUES
@@ -190,8 +191,6 @@ INSERT INTO "multiple_choice_answers" ("question_id", "answer") VALUES
 INSERT INTO "user" ("username","password","first_name","last_name","phone_number","created_at","updated_at")
 VALUES
 (E'test',E'$2a$10$yA4FmJp4bIGGFL.h9yQ1BOCIfrNForINAgDU9TdF/gzlmBJ7ZCvoO',E'jane',E'doe',NULL,E'2024-11-20 17:46:32.806801',E'2024-11-20 17:46:32.806801');
-
-
 
 INSERT INTO "submission" ("user_id", "form_id", "started_at", "finished_at")
 VALUES
