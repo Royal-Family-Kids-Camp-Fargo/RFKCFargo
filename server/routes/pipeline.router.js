@@ -28,29 +28,50 @@ const PIPELINE_STATUS_DONOR = [
 
 router.get('/search', (req, res) => {
   const searchTerm = req.query.term;
-  const [firstNamePart, lastNamePart] = searchTerm.split(' ');
+  // const [firstNamePart, lastNamePart] = searchTerm.split(' ');
 
-  console.log('First Name Part:', firstNamePart);
-  console.log('Last Name Part:', lastNamePart);
+  // console.log('First Name Part:', firstNamePart);
+  // console.log('Last Name Part:', lastNamePart);
+
+  // const sqlQuery = `
+  //   SELECT
+  //     "username",
+  //     "first_name",
+  //     "last_name",
+  //     GREATEST(
+  //       similarity("first_name", $1),
+  //       similarity("last_name", $2)
+  //     ) AS similarity_score
+  //   FROM "user"
+  //   WHERE
+  //     similarity("first_name", $1) > 0.2
+  //     AND similarity("last_name", $2) > 0.2
+  //   ORDER BY similarity_score DESC;
+  // `;
 
   const sqlQuery = `
-    SELECT 
-      "username", 
-      "first_name", 
-      "last_name", 
-      GREATEST(
-        similarity("first_name", $1), 
-        similarity("last_name", $2)
-      ) AS similarity_score
-    FROM "user"
-    WHERE 
-      similarity("first_name", $1) > 0.2
-      AND similarity("last_name", $2) > 0.2
-    ORDER BY similarity_score DESC;
+  SELECT 
+    "username", 
+    "first_name", 
+    "last_name",
+    "id",
+    GREATEST(
+        similarity("first_name", $1),
+        similarity("last_name", $1),
+        similarity(CONCAT("first_name", ' ', "last_name"), $1)
+    ) AS similarity_score
+FROM "user"
+WHERE 
+    similarity("first_name", $1) > 0.2
+    OR similarity("last_name", $1) > 0.2
+    OR similarity(CONCAT("first_name", ' ', "last_name"), $1) > 0.2
+ORDER BY similarity_score DESC;
+
+
   `;
 
   pool
-    .query(sqlQuery, [firstNamePart, lastNamePart])
+    .query(sqlQuery, [searchTerm])
     .then((result) => {
       if (result.rows.length === 0) {
         return res.status(404).send('No matching users found');
