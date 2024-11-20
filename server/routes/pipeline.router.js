@@ -4,6 +4,24 @@ const { rejectUnauthenticated } = require('../modules/authentication-middleware'
 
 const router = express.Router();
 
+// constant array for the volunteer pipeline type
+const PIPELINE_STATUS_VOLUNTEER = [
+  { order: 1, name: 'application submitted' },
+  { order: 2, name: 'application review' },
+  { order: 3, name: 'interview' },
+  { order: 4, name: 'background check' },
+  { order: 5, name: 'verified/accepted' },
+];
+
+// constant array for the donor pipeline type
+const PIPELINE_STATUS_DONOR = [
+  { order: 1, name: 'interested' },
+  { order: 2, name: 'discussed' },
+  { order: 3, name: 'check sent' },
+  { order: 4, name: 'check verified' },
+  { order: 5, name: 'donated' },
+];
+
 //
 // FUSSY SEARCH
 //
@@ -296,23 +314,62 @@ WHERE
  */
 // for future: add a reference column to location table
 router.post('/', rejectUnauthenticated, (req, res) => {
-  const newLogQuery = `
-  INSERT INTO "pipeline" 
+  const pipelineType = req.body.type;
+  const pipelineName = req.body.name;
+  // FIRST QUERY creates the pipeline
+  // protect the insert from bad data, or not in allowed list of pipeline types
+  if (!pipelineType || !['volunteer', 'donor'].includes(pipelineType)) {
+    res.send(400);
+    return;
+  } else {
+    const newLogQuery = `
+    INSERT INTO "pipeline" 
     ("name", "type")
     VALUES ($1, $2) RETURNING id;
   `;
-  // will need to use the NEW pipeline id to insert new records into the pipeline_status
-  // const volunteer = [{order: 1, name: 'application submitted}, {...the other status go here}];
-  pool
-    .query(newLogQuery, [req.body.name, req.body.type])
-    .then((results) => {
-      console.log('Pipeline name POSTed');
-      res.sendStatus(201);
-    })
-    .catch((error) => {
-      console.log('error in POST on pipeline', error);
-      res.sendStatus(400);
-    });
+    // will need to use the NEW pipeline id to insert new records into the pipeline_status
+    // const volunteer = [{order: 1, name: 'application submitted}, {...the other status go here}];
+    pool
+      .query(newLogQuery, [pipelineName, pipelineType])
+      .then((results) => {
+        console.log('Pipeline name POSTed');
+        const newPipelineId = results.rows[0].id;
+
+        // SECOND QUERY to create inserts to pipeline_status w/ the newPipelineId
+        // need to check the pipelineType, to ensure the correct constant array is used
+        // example, if (pipelineType === 'volunteer') {...need a loop to go through the PIPELINE_STATUS...}
+        // need queryString and another pool
+        const newPipeLineStatusQuery = `
+          INSERT INTO "pipeline_status" 
+          ("pipeline_id", "order", "name")
+          VALUES ($1, $2, $3);
+          `;
+        // which workflow do we use, check the pipeline type
+        if (pipelineType === 'volunteer') {
+          // loop my volunteer constant array (top of file)
+          PIPELINE_STATUS_VOLUNTEER.forEach((status) => {
+            pool.query(newPipeLineStatusQuery, [newPipelineId, status.order, status.name]).catch((error) => {
+              console.log('Error inserting pipeline status for volunteer', error);
+            });
+          });
+        } else if (pipelineType === 'donor') {
+          PIPELINE_STATUS_DONOR.forEach((status) => {
+            pool.query(newPipeLineStatusQuery, [newPipelineId, status.order, status.name]).catch((error) => {
+              console.log('Error inserting pipeline status for donor', error);
+            });
+          });
+        } else {
+          res.send(400);
+          return;
+        }
+
+        res.sendStatus(201);
+      })
+      .catch((error) => {
+        console.log('error in POST on pipeline', error);
+        res.sendStatus(400);
+      });
+  }
 });
 
 /**
