@@ -33,7 +33,8 @@ CREATE TABLE "donation" (
 
 CREATE TABLE "pipeline" (
 "id" SERIAL PRIMARY KEY,
-"name" VARCHAR(32)
+"name" VARCHAR(32),
+"type" VARCHAR(20)
 );
 
 CREATE TABLE "pipeline_status" (
