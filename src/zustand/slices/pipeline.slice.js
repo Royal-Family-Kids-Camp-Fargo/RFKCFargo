@@ -15,6 +15,18 @@ const createPipelineSlice = (set, get) => ({
     }
   },
 
+  addPipeline: async (newPipeline) => {
+    //  Post the pipeline data from the /api/pipeline endpoint.
+    try {
+      await axios.post('/api/pipeline', newPipeline);
+      //refresh the data in dropdown selections
+      get().fetchPipeline();
+      console.log('data refreshed');
+    } catch (err) {
+      console.log('error creating new pipeline', err);
+    }
+  },
+
   fetchPipelineById: async (pipelineId) => {
     // Retrieves the selected pipeline from /api/pipeline/:pipelineId endpoint.
     // going to need a pipeline id as a payload from Pipeline component
