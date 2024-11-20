@@ -59,7 +59,7 @@ CREATE TABLE "submission" (
 "user_id" INT references "user",
 "form_id" INT references "forms",
 "started_at" timestamp default (now() at time zone 'utc'),
-"finished_at" timestamp default (now() at time zone 'utc')
+"finished_at" timestamp
 );
 
 CREATE TABLE "sections"(

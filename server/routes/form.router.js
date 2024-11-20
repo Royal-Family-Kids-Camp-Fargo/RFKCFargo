@@ -48,6 +48,7 @@ select
 					json_agg(
 						json_build_object(
 							'type', 'Question',
+							'id', question.id,
 							'question', question.question,
 							'description', question.description,
 							'order', question."order",
