@@ -9,6 +9,7 @@ import LoginPage from '../LoginPage/LoginPage';
 import RegisterPage from '../RegisterPage/RegisterPage';
 import Pipeline from '../Pipeline/Pipeline';
 import Profile from '../Profile/Profile';
+import FormPage from '../FormPage/FormPage';
 
 function App() {
   const user = useStore((state) => state.user);
@@ -18,6 +19,13 @@ function App() {
     fetchUser();
   }, [fetchUser]);
 
+  // Debug Helper
+  const store = useStore(store => store);
+  useEffect(() => {
+    console.log(`Current Store: `, store);
+  }, [store])
+
+  console.log(`user:`, user);
   return (
     <>
       <header>
@@ -60,6 +68,17 @@ function App() {
                 <Navigate to='/' replace /> // Redirect authenticated user.
               ) : (
                 <RegisterPage /> // Render RegisterPage for unauthenticated user.
+              )
+            }
+          />
+          <Route
+            exact
+            path='/form/:formId/:sectionIndex'
+            element={
+              user.id ? (
+                <FormPage /> // Render Form Page for authenticated user.
+              ) : (
+                <LoginPage />
               )
             }
           />
