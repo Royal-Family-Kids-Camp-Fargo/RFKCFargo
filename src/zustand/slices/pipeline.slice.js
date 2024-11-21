@@ -75,15 +75,14 @@ const createPipelineSlice = (set, get) => ({
     }
   },
 
-moveUserOnPipeline: async (moveObject) => {
-   try {
-    await axios.put('/api/pipeline/user_status', moveObject);
-    console.log('user has been moved on the pipeline');
-    get().fetchPipelineById(pipelineId);
+  // moveUserOnPipeline: async (moveObject) => {
+  //    try {
+  //     await axios.put('/api/pipeline/user_status', moveObject);
+  //     console.log('user has been moved on the pipeline');
+  //     get().fetchPipelineById(pipelineId);
 
-   }
-}
-
+  //    }
+  // }
 
   deleteUserFromPipeline: async (userId, pipelineStatusId, pipelineId) => {
     try {
