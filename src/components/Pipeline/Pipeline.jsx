@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import useStore from '../../zustand/store';
 import PipelineStatus from '../PipelineStatus/PipelineStatus';
+import PipelineForm from '../PipelineForm/PipelineForm';
 
 export default function Pipeline() {
   const pipelines = useStore((state) => state.pipelines);
@@ -9,6 +10,7 @@ export default function Pipeline() {
   const fetchPipelineById = useStore((state) => state.fetchPipelineById);
 
   const [pipelineId, setPipelineId] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     fetchPipeline();
@@ -23,6 +25,7 @@ export default function Pipeline() {
       <div>
         <h1>Pipeline page!</h1>
       </div>
+      <button onClick={() => setShowModal(!showModal)}>Show Modal</button>
       <div>
         <label htmlFor='pipelines'>Choose pipeline</label>
         <select value={pipelineId} onChange={(event) => setPipelineId(event.target.value)}>
@@ -44,6 +47,11 @@ export default function Pipeline() {
             </div>
           ))}
       </div>
+      {showModal && (
+       
+          <PipelineForm setShowModal={setShowModal} />
+
+      )}
     </>
   );
 }
