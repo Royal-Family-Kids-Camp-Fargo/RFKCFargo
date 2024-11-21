@@ -24,7 +24,7 @@ export default function Section({ currentForm, currentSubmission }) {
     const { submissionId, sectionIndex } = useParams();
     const navigate = useNavigate();
 
-    const currentSection = currentForm.sections[Number(sectionIndex)];
+    const currentSection = currentForm.sections.sort((a,b) => a.order - b.order)[Number(sectionIndex)];
     const isLastSection = Number(sectionIndex) + 1 >= currentForm.sections.length;
 
     // Generates a default state like {5: {question_id: 5, answer: '', answer_id: 10}}
@@ -43,16 +43,21 @@ export default function Section({ currentForm, currentSubmission }) {
     }
 
     useEffect(() => {
-        setAnswers(currentSection.questions.reduce((prev, question) => (
-            {
-                ...prev,
-                [question.id]: {
-                    question_id: question.id,
-                    answer: currentSubmission.answers.find(a => String(a.question_id) === String(question.id))?.answer || '',
-                    // look for existing answer in the submission's answer array
-                    answer_id: currentSubmission.answers.find(a => String(a.question_id) === String(question.id))?.answer_id
-                }
-            }), {})
+        // Build a place for every questions's answers, accounting for answers 
+        // that have already been saved by the user.
+        setAnswers(currentSection.questions.reduce((prev, question) => {
+            const foundAnswer = currentSubmission.answers.find(a => String(a.question_id) === String(question.id));
+            return (
+                {
+                    ...prev,
+                    [question.id]: {
+                        question_id: question.id,
+                        answer: foundAnswer?.answer || '',
+                        // look for existing answer in the submission's answer array
+                        answer_id: foundAnswer?.answer_id // backend will UPDATE instead of INSERT if `answer_id` is present
+                    }
+                })
+        }, {})
         );
     }, [currentSection, currentSubmission])
 
@@ -65,6 +70,9 @@ export default function Section({ currentForm, currentSubmission }) {
             // this was the final step
             finishSubmission(currentSubmission.id);
             // navigate user to somewhere else?
+            navigate('/finish')
+// TO DO: If form has a pipeline id, add the user to a pipeline automatically once they submit the form.
+// @jenny
         } else if (event.nativeEvent.submitter.name === "next") {
             const nextSectionIndex = Number(sectionIndex) + 1;
             navigate(`/form/${currentForm.id}/${nextSectionIndex}`);
@@ -77,11 +85,20 @@ export default function Section({ currentForm, currentSubmission }) {
     const FormInput = (question) => {
         if (question.answer_type === 'text') {
             return (
-                <input value={answers[question.id]?.answer || ''} onChange={e => updateQuestions(question.id, e.target.value)} />
+                <input  
+                    value={answers[question.id]?.answer || ''} 
+                    onChange={e => updateQuestions(question.id, e.target.value)} 
+                    required={question.required}
+                />
             )
         } else if (question.answer_type === 'dropdown') {
             return (
-                <select name={question.question} id={question.id} value={answers[question.id]?.answer || ''} onChange={e => updateQuestions(question.id, e.target.value)}>
+                <select name={question.question} 
+                        id={question.id} 
+                        value={answers[question.id]?.answer || ''} 
+                        onChange={e => updateQuestions(question.id, e.target.value)} 
+                        required={question.required}
+                >
                     <option disabled value=''> -- select an option -- </option>
                     {question.multiple_choice_answers.map((MCAnswer) => (
                         <option key={MCAnswer.id} value={MCAnswer.answer}>{MCAnswer.answer}</option>
@@ -126,7 +143,7 @@ export default function Section({ currentForm, currentSubmission }) {
             <h2>{currentSection.description}</h2>
             <h3>Step {Number(sectionIndex) + 1} of {currentForm.sections.length}</h3>
             <form onSubmit={submitForm}>
-                {currentSection.questions.map((question, i) => (
+                {currentSection.questions.sort((a, b) => a.order - b.order).map((question, i) => (
                     <div key={i}>
                         <h3>{question.question}</h3>
                         <h4>{question.description}</h4>

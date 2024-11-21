@@ -53,6 +53,10 @@ CREATE TABLE "forms" (
 "id" SERIAL PRIMARY KEY,
 "name" VARCHAR (150)
 );
+-- Alter table to add a pipeline
+ALTER TABLE "public"."forms"
+  ADD COLUMN "pipeline_id" integer,
+  ADD CONSTRAINT "pipeline_id" FOREIGN KEY ("pipeline_id") REFERENCES "public"."pipeline"("id");
 
 CREATE TABLE "submission" (
 "id" SERIAL PRIMARY KEY,
@@ -78,9 +82,14 @@ CREATE TABLE "question"(
 "order" INT not null,
 "section_id" INT references "sections", 
 "archived" BOOLEAN default 'false',
+"required" boolean DEFAULT 'false',
 "created_at" timestamp default (now() at time zone 'utc'),
 "updated_at" timestamp default (now() at time zone 'utc')
 );
+
+-- Alter table to add required column
+ALTER TABLE "public"."question"
+  ADD COLUMN "required" boolean default false;
 
 CREATE TABLE "answer" (
 "id" SERIAL PRIMARY KEY,

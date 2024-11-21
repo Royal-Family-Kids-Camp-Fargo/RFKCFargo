@@ -36,6 +36,7 @@ select
 	'Form' as "type",
 	forms.id as "id",
 	forms."name" as "name",
+	forms."pipeline_id" as "pipeline_id",
 	(select
 		json_agg(
 			json_build_object(
@@ -53,6 +54,7 @@ select
 							'description', question.description,
 							'order', question."order",
 							'answer_type', question.answer_type,
+							'required', question.required,
 							'multiple_choice_answers', (select 
 								json_agg(
 									json_build_object(

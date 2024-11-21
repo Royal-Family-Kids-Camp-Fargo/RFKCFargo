@@ -10,6 +10,7 @@ import RegisterPage from '../RegisterPage/RegisterPage';
 import Pipeline from '../Pipeline/Pipeline';
 import Profile from '../Profile/Profile';
 import FormPage from '../FormPage/FormPage';
+import SubmissionPage from '../FormPage/SubmissionPage';
 
 function App() {
   const user = useStore((state) => state.user);
@@ -80,6 +81,13 @@ function App() {
               ) : (
                 <LoginPage />
               )
+            }
+          />
+          <Route
+            exact
+            path='/finish'
+            element={
+              <SubmissionPage />
             }
           />
           <Route
