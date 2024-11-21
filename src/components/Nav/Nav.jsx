@@ -1,42 +1,31 @@
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import useStore from '../../zustand/store';
 
-
 function Nav() {
-  const user = useStore((store) => store.user);
+  const user = useStore(store => store.user);
+  const logout = useStore(store => store.logout);
 
   return (
     <nav>
-      <ul>
-      { // User is not logged in, render these links:
-        !user.id && (
-          <>
-            <li>
-              <NavLink to="/login">Login</NavLink>
-            </li>
-            <li>
-              <NavLink to="/registration">Register</NavLink>
-            </li>
-          </>
-        )
-      }
-      { // User is logged in, render these links:
-        user.id && (
-          <>
-            <li>
-              <NavLink to="/">Home</NavLink>
-            </li>
-          </>
-        )
-      }
-      {/* Show these links regardless of auth status: */}
-        <li>
-          <NavLink to="/about">About</NavLink>
-        </li>
-      </ul>
+      {user.id ? (
+        // If a user is logged in, show these links
+        <>
+          <Link to="/">Home</Link>
+          <Link to="/pipeline">Pipeline</Link>
+          <Link to="/admin/forms">Form Admin</Link>
+          <Link to="/about">About</Link>
+          <button onClick={logout}>Log Out</button>
+        </>
+      ) : (
+        // If user is not logged in, show these links
+        <>
+          <Link to="/login">Login</Link>
+          <Link to="/registration">Register</Link>
+          <Link to="/about">About</Link>
+        </>
+      )}
     </nav>
   );
 }
-
 
 export default Nav;
