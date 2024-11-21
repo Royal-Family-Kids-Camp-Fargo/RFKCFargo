@@ -21,7 +21,7 @@ const router = express.Router();
  * /api/user:
  *   get:
  *     summary: Get the current authenticated user or an empty object if not authenticated
- *     tags: Session
+ *     tags: [Session]
  *     responses:
  *       200:
  *         description: Successfully retrieved user data if authenticated, or an empty object if not authenticated
@@ -207,7 +207,7 @@ router.post('/register', (req, res, next) => {
  * /api/user/login:
  *   post:
  *     summary: Login a user
- *     tags: Session
+ *     tags: [Session]
  *     requestBody:
  *       required: true
  *       content:

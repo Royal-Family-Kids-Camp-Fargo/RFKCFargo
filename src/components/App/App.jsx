@@ -10,6 +10,9 @@ import RegisterPage from '../RegisterPage/RegisterPage';
 import Pipeline from '../Pipeline/Pipeline';
 import Profile from '../Profile/Profile';
 import FormPage from '../FormPage/FormPage';
+import SubmissionPage from '../FormPage/SubmissionPage';
+import FormEditor from '../FormEditPage/FormEditPage';
+import FormAdmin from '../FormAdmin/FormAdmin';
 
 function App() {
   const user = useStore((state) => state.user);
@@ -84,6 +87,21 @@ function App() {
           />
           <Route
             exact
+            path='/finish'
+            element={
+              <SubmissionPage />
+            }
+          />
+          <Route
+            exact
+            path='/formEdit/:formId'
+            element={
+              <FormEditor />
+            }
+          />
+          
+          <Route
+            exact
             path='/about'
             element={
               <>
@@ -111,6 +129,17 @@ function App() {
                   --From Steve McConnell's <em>Code Complete</em>.
                 </p>
               </>
+            }
+          />
+          <Route
+            exact
+            path="/admin/forms"
+            element={
+              user.id ? (
+                <FormAdmin />
+              ) : (
+                <LoginPage />
+              )
             }
           />
           <Route path='*' element={<h2>404 Page</h2>} />

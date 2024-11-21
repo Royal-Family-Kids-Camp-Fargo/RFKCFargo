@@ -56,6 +56,8 @@ const pipelineRouter = require('./routes/pipeline.router');
 const formRouter = require('./routes/form.router');
 const actionRouter = require('./routes/action.router');
 const submissionRouter = require('./routes/submission.router');
+const questionRouter = require('./routes/question.router');
+const sectionRouter = require('./routes/section.router');
 
 // Apply middleware:
 app.use(express.json());
@@ -71,6 +73,9 @@ app.use('/api/actions', actionRouter);
 app.use('/api/form', formRouter);
 app.use('/api/pipeline', pipelineRouter);
 app.use('/api/submission', submissionRouter);
+app.use('/api/question', questionRouter);
+app.use('/api/section', sectionRouter);
+
 // Start the server:
 app.listen(PORT, () => {
   console.log(`Listening on port: ${PORT}`);

@@ -30,12 +30,15 @@ router.get('/', (req, res) => {
     })
 })
 
+// gets a single form with all the sections, quesetions, etc.
+// (useful on the frontend)
 router.get('/:formId/all', (req, res) => {
     const queryText = `
 select 
 	'Form' as "type",
 	forms.id as "id",
 	forms."name" as "name",
+	forms."pipeline_id" as "pipeline_id",
 	(select
 		json_agg(
 			json_build_object(
@@ -53,6 +56,7 @@ select
 							'description', question.description,
 							'order', question."order",
 							'answer_type', question.answer_type,
+							'required', question.required,
 							'multiple_choice_answers', (select 
 								json_agg(
 									json_build_object(
@@ -85,194 +89,225 @@ group by forms.id;
     })
 })
 
+// creates a new form with pipeline id
 router.post('/', (req, res) => {
     const queryText = `
-        insert into forms("name")
-        values($1);
+        insert into forms("name", pipeline_id)
+        values($1, $2);
     `
-    pool.query(queryText, [req.body.name]).then(response => {
+    pool.query(queryText, [req.body.name, req.body.pipeline_id]).then(response => {
         res.send(200);
     }).catch(err => {
         console.error('Error posting form', err);
         res.send(500);
     })
-})
+});
 
-// // Form edit route
-// router.put('/:formId', async (req, res) => {
-//     const OldForm = req.body.OldForm;
-//     const NewForm = req.body.NewForm;
-//     const OldSectionIds = [];
-//     const OldQuestionIds = [];
-//     const OldMultipleChoiceAnswerIds = [];
+// EDIT form by id (name, pipeline id)
 
-//     // finding all the old IDs in order to archive/delete things
-//     function idFinder(object){
-//         const type = object.type;
-//         if(type === 'Form'){
-//             if(object.sections === null){
-//                 return;
-//             }
-//             for(let i = 0; i < object.sections.length; i++){
-//                 idFinder(object.sections[i])
-//             }
-//         } else if (type === 'Section'){
-//             OldSectionIds.push(object.id)
-//             if(object.questions === null){
-//                 return;
-//             }
-//             for(let i = 0; i < object.questions.length; i++){
-//                 idFinder(object.questions[i])
-//             }
-//         } else if (type === 'Question'){
-//             OldQuestionIds.push(object.id);
-//             if(object.multiple_choice_answers === null){
-//                 return;
-//             } else
-//             if( object.multiple_choice_answers !== null){
-//                 for(let i = 0; i < object.multiple_choice_answers.length; i++){
-//                     idFinder(object.multiple_choice_answers[i])
-//                 }
-//             }
-//         } else if (type === 'MCAnswer'){
-//             OldMultipleChoiceAnswerIds.push(object.id);
-//         }
+// DELETE form by id
+router.delete('/:formId', (req, res) => {
+    const queryText = `
+        DELETE FROM forms
+        WHERE id = $1;
+    `
+    pool.query(queryText, [req.params.formId])
+        .then(response => {
+            res.sendStatus(200);
+        })
+        .catch(err => {
+            console.error('Error deleting form', err);
+            res.sendStatus(500);
+        });
+});
+
+// Form edit route
+
+
+// big fancy form edit route that I want to do
+// PUT route to edit a form by ID with sections, questions, and multiple choice answers management
+// router.put('/api/forms/:id', async (req, res) => {
+//     const formId = parseInt(req.params.id);
+//     const { name, pipeline_id, sections } = req.body;
+
+//     // Validate input
+//     if (!name && !pipeline_id && !sections) {
+//         return res.status(400).json({ error: 'No fields to update' });
 //     }
 
-//     // calling that function
-//     idFinder(OldForm)
-
-//     // query for deleting / archiving old stuff (will be used after all of the new stuff is created)
-//     const deletionQueryText1 = `
-//     delete from sections where sections.id in($1);
-//     `
-//     const deletionQueryText2 = `
-//     update question
-//     set archived = true,
-//     updated_at = now()
-//     where id in ($2);
-//     `
-//     const deletionQueryText3 = `
-//     delete from multiple_choice_answers where multiple_choice_answers.id in ($3);
-//     `
-//     if(OldSectionIds.length === 0){
-//         OldSectionIds.push(0);
-//     }
-//     if(OldQuestionIds.length < 1){
-//         OldQuestionIds.push(0);
-//     }
-//     if(OldMultipleChoiceAnswerIds.length === 0){
-//         OldMultipleChoiceAnswerIds.push(0);
-//     }
-
-//     let sectionCreationQueryText = `
-//         insert into sections ("name", description, "order", form_id)
-//         values 
-//     `
-//     let newSectionValues = ``;
-//     let sanitizedSectionValues = [];
-//     let sectionSanitizationTracker = 1;
-
-//     // building the new sections query
-//     for(let i = 0; i < NewForm.sections.length; i++){
-//         sanitizedSectionValues.push(NewForm.sections[i].name);
-//         sanitizedSectionValues.push(NewForm.sections[i].description);
-//         newSectionValues += `
-//         ($${sectionSanitizationTracker++}, $${sectionSanitizationTracker++}, '${NewForm.sections[i].order}', ${req.params.formId})
-//         `;
-//         if( i < NewForm.sections.length - 1){
-//             newSectionValues += ',';
-//         }
-//     }
-
-//     sectionCreationQueryText += newSectionValues;
-//     sectionCreationQueryText += ` returning id;`;
-
-//     // need to start a try/catch chain because I'll be using await to get information for new queries.
+//     const client = await pool.connect();
 //     try {
-//         if(NewForm.sections === null){
-//             throw new Error('Form has no sections to add')
-//         }
-//         // grabbing the new sections IDs and storing them in the newSectionIds array to use later
-//         console.log('Adding sections,', sectionCreationQueryText);
-//         const newSectionIds = await pool.query(sectionCreationQueryText, [...sanitizedSectionValues]);
-//         console.log('Sections Added.');
+//         await client.query('BEGIN'); // Start a transaction
 
-//         let questionCreationQueryText = `
-//             insert into question("question", "description", "answer_type", "order", section_id)
-//             values 
-//         `;
-//         let newQuestionValues = ``;
-//         let sanitizedQuestionValues = [];
-//         let questionSanitizationTracker = 1;
-//         let AreThereQuestions = false;
-//         console.log('before question loop');
-//         for(let i = 0; i < NewForm.sections.length; i++){
-//             if(NewForm.sections[i].questions !== null){
-//             for(let j = 0; j < NewForm.sections[i].questions.length; j++){
-//                 sanitizedQuestionValues.push(NewForm.sections[i].questions[j].question);
-//                 sanitizedQuestionValues.push(NewForm.sections[i].questions[j].description);
-//                 AreThereQuestions = true;
-//                 newQuestionValues += `
-//                 ($${questionSanitizationTracker++}, $${questionSanitizationTracker++}, '${NewForm.sections[i].questions[j].answer_type}', '${NewForm.sections[i].questions[j].order}', ${newSectionIds[i].id})
-//                 `;
-//                 if( i < NewForm.sections.length - 1 || j < NewForm.sections[i].questions.length - 1){
-//                     newQuestionValues += ',';
+//         // Step 1: Update form fields if necessary
+//         const updates = [];
+//         const values = [];
+//         let index = 1;
+
+//         if (name) {
+//             updates.push(`name = $${index++}`);
+//             values.push(name);
+//         }
+//         if (pipeline_id !== undefined) {
+//             updates.push(`pipeline_id = $${index++}`);
+//             values.push(pipeline_id);
+//         }
+//         values.push(formId);
+
+//         if (updates.length > 0) {
+//             const query = `
+//                 UPDATE forms
+//                 SET ${updates.join(', ')}
+//                 WHERE id = $${index}
+//             `;
+//             await client.query(query, values);
+//         }
+
+//         // Prepare bulk operations for sections, questions, and multiple choice answers
+//         const sectionUpdates = [];
+//         const sectionInserts = [];
+//         const sectionDeletions = [];
+//         const questionUpdates = [];
+//         const questionInserts = [];
+//         const multipleChoiceUpdates = [];
+//         const multipleChoiceInserts = [];
+//         const multipleChoiceDeletions = [];
+
+//         // Step 2: Manage sections and questions
+//         const existingSectionIds = new Set(); // To track existing section IDs
+
+//         for (const section of sections) {
+//             const { id: sectionId, name: sectionName, description, order, questions, deleteSection } = section;
+
+//             // Check for deletion of section
+//             if (deleteSection) {
+//                 sectionDeletions.push(sectionId);
+//             } else {
+//                 existingSectionIds.add(sectionId); // Track section IDs being updated/added
+
+//                 // Add or Update Section
+//                 if (sectionId) {
+//                     // Update existing section
+//                     sectionUpdates.push(`(${sectionId}, '${sectionName}', '${description}', ${formId}, ${order})`);
+//                 } else {
+//                     // Prepare for inserting new section
+//                     sectionInserts.push(`('${sectionName}', '${description}', ${formId}, ${order})`);
+//                 }
+
+//                 // Step 3: Manage questions
+//                 if (questions) {
+//                     for (const question of questions) {
+//                         const { id: questionId, questionText, description, answer_type, order, archived, multipleChoiceAnswers } = question;
+
+//                         // Prepare update for question
+//                         if (questionId) {
+//                             // Update existing question
+//                             questionUpdates.push(`(${questionId}, '${questionText}', '${description}', '${answer_type}', ${order}, ${archived ? 'true' : 'false'})`);
+
+//                             // Manage multiple choice answers
+//                             if (multipleChoiceAnswers) {
+//                                 for (const answer of multipleChoiceAnswers) {
+//                                     const { id: answerId, answerText, deleteAnswer } = answer;
+
+//                                     if (deleteAnswer) {
+//                                         multipleChoiceDeletions.push(answerId);
+//                                     } else if (answerId) {
+//                                         // Update existing multiple choice answer
+//                                         multipleChoiceUpdates.push(`(${answerId}, '${answerText}')`);
+//                                     } else {
+//                                         // Prepare for inserting new multiple choice answer
+//                                         multipleChoiceInserts.push(`('${answerText}', ${questionId})`);
+//                                     }
+//                                 }
+//                             }
+//                         } else {
+//                             // Prepare for inserting new question
+//                             questionInserts.push(`('${questionText}', '${description}', '${answer_type}', ${order}, ${sectionId})`);
+//                         }
+//                     }
 //                 }
 //             }
-//             }
 //         }
-//         console.log('After question loop');
-//         questionCreationQueryText += newQuestionValues;
-//         questionCreationQueryText += ` returning id;`
-//     //     if(AreThereQuestions){
-//     //     const newQuestionIds = await pool.query(questionCreationQueryText, [...sanitizedQuestionValues]);
-//     //     let multipleChoiceAnswerCreationText = `
-//     //     insert into multiple_choice_answers( question_id, answer )
-//     //     values 
-//     //     `;
-//     //     let newMultipleChoiceValues = ``;
-//     //     let sanitizedMultipleChoiceValues = [];
-//     //     let multipleChoiceSanitizationTracker = 1;
-//     //     let questionCount = 0;
-//     //     for(let i = 0; i < NewForm.sections.length; i++){
-//     //         for(let j = 0; j < NewForm.sections[i].questions.length; j++){
-//     //             if(NewForm.sections[i].questions[k].answer_type == 'dropdown' || NewForm.sections[i].questions[k].answer_type == 'multiple choice'){
-//     //                 for(let k = 0; k < NewForm.sections[i].questions[j].multiple_choice_answers.length; k++){
-//     //                     sanitizedMultipleChoiceValues.push(NewForm.sections[i].questions[j].multiple_choice_answers[k].answer);
-//     //                     newMultipleChoiceValues += `
-//     //                     ( ${newQuestionIds[questionCount]}, $${multipleChoiceSanitizationTracker++} )
-//     //                     `
-//     //                     newMultipleChoiceValues += ','
-//     //                 }
-//     //             }
-//     //             questionCount++;
-//     //         }
-//     //     }
-//     //     newMultipleChoiceValues = newMultipleChoiceValues.slice(0,-1);
-//     //     multipleChoiceAnswerCreationText += newMultipleChoiceValues;
-//     //     multipleChoiceAnswerCreationText += ';';
-        
-//     //     await pool.query(multipleChoiceAnswerCreationText, [...sanitizedMultipleChoiceValues]);
-//     // }
-//         console.log('deleting old stuff');
-//         await pool.query(deletionQueryText1, [OldSectionIds.join(', ')]);
-//         await pool.query(deletionQueryText2, [OldQuestionIds.join(', ')]);
-//         // await pool.query(deletionQueryText3, [OldMultipleChoiceAnswerIds.join(', ')]);
-//         console.log('done deleting stuff');
-//         await pool.query('update forms set "name" = $1 where id = $2', [req.body.NewForm.name, req.params.formId])
 
-//         res.send('Successfully Updated Form.').status(201);
-//         console.log('what???');
-//     } catch(error) {
-//         if (error.message === 'Section count mismatch error.'){
-//             res.send('Section count mismatch error.').status(500);
-//         } else if (error.message === 'No questions to add'){
-//             res.sendStatus(500)
-//         } else {
-//             console.log(error)
+//         // Step 4: Execute bulk updates and inserts for sections
+//         if (sectionUpdates.length > 0) {
+//             await client.query(`
+//                 UPDATE sections
+//                 SET name = s.name, description = s.description, order = s.order
+//                 FROM (VALUES ${sectionUpdates.join(', ')}) AS s(id, name, description, form_id, order)
+//                 WHERE sections.id = s.id;
+//             `);
 //         }
+
+//         if (sectionInserts.length > 0) {
+//             await client.query(`
+//                 INSERT INTO sections (name, description, form_id, order)
+//                 VALUES ${sectionInserts.join(', ')}
+//             `);
+//         }
+
+//         // Step 5: Delete sections if any
+//         if (sectionDeletions.length > 0) {
+//             const deletionQuery = `
+//                 DELETE FROM sections
+//                 WHERE id IN (${sectionDeletions.join(', ')})
+//             `;
+//             await client.query(deletionQuery);
+//         }
+
+//         // Step 6: Update and archive questions
+//         if (questionUpdates.length > 0) {
+//             await client.query(`
+//                 UPDATE question
+//                 SET question = q.question, description = q.description, answer_type = q.answer_type, order = q.order, archived = q.archived
+//                 FROM (VALUES ${questionUpdates.join(', ')}) AS q(id, question, description, answer_type, order, archived)
+//                 WHERE question.id = q.id;
+//             `);
+//         }
+
+//         if (questionInserts.length > 0) {
+//             await client.query(`
+//                 INSERT INTO question (question, description, answer_type, order, section_id)
+//                 VALUES ${questionInserts.join(', ')}
+//             `);
+//         }
+
+//         // Step 7: Update multiple choice answers
+//         if (multipleChoiceUpdates.length > 0) {
+//             await client.query(`
+//                 UPDATE multiple_choice_answers
+//                 SET answer = m.answer
+//                 FROM (VALUES ${multipleChoiceUpdates.join(', ')}) AS m(id, answer)
+//                 WHERE multiple_choice_answers.id = m.id;
+//             `);
+//         }
+
+//         if (multipleChoiceInserts.length > 0) {
+//             await client.query(`
+//                 INSERT INTO multiple_choice_answers (answer, question_id)
+//                 VALUES ${multipleChoiceInserts.join(', ')}
+//             `);
+//         }
+
+//         // Step 8: Delete multiple choice answers if any
+//         if (multipleChoiceDeletions.length > 0) {
+//             const deletionQuery = `
+//                 DELETE FROM multiple_choice_answers
+//                 WHERE id IN (${multipleChoiceDeletions.join(', ')})
+//             `;
+//             await client.query(deletionQuery);
+//         }
+
+//         await client.query('COMMIT'); // Commit the transaction
+//         res.status(200).json({ message: 'Form updated successfully' });
+//     } catch (error) {
+//         await client.query('ROLLBACK'); // Rollback the transaction on error
+//         console.error('Error updating form, sections, questions, or multiple choice answers:', error);
+//         res.status(500).json({ error: 'Database error' });
+//     } finally {
+//         client.release(); // Release the client back to the pool
 //     }
-// })
+// });
+
 
 module.exports = router;

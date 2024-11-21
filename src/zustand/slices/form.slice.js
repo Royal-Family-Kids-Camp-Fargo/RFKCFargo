@@ -23,6 +23,26 @@ const createFormSlice = (set, get) => ({
         } catch (error) {
             console.error('Error grabbing form by ID.', error);
         }
+    },
+    addForm: async (formData) => {
+        try {
+            await axios.post('/api/form', formData);
+            // Refresh the forms list after adding
+            get().fetchForms();
+        } catch (error) {
+            console.error('Error creating form:', error);
+            throw error;
+        }
+    },
+    deleteForm: async (formId) => {
+        try {
+            await axios.delete(`/api/form/${formId}`);
+            // Refresh the forms list after deleting
+            get().fetchForms();
+        } catch (error) {
+            console.error('Error deleting form:', error);
+            throw error;
+        }
     }
     // Admin functionality go here? delete, edit, post
 });
