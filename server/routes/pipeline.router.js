@@ -688,17 +688,18 @@ router.put('/user_status', rejectUnauthenticated, (req, res) => {
  *       '500':
  *         description: Internal Server Error (failure to delete user status).
  */
-router.delete('/user_status/remove', rejectUnauthenticated, (req, res) => {
-  const userId = req.body.user_id;
-  const pipelineId = req.body.pipeline_id;
+router.delete('/user_status/:userId/:pipelineStatusId', rejectUnauthenticated, (req, res) => {
+  const { userId, pipelineStatusId } = req.params;
+  console.log('userId', userId);
+  console.log('pipelineStatusId', pipelineStatusId);
 
   const deleteUserStatusQuery = `
     DELETE FROM "user_status"
     WHERE "user_id" = $1
-    and "pipeline_id" = $2;
+    and "pipeline_status_id" = $2;
   `;
   pool
-    .query(deleteUserStatusQuery, [userId, pipelineId])
+    .query(deleteUserStatusQuery, [userId, pipelineStatusId])
     .then(() => {
       console.log(`User status for User ID ${userId} has been deleted`);
       res.sendStatus(204);

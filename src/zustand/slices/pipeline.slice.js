@@ -4,6 +4,7 @@ const createPipelineSlice = (set, get) => ({
   pipelines: [],
   selectedPipeline: {},
   foundUsers: [],
+  selectedUserId: '',
   fetchPipeline: async () => {
     //  Retrieves the pipelines data from the /api/pipeline endpoint.
     try {
@@ -32,6 +33,23 @@ const createPipelineSlice = (set, get) => ({
     }
   },
 
+  setSelectedUserId: (userId) => {
+    set(() => ({
+      // '{user.id: 1, first_name: 'joe'}'
+      selectedUserId: userId,
+    }));
+  },
+
+  addUserStatus: async (userStatus) => {
+    try {
+      await axios.post('/api/pipeline/user_status', userStatus);
+      get().fetchPipelineById(userStatus.pipeline_id);
+      console.log('data refreshed');
+    } catch (err) {
+      console.log('error creating new pipeline', err);
+    }
+  },
+
   addPipeline: async (newPipeline) => {
     //  Post the pipeline data from the /api/pipeline endpoint.
     try {
@@ -54,6 +72,27 @@ const createPipelineSlice = (set, get) => ({
     } catch (err) {
       console.log('fetch PipelineById error:', err);
       set({ selectedPipeline: {} });
+    }
+  },
+
+moveUserOnPipeline: async (moveObject) => {
+   try {
+    await axios.put('/api/pipeline/user_status', moveObject);
+    console.log('user has been moved on the pipeline');
+    get().fetchPipelineById(pipelineId);
+
+   }
+}
+
+
+  deleteUserFromPipeline: async (userId, pipelineStatusId, pipelineId) => {
+    try {
+      await axios.delete(`/user_status/:userId/:pipelineStatusId`);
+      console.log('user deleted from the pipeline');
+      get().fetchPipelineById(pipelineId);
+    } catch (err) {
+      console.error('Error deleting user from pipeline:', err);
+      alert('Failed to delete user from pipeline.');
     }
   },
 });

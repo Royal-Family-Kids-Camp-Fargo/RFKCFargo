@@ -10,11 +10,13 @@ export default function Pipeline() {
   const fetchPipelineById = useStore((state) => state.fetchPipelineById);
   const foundUsers = useStore((state) => state.foundUsers);
   const searchingApplicant = useStore((state) => state.searchingApplicant);
+  const setSelectedUserId = useStore((state) => state.setSelectedUserId);
+  const selectedUserId = useStore((state) => state.selectedUserId);
+  const addUserStatus = useStore((state) => state.addUserStatus);
 
   const [pipelineId, setPipelineId] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [searchString, setSearchString] = useState('');
-  const [selectedUserId, setSelectedUserId] = useState('');
 
   useEffect(() => {
     fetchPipeline();
@@ -34,8 +36,22 @@ export default function Pipeline() {
     // {user_id: selectedUser.id, pipeline_status_id: "need further work for this"
     // }
 
+    // MUST PROTECT against empty or not selected data
+    if (!selectedPipelineWithData || Object.keys(selectedPipelineWithData).length === 0) {
+      alert('please select pipeline');
+      return;
+    }
+
     console.log('user', selectedUserId);
-    console.log('selectedPipeline Info', selectedPipelineWithData);
+    console.log('selectedPipeline status Id: ', selectedPipelineWithData.statuses[0].pipeline_status_id);
+
+    // zustand function post maybe upsert???? the object {pipeline_id: selectedPipelineWithData.pipeline_id ,user_id: selectedUserId, pipeline_status_id: selectedPipelineWithData.statuses[0].pipeline_status_id}
+    const newUserStatus = {
+      pipeline_id: selectedPipelineWithData.pipeline_id,
+      user_id: selectedUserId,
+      pipeline_status_id: selectedPipelineWithData.statuses[0].pipeline_status_id,
+    };
+    addUserStatus(newUserStatus);
   };
 
   console.log('found users', foundUsers);
@@ -52,6 +68,7 @@ export default function Pipeline() {
       </div>
       <div>
         <select value={selectedUserId} onChange={(event) => setSelectedUserId(event.target.value)}>
+          <option>Select User</option>
           {foundUsers?.map((user) => (
             <option key={user.id} value={user.id}>
               {user.first_name} {user.last_name}
@@ -63,7 +80,8 @@ export default function Pipeline() {
 
       <div>
         <label htmlFor='pipelines'>Choose pipeline</label>
-        <select value={pipelineId} onChange={(event) => setPipelineId(event.target.value)}>
+        <select value={pipelineId} onChange={(event) => setPipelineId(Number(event.target.value))}>
+          <option>Select Pipeline</option>
           {pipelines.map((pipeline) => (
             <option key={pipeline.id} value={pipeline.id}>
               {pipeline.name}
@@ -73,7 +91,6 @@ export default function Pipeline() {
         <button onClick={loadPipeline}>Load Pipeline</button>
       </div>
       <div>
-        {/* {JSON.stringify(selectedPipelineWithData)} */}
         {selectedPipelineWithData?.statuses?.length > 0 &&
           selectedPipelineWithData?.statuses?.map((status, index) => (
             <div key={index}>
