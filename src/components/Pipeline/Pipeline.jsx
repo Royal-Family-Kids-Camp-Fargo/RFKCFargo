@@ -2,15 +2,19 @@ import { useState, useEffect } from 'react';
 import useStore from '../../zustand/store';
 import PipelineStatus from '../PipelineStatus/PipelineStatus';
 import PipelineForm from '../PipelineForm/PipelineForm';
+import { json } from 'express';
 
 export default function Pipeline() {
   const pipelines = useStore((state) => state.pipelines);
   const selectedPipelineWithData = useStore((state) => state.selectedPipeline);
   const fetchPipeline = useStore((state) => state.fetchPipeline);
   const fetchPipelineById = useStore((state) => state.fetchPipelineById);
+  const foundUsers = useStore((state) => state.foundUsers);
+  const search = useStore((state) => state.search);
 
   const [pipelineId, setPipelineId] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [searchString, setSearchString] = useState('');
 
   useEffect(() => {
     fetchPipeline();
@@ -20,12 +24,24 @@ export default function Pipeline() {
     fetchPipelineById(pipelineId);
   };
 
+  const searchQuery = () => {
+    console.log('build the search query', searchString);
+    // search(searchString);
+  };
+
   return (
     <>
       <div>
         <h1>Pipeline page!</h1>
       </div>
       <button onClick={() => setShowModal(!showModal)}>Show Modal</button>
+      <div>
+        <label>Search</label>
+        <input onChange={(event) => setSearchString(event.target.value)} value={searchString} />
+        <button onClick={searchQuery}>Search</button>
+        {/* {JSON.stringify(foundUsers)} */}
+      </div>
+
       <div>
         <label htmlFor='pipelines'>Choose pipeline</label>
         <select value={pipelineId} onChange={(event) => setPipelineId(event.target.value)}>
@@ -47,11 +63,7 @@ export default function Pipeline() {
             </div>
           ))}
       </div>
-      {showModal && (
-       
-          <PipelineForm setShowModal={setShowModal} />
-
-      )}
+      {showModal && <PipelineForm setShowModal={setShowModal} />}
     </>
   );
 }

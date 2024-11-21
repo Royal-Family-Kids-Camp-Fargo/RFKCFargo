@@ -3,6 +3,7 @@ import axios from 'axios';
 const createPipelineSlice = (set, get) => ({
   pipelines: [],
   selectedPipeline: {},
+  foundUsers: [],
   fetchPipeline: async () => {
     //  Retrieves the pipelines data from the /api/pipeline endpoint.
     try {
@@ -12,6 +13,18 @@ const createPipelineSlice = (set, get) => ({
     } catch (err) {
       console.log('fetchPipeline error:', err);
       set({ pipelines: [] });
+    }
+  },
+
+  search: async (searchString) => {
+    //  Retrieves the pipelines data from the /api/pipeline endpoint.
+    try {
+      const { data } = await axios.get(`/api/pipeline/search?term=${searchString}`);
+      console.log('search data', data);
+      set({ foundUsers: data });
+    } catch (err) {
+      console.log('error finding user:', err);
+      set({ foundUsers: [] });
     }
   },
 
