@@ -176,9 +176,9 @@ router.put('/:id', rejectUnauthenticated, async (req, res) => {
     await client.query('BEGIN');
     
     await client.query(`
-      UPDATE question 
+      UPDATE "question" 
       SET question = $1, description = $2, answer_type = $3, 
-          order = $4, required = $5, updated_at = NOW()
+          "order" = $4, required = $5, updated_at = NOW()
       WHERE id = $6;
     `, [req.body.question, req.body.description, req.body.answer_type,
         req.body.order, req.body.required, req.params.id]);
