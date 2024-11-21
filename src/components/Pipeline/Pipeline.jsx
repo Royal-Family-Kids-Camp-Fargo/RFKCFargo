@@ -9,12 +9,12 @@ export default function Pipeline() {
   const selectedPipelineWithData = useStore((state) => state.selectedPipeline);
   const fetchPipeline = useStore((state) => state.fetchPipeline);
   const fetchPipelineById = useStore((state) => state.fetchPipelineById);
-  const foundUsers = useStore((state) => state.foundUsers);
-  const search = useStore((state) => state.search);
+  // const foundUsers = useStore((state) => state.foundUsers);
+  // const searchingApplicant = useStore((state) => state.searchingApplicant);
 
   const [pipelineId, setPipelineId] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [searchString, setSearchString] = useState('');
+  // const [searchString, setSearchString] = useState('');
 
   useEffect(() => {
     fetchPipeline();
@@ -24,10 +24,10 @@ export default function Pipeline() {
     fetchPipelineById(pipelineId);
   };
 
-  const searchQuery = () => {
-    console.log('build the search query', searchString);
-    // search(searchString);
-  };
+  // const searchQuery = () => {
+  //   console.log('build the search query', searchString);
+  //   // search(searchString);
+  // };
 
   return (
     <>
@@ -35,12 +35,12 @@ export default function Pipeline() {
         <h1>Pipeline page!</h1>
       </div>
       <button onClick={() => setShowModal(!showModal)}>Show Modal</button>
-      <div>
+      {/* <div>
         <label>Search</label>
         <input onChange={(event) => setSearchString(event.target.value)} value={searchString} />
         <button onClick={searchQuery}>Search</button>
-        {/* {JSON.stringify(foundUsers)} */}
-      </div>
+        
+      </div> */}
 
       <div>
         <label htmlFor='pipelines'>Choose pipeline</label>
