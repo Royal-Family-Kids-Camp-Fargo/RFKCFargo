@@ -3,7 +3,7 @@ import axios from 'axios';
 const createPipelineSlice = (set, get) => ({
   pipelines: [],
   selectedPipeline: {},
-//   foundUsers: [],
+  foundUsers: [],
   fetchPipeline: async () => {
     //  Retrieves the pipelines data from the /api/pipeline endpoint.
     try {
@@ -16,23 +16,21 @@ const createPipelineSlice = (set, get) => ({
     }
   },
 
-//   searchingApplicant: async (searchString) => {
-//     //  Retrieves the pipelines data from the /api/pipeline/search?term=je endpoint.
-//     // build up search endpoint
-//     // const db_endpoint = `/api/pipeline/search?term=${searchString}`;
-//     const baseUrl = '/api/pipeline/search';
-//     const params = { term: searchString };
-//     console.log('db_endpoint', db_endpoint);
-//     // .get(baseUrl, { params })
-//     try {
-//       const { data } = await axios.get(baseUrl, { params });
-//       console.log('search data', data);
-//       set({ foundUsers: data });
-//     } catch (err) {
-//       console.log('error finding user:', err);
-//       set({ foundUsers: [] });
-//     }
-//   },
+  searchingApplicant: async (searchString) => {
+    //  Retrieves the users data from the /api/pipeline/search?term= endpoint.
+    // build up search endpoint
+    const baseUrl = '/api/pipeline/search';
+    const params = { term: searchString };
+
+    try {
+      const { data } = await axios.get(baseUrl, { params });
+      console.log('search data', data);
+      set({ foundUsers: data });
+    } catch (err) {
+      console.log('error finding user:', err);
+      set({ foundUsers: [] });
+    }
+  },
 
   addPipeline: async (newPipeline) => {
     //  Post the pipeline data from the /api/pipeline endpoint.
