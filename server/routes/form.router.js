@@ -38,7 +38,7 @@ select
 	'Form' as "type",
 	forms.id as "id",
 	forms."name" as "name",
-	forms."pipeline_id" as "pipeline_id",
+	forms."default_pipeline_id" as "default_pipeline_id",
 	(select
 		json_agg(
 			json_build_object(
@@ -92,10 +92,10 @@ group by forms.id;
 // creates a new form with pipeline id
 router.post('/', (req, res) => {
     const queryText = `
-        insert into forms("name", pipeline_id)
+        insert into forms("name", "default_pipeline_id")
         values($1, $2);
     `
-    pool.query(queryText, [req.body.name, req.body.pipeline_id]).then(response => {
+    pool.query(queryText, [req.body.name, req.body.default_pipeline_id]).then(response => {
         res.send(200);
     }).catch(err => {
         console.error('Error posting form', err);

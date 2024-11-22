@@ -5,7 +5,7 @@ import useStore from '../../zustand/store';
 export default function FormAdmin() {
   const [newForm, setNewForm] = useState({
     name: '',
-    pipeline_id: ''
+    default_pipeline_id: ''
   });
   
   const navigate = useNavigate();
@@ -26,9 +26,9 @@ export default function FormAdmin() {
     try {
       await addForm({
         name: newForm.name,
-        pipeline_id: newForm.pipeline_id === '' ? null : Number(newForm.pipeline_id)
+        default_pipeline_id: newForm.default_pipeline_id === '' ? null : Number(newForm.default_pipeline_id)
       });
-      setNewForm({ name: '', pipeline_id: '' });
+      setNewForm({ name: '', default_pipeline_id: '' });
     } catch (error) {
       console.error('Error creating form:', error);
     }
@@ -64,8 +64,8 @@ export default function FormAdmin() {
             <label htmlFor="pipeline">Pipeline:</label>
             <select
               id="pipeline"
-              value={newForm.pipeline_id}
-              onChange={(e) => setNewForm({...newForm, pipeline_id: e.target.value})}
+              value={newForm.default_pipeline_id}
+              onChange={(e) => setNewForm({...newForm, default_pipeline_id: e.target.value})}
             >
               <option value="">None</option>
               {pipelines.map(pipeline => (
@@ -86,7 +86,7 @@ export default function FormAdmin() {
           {allForms.map(form => (
             <div key={form.id} className="form-card">
               <h3>{form.name}</h3>
-              {form.pipeline_id && <p>Pipeline ID: {form.pipeline_id}</p>}
+              {form.default_pipeline_id && <p>Pipeline ID: {form.default_pipeline_id}</p>}
               <div className="form-actions">
                 <button 
                   onClick={() => navigate(`/formEdit/${form.id}`)}
