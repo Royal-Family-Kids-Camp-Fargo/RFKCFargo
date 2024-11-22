@@ -236,7 +236,7 @@ VALUES
     (10, 1, 1, 'I want to make a positive impact in the lives of children.', NOW(), NOW()),
 
     -- Section 3: Availability
-    (11, 1, 1, 'Monday, Wednesday, Saturday', NOW(), NOW()),
+    (11, 1, 1, 'Monday|Wednesday|Saturday', NOW(), NOW()),
     (12, 1, 1, 'Yes', NOW(), NOW()),
     (13, 1, 1, 'Evenings', NOW(), NOW()),
     (14, 1, 1, 'Yes', NOW(), NOW()),
