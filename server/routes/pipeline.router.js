@@ -73,11 +73,13 @@ router.get('/search', (req, res) => {
  * @swagger
  * /api/pipeline:
  *   get:
- *     summary: Get all pipelines
- *     tags: [Pipeline]
+ *     summary: Get a list of all pipelines
+ *     description: Fetches a list of all pipeline names.
  *     responses:
- *       200:
- *         description: List of all pipelines
+ *       '200':
+ *         description: Successfully fetched the list of pipelines.
+ *         tags:
+ *          - Pipeline
  *         content:
  *           application/json:
  *             schema:
@@ -85,101 +87,12 @@ router.get('/search', (req, res) => {
  *               items:
  *                 type: object
  *                 properties:
- *                   id:
- *                     type: integer
  *                   name:
  *                     type: string
- *       500:
- *         description: Server error while fetching pipelines
- * 
- *   post:
- *     summary: Create a new pipeline
- *     tags: [Pipeline]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 description: Name of the pipeline
- *     responses:
- *       201:
- *         description: Pipeline created successfully
- *       500:
- *         description: Server error while creating pipeline
- * 
- * /api/pipeline/{pipelineId}:
- *   get:
- *     summary: Get pipeline by ID with all statuses and users
- *     tags: [Pipeline]
- *     parameters:
- *       - name: pipelineId
- *         in: path
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Pipeline details with statuses and users
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 pipeline_id:
- *                   type: integer
- *                 name:
- *                   type: string
- *                 statuses:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       pipeline_status_id:
- *                         type: integer
- *                       status:
- *                         type: string
- *                       users:
- *                         type: array
- *                         items:
- *                           type: object
- *                           properties:
- *                             id:
- *                               type: integer
- *                             user_firstName:
- *                               type: string
- *                             user_lastName:
- *                               type: string
- *                             phoneNumber:
- *                               type: string
- *       500:
- *         description: Server error while fetching pipeline
- * 
- * /api/pipeline/user_status:
- *   put:
- *     summary: Update user's pipeline status
- *     tags: [Pipeline]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               pipeline_status_id:
- *                 type: integer
- *                 description: ID of the new pipeline status
- *               user_id:
- *                 type: integer
- *                 description: ID of the user to update
- *     responses:
- *       200:
- *         description: User's pipeline status updated successfully
- *       500:
- *         description: Server error while updating user's status
+ *                     description: The name of the pipeline.
+ *                     example: "Volunteer Pipeline"
+ *       '500':
+ *         description: Internal Server Error (failure to fetch data from the database).
  */
 router.get('/', (req, res) => {
   const sqlQuery = `

@@ -15,8 +15,6 @@ export default function FormPage({}) {
   const { formId, sectionIndex } = useParams();
   const navigate = useNavigate();
 
-  // const [currentSection, setCurrentSection] = useState(0);
-
   useEffect(() => {
     // fetch submission by form id
     fetchFormById(formId);
