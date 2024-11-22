@@ -28,29 +28,27 @@ const PIPELINE_STATUS_DONOR = [
 
 router.get('/search', (req, res) => {
   const searchTerm = req.query.term;
-  const [firstNamePart, lastNamePart] = searchTerm.split(' ');
-
-  console.log('First Name Part:', firstNamePart);
-  console.log('Last Name Part:', lastNamePart);
-
   const sqlQuery = `
-    SELECT 
-      "username", 
-      "first_name", 
-      "last_name", 
-      GREATEST(
-        similarity("first_name", $1), 
-        similarity("last_name", $2)
-      ) AS similarity_score
-    FROM "user"
-    WHERE 
-      similarity("first_name", $1) > 0.2
-      AND similarity("last_name", $2) > 0.2
-    ORDER BY similarity_score DESC;
+  SELECT 
+    "username", 
+    "first_name", 
+    "last_name",
+    "id",
+    GREATEST(
+        similarity("first_name", $1),
+        similarity("last_name", $1),
+        similarity(CONCAT("first_name", ' ', "last_name"), $1)
+    ) AS similarity_score
+FROM "user"
+WHERE 
+    similarity("first_name", $1) > 0.2
+    OR similarity("last_name", $1) > 0.2
+    OR similarity(CONCAT("first_name", ' ', "last_name"), $1) > 0.2
+ORDER BY similarity_score DESC;
   `;
 
   pool
-    .query(sqlQuery, [firstNamePart, lastNamePart])
+    .query(sqlQuery, [searchTerm])
     .then((result) => {
       if (result.rows.length === 0) {
         return res.status(404).send('No matching users found');
@@ -89,10 +87,97 @@ router.get('/search', (req, res) => {
  *                 properties:
  *                   name:
  *                     type: string
- *                     description: The name of the pipeline.
- *                     example: "Volunteer Pipeline"
- *       '500':
- *         description: Internal Server Error (failure to fetch data from the database).
+ *       500:
+ *         description: Server error while fetching pipelines
+ *
+ *   post:
+ *     summary: Create a new pipeline
+ *     tags: [Pipeline]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Name of the pipeline
+ *     responses:
+ *       201:
+ *         description: Pipeline created successfully
+ *       500:
+ *         description: Server error while creating pipeline
+ *
+ * /api/pipeline/{pipelineId}:
+ *   get:
+ *     summary: Get pipeline by ID with all statuses and users
+ *     tags: [Pipeline]
+ *     parameters:
+ *       - name: pipelineId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Pipeline details with statuses and users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 pipeline_id:
+ *                   type: integer
+ *                 name:
+ *                   type: string
+ *                 statuses:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       pipeline_status_id:
+ *                         type: integer
+ *                       status:
+ *                         type: string
+ *                       users:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             id:
+ *                               type: integer
+ *                             user_firstName:
+ *                               type: string
+ *                             user_lastName:
+ *                               type: string
+ *                             phoneNumber:
+ *                               type: string
+ *       500:
+ *         description: Server error while fetching pipeline
+ *
+ * /api/pipeline/user_status:
+ *   put:
+ *     summary: Update user's pipeline status
+ *     tags: [Pipeline]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               pipeline_status_id:
+ *                 type: integer
+ *                 description: ID of the new pipeline status
+ *               user_id:
+ *                 type: integer
+ *                 description: ID of the user to update
+ *     responses:
+ *       200:
+ *         description: User's pipeline status updated successfully
+ *       500:
+ *         description: Server error while updating user's status
  */
 router.get('/', (req, res) => {
   const sqlQuery = `
@@ -690,17 +775,19 @@ router.put('/user_status', rejectUnauthenticated, (req, res) => {
  *       '500':
  *         description: Internal Server Error (failure to delete user status).
  */
-router.delete('/user_status/remove', rejectUnauthenticated, (req, res) => {
-  const userId = req.body.user_id;
-  const pipelineId = req.body.pipeline_id;
+router.delete('/user_status/:userId/:pipelineStatusId', rejectUnauthenticated, (req, res) => {
+  console.log('delete params', req.params);
+  const { userId, pipelineStatusId } = req.params;
+  console.log('userId', userId);
+  console.log('pipelineStatusId', pipelineStatusId);
 
   const deleteUserStatusQuery = `
     DELETE FROM "user_status"
     WHERE "user_id" = $1
-    and "pipeline_id" = $2;
+    and "pipeline_status_id" = $2;
   `;
   pool
-    .query(deleteUserStatusQuery, [userId, pipelineId])
+    .query(deleteUserStatusQuery, [userId, pipelineStatusId])
     .then(() => {
       console.log(`User status for User ID ${userId} has been deleted`);
       res.sendStatus(204);
