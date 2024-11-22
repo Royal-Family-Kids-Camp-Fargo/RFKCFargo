@@ -20,8 +20,21 @@ passport.serializeUser((user, done) => {
 //   * https://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
 passport.deserializeUser((id, done) => {
   const sqlText = `
-    SELECT * FROM "user"
-      WHERE "id" = $1;
+    SELECT "user".*, 
+      COALESCE(
+        json_agg(
+          json_build_object(
+            'id', location.id,
+            'name', location.name,
+            'internal', user_location.internal
+          )
+        ), '[]'
+      ) as locations
+    FROM "user"
+    LEFT JOIN user_location ON user_location.user_id = "user".id
+    LEFT JOIN location ON location.id = user_location.location_id
+    WHERE "user".id = $1
+    GROUP BY "user".id;
   `;
   const sqlValues = [id];
 
