@@ -5,15 +5,17 @@ import formSlice from './slices/form.slice.js';
 import submissionSlice from './slices/submission.slice.js';
 import sectionSlice from './slices/section.slice.js';
 import questionSlice from './slices/question.slice.js';
+import createActionSlice from './slices/action.slice';
 
 // Combine all slices in the store:
-const useStore = create((...args) => ({
-  ...userSlice(...args),
-  ...pipelineSlice(...args),
-  ...formSlice(...args),
-  ...submissionSlice(...args),
-  ...sectionSlice(...args),
-  ...questionSlice(...args)
+const useStore = create((set, get) => ({
+  ...userSlice(set, get),
+  ...pipelineSlice(set, get),
+  ...formSlice(set, get),
+  ...submissionSlice(set, get),
+  ...sectionSlice(set, get),
+  ...questionSlice(set, get),
+  ...createActionSlice(set, get)
 }));
 
 
