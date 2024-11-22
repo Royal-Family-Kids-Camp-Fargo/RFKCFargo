@@ -103,9 +103,22 @@ ORDER BY similarity_score DESC;
  *               name:
  *                 type: string
  *                 description: Name of the pipeline
+ *               type:
+ *                 type: string
+ *                 enum: [volunteer, donor]
+ *                 description: Type of pipeline
+ *               location_id:
+ *                 type: integer
+ *                 description: ID of the location this pipeline belongs to
+ *             required:
+ *               - name
+ *               - type
+ *               - location_id
  *     responses:
  *       201:
  *         description: Pipeline created successfully
+ *       400:
+ *         description: Invalid pipeline type or missing required fields
  *       500:
  *         description: Server error while creating pipeline
  *
@@ -401,6 +414,7 @@ WHERE
 router.post('/', rejectUnauthenticated, (req, res) => {
   const pipelineType = req.body.type;
   const pipelineName = req.body.name;
+  const locationId = req.body.location_id;
   // FIRST QUERY creates the pipeline
   // protect the insert from bad data, or not in allowed list of pipeline types
   if (!pipelineType || !['volunteer', 'donor'].includes(pipelineType)) {
@@ -409,13 +423,13 @@ router.post('/', rejectUnauthenticated, (req, res) => {
   } else {
     const newLogQuery = `
     INSERT INTO "pipeline" 
-    ("name", "type")
-    VALUES ($1, $2) RETURNING id;
+    ("name", "type", "location_id")
+    VALUES ($1, $2, $3) RETURNING id;
   `;
     // will need to use the NEW pipeline id to insert new records into the pipeline_status
     // const volunteer = [{order: 1, name: 'application submitted}, {...the other status go here}];
     pool
-      .query(newLogQuery, [pipelineName, pipelineType])
+      .query(newLogQuery, [pipelineName, pipelineType, locationId])
       .then((results) => {
         console.log('Pipeline name POSTed');
         const newPipelineId = results.rows[0].id;
