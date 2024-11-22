@@ -71,11 +71,13 @@ ORDER BY similarity_score DESC;
  * @swagger
  * /api/pipeline:
  *   get:
- *     summary: Get all pipelines
- *     tags: [Pipeline]
+ *     summary: Get a list of all pipelines
+ *     description: Fetches a list of all pipeline names.
  *     responses:
- *       200:
- *         description: List of all pipelines
+ *       '200':
+ *         description: Successfully fetched the list of pipelines.
+ *         tags:
+ *          - Pipeline
  *         content:
  *           application/json:
  *             schema:
@@ -83,8 +85,6 @@ ORDER BY similarity_score DESC;
  *               items:
  *                 type: object
  *                 properties:
- *                   id:
- *                     type: integer
  *                   name:
  *                     type: string
  *       500:

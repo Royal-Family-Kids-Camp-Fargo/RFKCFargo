@@ -13,6 +13,7 @@ import FormPage from '../FormPage/FormPage';
 import SubmissionPage from '../FormPage/SubmissionPage';
 import FormEditor from '../FormEditPage/FormEditPage';
 import FormAdmin from '../FormAdmin/FormAdmin';
+import QuestionManager from '../QuestionManager/QuestionManager';
 
 function App() {
   const user = useStore((state) => state.user);
@@ -141,6 +142,10 @@ function App() {
                 <LoginPage />
               )
             }
+          />
+          <Route
+            path="/admin/forms/:formId/section/:sectionId"
+            element={<QuestionManager />}
           />
           <Route path='*' element={<h2>404 Page</h2>} />
         </Routes>

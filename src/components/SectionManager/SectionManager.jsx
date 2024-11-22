@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import useStore from '../../zustand/store';
+import { Link } from 'react-router-dom';
 
 export default function SectionManager({ formId }) {
   const [newSection, setNewSection] = useState({
@@ -91,6 +92,9 @@ export default function SectionManager({ formId }) {
             <p>{section.description}</p>
             <p>Order: {section.order}</p>
             <button onClick={() => handleDelete(section.id)}>Delete</button>
+            <Link to={`/admin/forms/${formId}/section/${section.id}`}>
+              Manage Questions
+            </Link>
           </div>
         ))}
       </div>
