@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-
 import useStore from '../../zustand/store';
 import Nav from '../Nav/Nav';
 import HomePage from '../HomePage/HomePage';
@@ -14,6 +13,7 @@ import SubmissionPage from '../FormPage/SubmissionPage';
 import FormEditor from '../FormEditPage/FormEditPage';
 import FormAdmin from '../FormAdmin/FormAdmin';
 import QuestionManager from '../QuestionManager/QuestionManager';
+import SubmissionView from '../SubmissionView/SubmissionView';
 
 function App() {
   const user = useStore((state) => state.user);
@@ -24,10 +24,10 @@ function App() {
   }, [fetchUser]);
 
   // Debug Helper
-  const store = useStore(store => store);
+  const store = useStore((store) => store);
   useEffect(() => {
     console.log(`Current Store: `, store);
-  }, [store])
+  }, [store]);
 
   console.log(`user:`, user);
   return (
@@ -76,6 +76,10 @@ function App() {
             }
           />
           <Route
+            path='/submission/:submissionId/:sectionIndex?'
+            element={user.id ? <SubmissionView /> : <LoginPage />}
+          />
+          <Route
             exact
             path='/form/:formId/:sectionIndex'
             element={
@@ -86,21 +90,9 @@ function App() {
               )
             }
           />
-          <Route
-            exact
-            path='/finish'
-            element={
-              <SubmissionPage />
-            }
-          />
-          <Route
-            exact
-            path='/formEdit/:formId'
-            element={
-              <FormEditor />
-            }
-          />
-          
+          <Route exact path='/finish' element={<SubmissionPage />} />
+          <Route exact path='/formEdit/:formId' element={<FormEditor />} />
+
           <Route
             exact
             path='/about'
@@ -132,21 +124,8 @@ function App() {
               </>
             }
           />
-          <Route
-            exact
-            path="/admin/forms"
-            element={
-              user.id ? (
-                <FormAdmin />
-              ) : (
-                <LoginPage />
-              )
-            }
-          />
-          <Route
-            path="/admin/forms/:formId/section/:sectionId"
-            element={<QuestionManager />}
-          />
+          <Route exact path='/admin/forms' element={user.id ? <FormAdmin /> : <LoginPage />} />
+          <Route path='/admin/forms/:formId/section/:sectionId' element={<QuestionManager />} />
           <Route path='*' element={<h2>404 Page</h2>} />
         </Routes>
       </main>
