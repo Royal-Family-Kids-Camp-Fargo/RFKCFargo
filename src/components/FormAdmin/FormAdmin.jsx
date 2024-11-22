@@ -16,19 +16,12 @@ export default function FormAdmin() {
   const fetchPipeline = useStore(store => store.fetchPipeline);
   const addForm = useStore(store => store.addForm);
   const deleteForm = useStore(store => store.deleteForm);
+  const userLocations = useStore(store => store.user.locations);
   
   useEffect(() => {
     fetchForms();
     fetchPipeline();
   }, []);
-
-  // Temporary locations for testing
-  // Will be replaced with actual locations from user.locations
-  const tempLocations = [
-    { id: 1, name: 'Fargo', internal: true },
-    { id: 2, name: 'Moorhead', internal: false },
-    { id: 3, name: 'Grand Forks', internal: true }
-  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -94,9 +87,9 @@ export default function FormAdmin() {
               required
             >
               <option value="">Select a location</option>
-              {tempLocations.filter(location => location.internal).map(tempLocation => (
-                <option key={tempLocation.id} value={tempLocation.id}>
-                  {tempLocation.name}
+              {userLocations.filter(location => location.internal).map(location => (
+                <option key={location.id} value={location.id}>
+                  {location.name}
                 </option>
               ))}
             </select>
@@ -109,7 +102,9 @@ export default function FormAdmin() {
       <div className="forms-list">
         <h2>Existing Forms</h2>
         <div className="forms-grid">
-          {allForms.filter(form => tempLocations.some(location => location.id === form.location_id && location.internal)).map(form => (
+          {allForms.filter(form => userLocations.some(location => 
+            location.id === form.location_id && location.internal
+          )).map(form => (
             <div key={form.id} className="form-card">
               <h3>{form.name}</h3>
               {form.pipeline_id && <p>Pipeline ID: {form.pipeline_id}</p>}
