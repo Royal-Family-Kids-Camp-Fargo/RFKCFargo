@@ -43,7 +43,7 @@ export default function Pipeline() {
     }
 
     console.log('user', selectedUserId);
-    console.log('selectedPipeline status Id: ', selectedPipelineWithData.statuses[0].pipeline_status_id);
+    console.log('selectedPipeline status Id: ', selectedPipelineWithData?.statuses[0]?.pipeline_status_id);
 
     // zustand function post maybe upsert???? the object {pipeline_id: selectedPipelineWithData.pipeline_id ,user_id: selectedUserId, pipeline_status_id: selectedPipelineWithData.statuses[0].pipeline_status_id}
     const newUserStatus = {
@@ -52,6 +52,8 @@ export default function Pipeline() {
       pipeline_status_id: selectedPipelineWithData.statuses[0].pipeline_status_id,
     };
     addUserStatus(newUserStatus);
+    //clear search input
+    setSearchString('');
   };
 
   console.log('found users', foundUsers);

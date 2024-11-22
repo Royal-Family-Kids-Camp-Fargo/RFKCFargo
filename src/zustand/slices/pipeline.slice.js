@@ -46,7 +46,7 @@ const createPipelineSlice = (set, get) => ({
       get().fetchPipelineById(userStatus.pipeline_id);
       console.log('data refreshed');
     } catch (err) {
-      console.log('error creating new pipeline', err);
+      alert('Server error: possible duplicate record');
     }
   },
 
@@ -75,20 +75,22 @@ const createPipelineSlice = (set, get) => ({
     }
   },
 
-  // moveUserOnPipeline: async (moveObject) => {
-  //    try {
-  //     await axios.put('/api/pipeline/user_status', moveObject);
-  //     console.log('user has been moved on the pipeline');
-  //     get().fetchPipelineById(pipelineId);
-
-  //    }
-  // }
-
-  deleteUserFromPipeline: async (userId, pipelineStatusId, pipelineId) => {
+  moveUserOnPipeline: async (moveObject) => {
     try {
-      await axios.delete(`/user_status/:userId/:pipelineStatusId`);
+      await axios.put('/api/pipeline/user_status', moveObject);
+      console.log('user has been moved on the pipeline');
+      get().fetchPipelineById(moveObject.pipeline_id);
+    } catch (err) {
+      console.error('error moving user through pipeline');
+    }
+  },
+
+  deleteUserFromPipeline: async (removeObject) => {
+    // use a removeObject looks like this: {userId}
+    try {
+      await axios.delete(`api/pipeline/user_status/${removeObject.user_id}/${removeObject.pipeline_status_id}`);
       console.log('user deleted from the pipeline');
-      get().fetchPipelineById(pipelineId);
+      get().fetchPipelineById(removeObject.pipeline_id);
     } catch (err) {
       console.error('Error deleting user from pipeline:', err);
       alert('Failed to delete user from pipeline.');

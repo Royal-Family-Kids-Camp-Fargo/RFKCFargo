@@ -89,7 +89,7 @@ ORDER BY similarity_score DESC;
  *                     type: string
  *       500:
  *         description: Server error while fetching pipelines
- * 
+ *
  *   post:
  *     summary: Create a new pipeline
  *     tags: [Pipeline]
@@ -108,7 +108,7 @@ ORDER BY similarity_score DESC;
  *         description: Pipeline created successfully
  *       500:
  *         description: Server error while creating pipeline
- * 
+ *
  * /api/pipeline/{pipelineId}:
  *   get:
  *     summary: Get pipeline by ID with all statuses and users
@@ -155,7 +155,7 @@ ORDER BY similarity_score DESC;
  *                               type: string
  *       500:
  *         description: Server error while fetching pipeline
- * 
+ *
  * /api/pipeline/user_status:
  *   put:
  *     summary: Update user's pipeline status
@@ -776,6 +776,7 @@ router.put('/user_status', rejectUnauthenticated, (req, res) => {
  *         description: Internal Server Error (failure to delete user status).
  */
 router.delete('/user_status/:userId/:pipelineStatusId', rejectUnauthenticated, (req, res) => {
+  console.log('delete params', req.params);
   const { userId, pipelineStatusId } = req.params;
   console.log('userId', userId);
   console.log('pipelineStatusId', pipelineStatusId);
