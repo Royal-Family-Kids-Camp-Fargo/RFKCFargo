@@ -74,10 +74,10 @@ export default function SectionManager({ formId }) {
           <input
             type="number"
             id="order"
-            value={newSection.order}
+            value={Number(newSection.order)}
             onChange={(e) => setNewSection({...newSection, order: parseInt(e.target.value)})}
             required
-          />
+          ></input>
         </div>
         
         <button type="submit">Add Section</button>

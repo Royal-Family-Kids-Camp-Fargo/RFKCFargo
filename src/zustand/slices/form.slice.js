@@ -25,6 +25,11 @@ const createFormSlice = (set, get) => ({
         }
     },
     addForm: async (formData) => {
+        // Validate required fields
+        if (!formData.location_id) {
+            throw new Error('Location ID is required');
+        }
+        
         try {
             await axios.post('/api/form', formData);
             // Refresh the forms list after adding
