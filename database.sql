@@ -59,7 +59,7 @@ ADD CONSTRAINT unique_user_pipeline_status UNIQUE (user_id, pipeline_status_id);
 CREATE TABLE "forms" (
 "id" SERIAL PRIMARY KEY,
 "name" VARCHAR (150),
-"default_pipeline_id" INTEGER REFERENCES "pipeline",
+"default_pipeline_id" INTEGER REFERENCES "pipeline" NOT NULL,
 "location_id" INTEGER REFERENCES "location" NOT NULL,
 "archived" BOOLEAN default 'false' NOT NULL
 );
@@ -123,46 +123,46 @@ INSERT INTO "location" ("id", "name") VALUES
 
 -- Seed data, needs to be updated to be correct (these arent the actual questions)
 -- Seed data for form
-INSERT INTO "forms" ("name", "location_id") VALUES
-('Moorhead New Volunteer Form', 2);
+INSERT INTO "forms" ("name", "location_id", "default_pipeline_id") VALUES
+('Fargo New Volunteer Form', 2, 1);
 
 -- Seed data for sections
 INSERT INTO "sections" ("name", "description", "form_id", "order") VALUES
-('Personal Information', 'Basic details about the applicant', (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'), 1),
-('Volunteer Experience', 'Details about past volunteering work', (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'), 2),
-('Availability', 'Check your availability for volunteering', (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'), 3),
-('Skills and Preferences', 'Specific skills and preferences related to volunteering', (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'), 4);
+('Personal Information', 'Basic details about the applicant', (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'), 1),
+('Volunteer Experience', 'Details about past volunteering work', (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'), 2),
+('Availability', 'Check your availability for volunteering', (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'), 3),
+('Skills and Preferences', 'Specific skills and preferences related to volunteering', (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'), 4);
 
 
 -- Seed data for questions
 INSERT INTO "question" ("question", "description", "answer_type", "order", "section_id") VALUES
 -- Section 1: Personal Information
-('What is your full name?', 'Please enter your first and last name.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('What is your date of birth?', 'Enter in the format YYYY-MM-DD.', 'text', 2, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('What is your email address?', 'This will be used to contact you.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('What is your phone number?', 'Include country code if applicable.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('Do you have any dietary restrictions?', 'Specify if applicable.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('What is your full name?', 'Please enter your first and last name.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('What is your date of birth?', 'Enter in the format YYYY-MM-DD.', 'text', 2, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('What is your email address?', 'This will be used to contact you.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('What is your phone number?', 'Include country code if applicable.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('Do you have any dietary restrictions?', 'Specify if applicable.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
 
 -- Section 2: Volunteer Experience
-('Have you volunteered with us before?', 'Provide details if applicable.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('How many years of volunteer experience do you have?', 'Specify in number of years.', 'text', 2, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('What type of volunteering have you done before?', 'List relevant types.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('Why are you interested in volunteering?', 'Briefly describe your motivation.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('What is your preferred volunteering activity?', 'Select one or more.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('Have you volunteered with us before?', 'Provide details if applicable.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('How many years of volunteer experience do you have?', 'Specify in number of years.', 'text', 2, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('What type of volunteering have you done before?', 'List relevant types.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('Why are you interested in volunteering?', 'Briefly describe your motivation.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('What is your preferred volunteering activity?', 'Select one or more.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
 
 -- Section 3: Availability
-('What days of the week are you available?', 'Select all that apply.', 'multiple_choice', 1, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('What time of the day works best for you?', 'Choose from the options.', 'multiple_choice', 2, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('How many hours can you commit each week?', 'Provide a rough estimate.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('Are you open to on-call volunteering?', 'Yes or No.', 'multiple_choice', 4, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('Do you have any upcoming commitments we should be aware of?', 'Provide details.', 'text', 5, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('What days of the week are you available?', 'Select all that apply.', 'multiple_choice', 1, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('What time of the day works best for you?', 'Choose from the options.', 'multiple_choice', 2, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('How many hours can you commit each week?', 'Provide a rough estimate.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('Are you open to on-call volunteering?', 'Yes or No.', 'multiple_choice', 4, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('Do you have any upcoming commitments we should be aware of?', 'Provide details.', 'text', 5, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
 
 -- Section 4: Skills and Preferences
-('What skills do you bring to volunteering?', 'List relevant skills.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('Do you prefer working with children or adults?', 'Choose one.', 'multiple_choice', 2, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('Are you comfortable leading activities?', 'Yes or No.', 'multiple_choice', 3, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('Do you have any certifications related to volunteering?', 'Specify if applicable.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
-('What type of environment do you prefer?', 'Select one.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form')));
+('What skills do you bring to volunteering?', 'List relevant skills.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('Do you prefer working with children or adults?', 'Choose one.', 'multiple_choice', 2, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('Are you comfortable leading activities?', 'Yes or No.', 'multiple_choice', 3, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('Do you have any certifications related to volunteering?', 'Specify if applicable.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('What type of environment do you prefer?', 'Select one.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')));
 
 -- Seed data for multiple_choice_answers
 INSERT INTO "multiple_choice_answers" ("question_id", "answer") VALUES

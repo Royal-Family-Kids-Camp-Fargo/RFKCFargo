@@ -2,11 +2,11 @@ const express = require('express');
 const pool = require('../modules/pool');
 
 const router = express.Router();
-const {rejectUnauthenticated} = require('../modules/authentication-middleware.js')
+const { rejectUnauthenticated } = require('../modules/authentication-middleware.js');
 
 // get submission by id
 router.get('/:submissionId', (req, res) => {
-    const queryText = `
+  const queryText = `
     select
         id,
         user_id,
@@ -40,53 +40,62 @@ router.get('/:submissionId', (req, res) => {
         ), '[]'::json) as answers
     from submission
     where id = $1;
-    `
-    pool.query(queryText, [req.params.submissionId]).then(response => {
-        res.send(response.rows[0]);
-    }).catch(err => {
-        console.error('Error grabbing submission by id', err);
-        res.send(500);
+    `;
+  pool
+    .query(queryText, [req.params.submissionId])
+    .then((response) => {
+      res.send(response.rows[0]);
+    })
+    .catch((err) => {
+      console.error('Error grabbing submission by id', err);
+      res.send(500);
     });
-})
+});
 
 // deletes submission by id. Answers get cascade deleted upon submission deletion.
 router.delete('/:submissionId', (req, res) => {
-    const queryText = `
+  const queryText = `
         delete from submission where id = $1;
-    `
-    pool.query(queryText, [req.params.submissionId]).then(reponse => {
-        res.send(201);
-    }).catch(err => {
-        console.error('Error deleting submission', err);
-        res.send(500);
+    `;
+  pool
+    .query(queryText, [req.params.submissionId])
+    .then((reponse) => {
+      res.send(201);
     })
-})
+    .catch((err) => {
+      console.error('Error deleting submission', err);
+      res.send(500);
+    });
+});
 
 router.put('/:submissionId/update', async (req, res) => {
-    // req.body: {answers: [{answer, question_id, answer_id}] is all we need
-    if (!req.body.answers || typeof(req.body.answers?.length) !== typeof(0)) {
-        res.status(400).send({message: 'answers key is required'})
-        return;
-    }
-    try {
-        for (const answer of req.body.answers) {
-            // See if answer has already been submitted for this submission
-            if (answer.answer_id) {
-                // UPDATE existing answer id
-                await pool.query(`UPDATE "answer" SET answer=$1 WHERE id=$2`, [answer.answer, answer.answer_id])
-            } else {
-                // INSERT
-                await pool.query(`
+  // req.body: {answers: [{answer, question_id, answer_id}] is all we need
+  if (!req.body.answers || typeof req.body.answers?.length !== typeof 0) {
+    res.status(400).send({ message: 'answers key is required' });
+    return;
+  }
+  try {
+    for (const answer of req.body.answers) {
+      // See if answer has already been submitted for this submission
+      if (answer.answer_id) {
+        // UPDATE existing answer id
+        await pool.query(`UPDATE "answer" SET answer=$1 WHERE id=$2`, [answer.answer, answer.answer_id]);
+      } else {
+        // INSERT
+        await pool.query(
+          `
                 INSERT into "answer" ("question_id", "user_id", "submission_id", "answer")
-                VALUES ($1, $2, $3, $4);`, [answer.question_id, req.user.id, req.params.submissionId, answer.answer]);
-            }
-        }
-        res.status(201).send({message: `Processed ${req.body.answers.length} answers`});
-    } catch (err) {
-        console.error(err);
-        res.sendStatus(500);
+                VALUES ($1, $2, $3, $4);`,
+          [answer.question_id, req.user.id, req.params.submissionId, answer.answer]
+        );
+      }
     }
-})
+    res.status(201).send({ message: `Processed ${req.body.answers.length} answers` });
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+});
 
 // Put for submission. Saves progress.
 // router.put('/', async (req, res) => {
@@ -106,7 +115,7 @@ router.put('/:submissionId/update', async (req, res) => {
 //     // TODO: This is incomplete
 //     const addQuery = `
 //         insert into answer ( "submission_id", "question_id", "user_id", "answer")
-//         values 
+//         values
 //     `;
 //     let sanitizedAnswers = [];
 //     let sanitizedAnswersTracker = 1;
@@ -130,54 +139,70 @@ router.put('/:submissionId/update', async (req, res) => {
 // })
 
 // Put for submission. Sets submission to finished.
-router.put('/:submissionId/submit', (req, res) => {
+router.put('/:submissionId/submit', async (req, res) => {
+  try {
     const queryText = `
         update submission
         set finished_at = now()
-        where id = $1;
-    `
-    pool.query(queryText, [req.params.submissionId]).then(response => {
-        res.send(200);
-    }).catch(err => {
-        console.error('Error submitting submission.', err);
-        res.send(500);
-    })
-})
+        where id = $1 RETURNING *;
+    `;
+    const submissionResult = await pool.query(queryText, [req.params.submissionId]);
+    
+    // Get the pipeline_id and first pipeline_status_id for this form
+    const pipelineQuery = `
+        SELECT pipeline.id as pipeline_id, pipeline_status.id as status_id 
+                    FROM forms
+                    JOIN pipeline ON forms.default_pipeline_id = pipeline.id
+                    JOIN pipeline_status ON pipeline.id = pipeline_status.pipeline_id
+                    WHERE forms.id = $1 ORDER BY "pipeline_status"."order" ASC LIMIT 1;
+        `;
+    const pipelineResult = await pool.query(pipelineQuery, [submissionResult.rows[0].form_id]);
+
+    // Insert the user's initial status into user_status
+    const statusQuery = `
+            INSERT INTO user_status (user_id, pipeline_status_id)
+            VALUES ($1, $2);`;
+    await pool.query(statusQuery, [req.user.id, pipelineResult.rows[0].status_id]);
+    res.send(200);
+  } catch (err) {
+    console.error('Error submitting submission.', err);
+    res.send(500);
+  }
+});
 // Post for new submission
 router.post('/', rejectUnauthenticated, async (req, res) => {
-    if (!req.body.form_id) {
-        res.sendStatus(400);
-        return;
-    }
-    console.log(req.user.id, req.body);
+  if (!req.body.form_id) {
+    res.sendStatus(400);
+    return;
+  }
+  console.log(req.user.id, req.body);
 
-    // check to see if form already has been started by this user
-    // but not already submitted
-    try {
-        const queryText = `
+  // check to see if form already has been started by this user
+  // but not already submitted
+  try {
+    const queryText = `
             select * from submission where 
             user_id=$1 AND form_id=$2 AND finished_at is null;
         `;
-        const { rows } = await pool.query(queryText, [req.user.id, req.body.form_id]);
-        console.log(`rows:`, rows);
-        if (rows.length > 0) {
-            // continue the existing submission
-            res.send(rows[0]);
-            return;
-        }
+    const { rows } = await pool.query(queryText, [req.user.id, req.body.form_id]);
+    console.log(`rows:`, rows);
+    if (rows.length > 0) {
+      // continue the existing submission
+      res.send(rows[0]);
+      return;
+    }
 
-        // start a fresh submission on this form
-        const queryText2 = `
+    // start a fresh submission on this form
+    const queryText2 = `
             insert into submission ( user_id, form_id, started_at)
             values ( $1, $2, now()) returning *;
-        `
-        const result = await pool.query(queryText2, [req.user.id, req.body.form_id]);
-        res.send(result.rows[0]);
-    } catch (err) {
-        console.error('Error posting new submission', err);
-        res.send(err).status(500);
-    }
-})
-
+        `;
+    const result = await pool.query(queryText2, [req.user.id, req.body.form_id]);
+    res.send(result.rows[0]);
+  } catch (err) {
+    console.error('Error posting new submission', err);
+    res.send(err).status(500);
+  }
+});
 
 module.exports = router;
