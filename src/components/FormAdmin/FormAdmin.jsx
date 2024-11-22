@@ -74,8 +74,8 @@ export default function FormAdmin() {
             <label htmlFor="pipeline">Pipeline:</label>
             <select
               id="pipeline"
-              value={newForm.pipeline_id}
-              onChange={(e) => setNewForm({...newForm, pipeline_id: e.target.value})}
+              value={newForm.default_pipeline_id}
+              onChange={(e) => setNewForm({...newForm, default_pipeline_id: e.target.value})}
             >
               <option value="">None</option>
               {pipelines.map(pipeline => (

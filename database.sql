@@ -22,6 +22,9 @@ CREATE TABLE "user_location" (
 	"location_id" INT references "location" on delete cascade,
  	"internal" BOOLEAN default 'false'
 );
+ALTER TABLE "user_location"
+ADD CONSTRAINT unique_user_location UNIQUE (user_id, location_id);
+
 
 CREATE TABLE "donation" (
 "id" SERIAL PRIMARY KEY,
@@ -34,7 +37,8 @@ CREATE TABLE "donation" (
 CREATE TABLE "pipeline" (
 "id" SERIAL PRIMARY KEY,
 "name" VARCHAR(32),
-"type" VARCHAR(20)
+"type" VARCHAR(20),
+"location_id" INTEGER REFERENCES "location" NOT NULL
 );
 
 CREATE TABLE "pipeline_status" (
@@ -49,17 +53,16 @@ CREATE TABLE "user_status" (
 "pipeline_status_id" INT references "pipeline_status" on delete cascade
 );
 -- Alter table to put unique constraint on key to prevent duplicate pairings
- ALTER TABLE "user_status"
+ALTER TABLE "user_status"
 ADD CONSTRAINT unique_user_pipeline_status UNIQUE (user_id, pipeline_status_id);
 
 CREATE TABLE "forms" (
 "id" SERIAL PRIMARY KEY,
-"name" VARCHAR (150)
+"name" VARCHAR (150),
+"default_pipeline_id" INTEGER REFERENCES "pipeline",
+"location_id" INTEGER REFERENCES "location" NOT NULL,
+"archived" BOOLEAN default 'false' NOT NULL
 );
--- Alter table to add a pipeline
-ALTER TABLE "public"."forms"
-  ADD COLUMN "pipeline_id" integer,
-  ADD CONSTRAINT "pipeline_id" FOREIGN KEY ("pipeline_id") REFERENCES "public"."pipeline"("id");
 
 CREATE TABLE "submission" (
 "id" SERIAL PRIMARY KEY,
@@ -90,10 +93,6 @@ CREATE TABLE "question"(
 "updated_at" timestamp default (now() at time zone 'utc')
 );
 
--- Alter table to add required column
-ALTER TABLE "public"."question"
-  ADD COLUMN "required" boolean default false;
-
 CREATE TABLE "answer" (
 "id" SERIAL PRIMARY KEY,
 "question_id" INT references "question",
@@ -110,48 +109,60 @@ CREATE TABLE "multiple_choice_answers" (
 "answer" VARCHAR (1000)
 );
 
+--------------------------------
+--------------------------------
+--------SEED DATA BEGINS--------
+--------------------------------
+--------------------------------
+
+-- Seed data for locations
+INSERT INTO "location" ("id", "name") VALUES
+(1, 'Fargo'),
+(2, 'Moorhead'),
+(3, 'Sioux Falls');
+
 -- Seed data, needs to be updated to be correct (these arent the actual questions)
 -- Seed data for form
-INSERT INTO "forms" ("name") VALUES
-('Moorhead New Volunteer Form');
+INSERT INTO "forms" ("name", "location_id") VALUES
+('Moorhead New Volunteer Form', 2);
 
 -- Seed data for sections
 INSERT INTO "sections" ("name", "description", "form_id", "order") VALUES
-('Personal Information', 'Basic details about the applicant', (SELECT id FROM "forms" WHERE "name" = 'Volunteer Application Form'), 1),
-('Volunteer Experience', 'Details about past volunteering work', (SELECT id FROM "forms" WHERE "name" = 'Volunteer Application Form'), 2),
-('Availability', 'Check your availability for volunteering', (SELECT id FROM "forms" WHERE "name" = 'Volunteer Application Form'), 3),
-('Skills and Preferences', 'Specific skills and preferences related to volunteering', (SELECT id FROM "forms" WHERE "name" = 'Volunteer Application Form'), 4);
+('Personal Information', 'Basic details about the applicant', (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'), 1),
+('Volunteer Experience', 'Details about past volunteering work', (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'), 2),
+('Availability', 'Check your availability for volunteering', (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'), 3),
+('Skills and Preferences', 'Specific skills and preferences related to volunteering', (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'), 4);
 
 
 -- Seed data for questions
 INSERT INTO "question" ("question", "description", "answer_type", "order", "section_id") VALUES
 -- Section 1: Personal Information
-('What is your full name?', 'Please enter your first and last name.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Personal Information')),
-('What is your date of birth?', 'Enter in the format YYYY-MM-DD.', 'text', 2,  (SELECT id FROM "sections" WHERE "name" = 'Personal Information')),
-('What is your email address?', 'This will be used to contact you.', 'text', 3,  (SELECT id FROM "sections" WHERE "name" = 'Personal Information')),
-('What is your phone number?', 'Include country code if applicable.', 'text', 4,  (SELECT id FROM "sections" WHERE "name" = 'Personal Information')),
-('Do you have any dietary restrictions?', 'Specify if applicable.', 'multiple_choice', 5,  (SELECT id FROM "sections" WHERE "name" = 'Personal Information')),
+('What is your full name?', 'Please enter your first and last name.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('What is your date of birth?', 'Enter in the format YYYY-MM-DD.', 'text', 2, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('What is your email address?', 'This will be used to contact you.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('What is your phone number?', 'Include country code if applicable.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('Do you have any dietary restrictions?', 'Specify if applicable.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
 
 -- Section 2: Volunteer Experience
-('Have you volunteered with us before?', 'Provide details if applicable.', 'text', 1,  (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience')),
-('How many years of volunteer experience do you have?', 'Specify in number of years.', 'text', 2, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience')),
-('What type of volunteering have you done before?', 'List relevant types.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience')),
-('Why are you interested in volunteering?', 'Briefly describe your motivation.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience')),
-('What is your preferred volunteering activity?', 'Select one or more.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience')),
+('Have you volunteered with us before?', 'Provide details if applicable.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('How many years of volunteer experience do you have?', 'Specify in number of years.', 'text', 2, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('What type of volunteering have you done before?', 'List relevant types.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('Why are you interested in volunteering?', 'Briefly describe your motivation.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('What is your preferred volunteering activity?', 'Select one or more.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
 
 -- Section 3: Availability
-('What days of the week are you available?', 'Select all that apply.', 'multiple_choice', 1, (SELECT id FROM "sections" WHERE "name" = 'Availability')),
-('What time of the day works best for you?', 'Choose from the options.', 'multiple_choice', 2, (SELECT id FROM "sections" WHERE "name" = 'Availability')),
-('How many hours can you commit each week?', 'Provide a rough estimate.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Availability')),
-('Are you open to on-call volunteering?', 'Yes or No.', 'multiple_choice', 4, (SELECT id FROM "sections" WHERE "name" = 'Availability')),
-('Do you have any upcoming commitments we should be aware of?', 'Provide details.', 'text', 5, (SELECT id FROM "sections" WHERE "name" = 'Availability')),
+('What days of the week are you available?', 'Select all that apply.', 'multiple_choice', 1, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('What time of the day works best for you?', 'Choose from the options.', 'multiple_choice', 2, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('How many hours can you commit each week?', 'Provide a rough estimate.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('Are you open to on-call volunteering?', 'Yes or No.', 'multiple_choice', 4, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('Do you have any upcoming commitments we should be aware of?', 'Provide details.', 'text', 5, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
 
 -- Section 4: Skills and Preferences
-('What skills do you bring to volunteering?', 'List relevant skills.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences')),
-('Do you prefer working with children or adults?', 'Choose one.', 'multiple_choice', 2, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences')),
-('Are you comfortable leading activities?', 'Yes or No.', 'multiple_choice', 3, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences')),
-('Do you have any certifications related to volunteering?', 'Specify if applicable.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences')),
-('What type of environment do you prefer?', 'Select one.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences'));
+('What skills do you bring to volunteering?', 'List relevant skills.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('Do you prefer working with children or adults?', 'Choose one.', 'multiple_choice', 2, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('Are you comfortable leading activities?', 'Yes or No.', 'multiple_choice', 3, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('Do you have any certifications related to volunteering?', 'Specify if applicable.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form'))),
+('What type of environment do you prefer?', 'Select one.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Moorhead New Volunteer Form')));
 
 -- Seed data for multiple_choice_answers
 INSERT INTO "multiple_choice_answers" ("question_id", "answer") VALUES
@@ -240,8 +251,8 @@ VALUES
 
     -- Seed data for use table 
 	INSERT INTO "user" (id, username, password, first_name, last_name, created_at, updated_at, phone_number) VALUES
-    (1, 'Jenny@email.com', '$2a$10$H8GXZ2rxhn0hfSw4AkL4UOgj0eOEIXBL9voNACAyf4LPD1UDLG29C', 'Jenny', 'Lagervall', '2024-11-13 17:30:59.27662', '2024-11-13 17:30:59.27662', '5554446666'),
-    (2, 'John@email.com', '$2a$10$aI5qmttW.229Cjw0tC4Lj.NafXJb6eef8FQPuEPY265e1wnA28MG.', 'John', 'Johnson', '2024-11-13 20:53:08.527638', '2024-11-13 20:53:08.527638', '5554446666'),
+    (2, 'Jenny@email.com', '$2a$10$H8GXZ2rxhn0hfSw4AkL4UOgj0eOEIXBL9voNACAyf4LPD1UDLG29C', 'Jenny', 'Lagervall', '2024-11-13 17:30:59.27662', '2024-11-13 17:30:59.27662', '5554446666'),
+    (3, 'John@email.com', '$2a$10$aI5qmttW.229Cjw0tC4Lj.NafXJb6eef8FQPuEPY265e1wnA28MG.', 'John', 'Johnson', '2024-11-13 20:53:08.527638', '2024-11-13 20:53:08.527638', '5554446666'),
 	(4, 'Jane@email.com', '$2a$10$nTK10uKgnnds5dEfw32q6utqrnuPCTHoqVsH96WONZz4oQjGpIqxW', 'Jane', 'Doe', '2024-11-16 17:06:16.940875', '2024-11-16 17:06:16.940875', '5554446666'),
 	(5, 'Bobby@email.com', '$2a$10$1jFipmwYGaT8PREfICcaL.mH2.1e1c6gj86zWZv8cPNE06rnBO9iW', 'Bobby', 'DropTable', '2024-11-16 17:06:43.238385', '2024-11-16 17:06:43.238385', '5554446666'),
 	(6, 'Jill@email.com', '$2a$10$FtfWTKMFzWtAGNqqux8JR.JDJZAXPyowhReDMLKaTWwg3.HYfeLZu', 'Jill', 'JillLastname', '2024-11-16 17:38:17.819879', '2024-11-16 17:38:17.819879', '5554446666'),
@@ -262,8 +273,10 @@ VALUES
 
  -- Seed data for user_location table 
 	INSERT INTO "user_location" (user_id, location_id, internal) VALUES
-	(1, 1, TRUE),
-	(2, 1, FALSE),
+	(2, 1, TRUE),
+	(2, 2, TRUE),
+	(2, 3, TRUE),
+	(3, 1, FALSE),
 	(4, 1, FALSE),
 	(5, 1, FALSE),
 	(6, 1, FALSE),
@@ -282,27 +295,15 @@ VALUES
 	(19, 2, FALSE),
 	(20, 2, FALSE);
 
-	 -- Seed data for user_status table 
-	 INSERT INTO "user_status" (user_id, pipeline_status_id) VALUES
-	(1, 2),
-	(2, 6),
-	(4, 2),
-	(5, 4),
-	(6, 4),
-	(7, 8),
-	(8, 8),
-	(9, 9),
-	(10, 9),
-	(11, 8),
-	(12, 4),
-	(13, 4),
-	(14, 5),
-	(15, 31),
-	(16, 30),
-	(17, 29),
-	(18, 28),
-	(19, 27),
-	(20, 26);
+	-- Seed data for pipeline table 
+	INSERT INTO "pipeline" (id, name, type, location_id) VALUES
+	(1, 'Volunteer_fargo', 'volunteer', 1),
+	(3, 'Donor_fargo', 'donor', 1),
+	(4, 'Newpipeline', 'volunteer', 1),
+	(6, 'Volunteer- Sioux Fall', 'volunteer', 3),
+	(7, 'Donor- Sioux Falls', 'donor', 3),
+	(8, 'Volunteer- Moorhead', 'volunteer', 2),
+	(13, 'Volunteer- Fargo', 'volunteer', 1);
 
 	-- Seed data for pipeline_status table 
 	INSERT INTO "pipeline_status" (id, pipeline_id, "order", name) VALUES
@@ -325,22 +326,35 @@ VALUES
 	(23, 13, 3, 'interview'),
 	(24, 13, 5, 'verified/accepted'),
 	(25, 13, 2, 'application review'),
-	(26, 13, 4, 'background check'),
-	(27, 14, 1, 'application submitted'),
-	(28, 14, 2, 'application review'),
-	(29, 14, 5, 'verified/accepted'),
-	(30, 14, 3, 'interview'),
-	(31, 14, 4, 'background check');
+	(26, 13, 4, 'background check');
+
+	 -- Seed data for user_status table 
+	 INSERT INTO "user_status" (user_id, pipeline_status_id) VALUES
+	(2, 2),
+	(3, 6),
+	(4, 2),
+	(5, 4),
+	(6, 4),
+	(7, 8),
+	(8, 8),
+	(9, 9),
+	(10, 9),
+	(11, 8),
+	(12, 4),
+	(13, 4),
+	(14, 5),
+	(20, 26);
 
 
-	-- Seed data for pipeline table 
-	INSERT INTO "pipeline" (id, name) VALUES
-	(1, 'Volunteer_fargo'),
-	(3, 'Donor_fargo'),
-	(4, 'Newpipeline'),
-	(6, 'Volunteer- Sioux Fall'),
-	(7, 'Donor- Sioux Falls'),
-	(8, 'volunteer- Grand Forks'),
-	(13, 'Volunteer- stockholm');
-
-
+-- Reset primary key sequences for all tables (since we set primary keys in seed data manually)
+SELECT setval(pg_get_serial_sequence('user', 'id'), (SELECT MAX(id) FROM "user"));
+SELECT setval(pg_get_serial_sequence('location', 'id'), (SELECT MAX(id) FROM "location"));
+SELECT setval(pg_get_serial_sequence('donation', 'id'), (SELECT MAX(id) FROM "donation"));
+SELECT setval(pg_get_serial_sequence('pipeline', 'id'), (SELECT MAX(id) FROM "pipeline"));
+SELECT setval(pg_get_serial_sequence('pipeline_status', 'id'), (SELECT MAX(id) FROM "pipeline_status"));
+SELECT setval(pg_get_serial_sequence('forms', 'id'), (SELECT MAX(id) FROM "forms"));
+SELECT setval(pg_get_serial_sequence('submission', 'id'), (SELECT MAX(id) FROM "submission"));
+SELECT setval(pg_get_serial_sequence('sections', 'id'), (SELECT MAX(id) FROM "sections"));
+SELECT setval(pg_get_serial_sequence('question', 'id'), (SELECT MAX(id) FROM "question"));
+SELECT setval(pg_get_serial_sequence('answer', 'id'), (SELECT MAX(id) FROM "answer"));
+SELECT setval(pg_get_serial_sequence('multiple_choice_answers', 'id'), (SELECT MAX(id) FROM "multiple_choice_answers"));

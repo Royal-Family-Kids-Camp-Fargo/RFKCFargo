@@ -96,7 +96,7 @@ router.post('/', (req, res) => {
         insert into forms("name", default_pipeline_id, location_id)
         values($1, $2, $3);
     `
-    pool.query(queryText, [req.body.name, req.body.pipeline_id]).then(response => {
+    pool.query(queryText, [req.body.name, req.body.default_pipeline_id, req.body.location_id]).then(response => {
         res.send(200);
     }).catch(err => {
         console.error('Error posting form', err);
