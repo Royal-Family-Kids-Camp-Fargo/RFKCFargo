@@ -103,7 +103,7 @@ router.post('/', rejectUnauthenticated, async (req, res) => {
     await client.query('BEGIN');
     
     const questionResult = await client.query(`
-      INSERT INTO question (question, description, answer_type, order, section_id, required)
+      INSERT INTO question (question, description, answer_type, "order", section_id, required)
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING id;
     `, [req.body.question, req.body.description, req.body.answer_type, 
