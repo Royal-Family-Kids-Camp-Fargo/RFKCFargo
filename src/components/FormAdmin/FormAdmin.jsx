@@ -5,7 +5,8 @@ import useStore from '../../zustand/store';
 export default function FormAdmin() {
   const [newForm, setNewForm] = useState({
     name: '',
-    default_pipeline_id: ''
+    pipeline_id: '',
+    location_id: ''
   });
   
   const navigate = useNavigate();
@@ -21,14 +22,23 @@ export default function FormAdmin() {
     fetchPipeline();
   }, []);
 
+  // Temporary locations for testing
+  // Will be replaced with actual locations from user.locations
+  const tempLocations = [
+    { id: 1, name: 'Fargo', internal: true },
+    { id: 2, name: 'Moorhead', internal: false },
+    { id: 3, name: 'Grand Forks', internal: true }
+  ];
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await addForm({
         name: newForm.name,
-        default_pipeline_id: newForm.default_pipeline_id === '' ? null : Number(newForm.default_pipeline_id)
+        pipeline_id: newForm.pipeline_id === '' ? null : Number(newForm.pipeline_id),
+        location_id: newForm.location_id === '' ? null : Number(newForm.location_id)
       });
-      setNewForm({ name: '', default_pipeline_id: '' });
+      setNewForm({ name: '', pipeline_id: '', location_id: '' });
     } catch (error) {
       console.error('Error creating form:', error);
     }
@@ -75,6 +85,22 @@ export default function FormAdmin() {
               ))}
             </select>
           </div>
+          <div>
+            <label htmlFor="location">Location:</label>
+            <select
+              id="location"
+              value={newForm.location_id}
+              onChange={(e) => setNewForm({...newForm, location_id: e.target.value})}
+              required
+            >
+              <option value="">Select a location</option>
+              {tempLocations.filter(location => location.internal).map(tempLocation => (
+                <option key={tempLocation.id} value={tempLocation.id}>
+                  {tempLocation.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <button type="submit">Create Form</button>
         </form>
       </div>
@@ -83,10 +109,11 @@ export default function FormAdmin() {
       <div className="forms-list">
         <h2>Existing Forms</h2>
         <div className="forms-grid">
-          {allForms.map(form => (
+          {allForms.filter(form => tempLocations.some(location => location.id === form.location_id && location.internal)).map(form => (
             <div key={form.id} className="form-card">
               <h3>{form.name}</h3>
-              {form.default_pipeline_id && <p>Pipeline ID: {form.default_pipeline_id}</p>}
+              {form.pipeline_id && <p>Pipeline ID: {form.pipeline_id}</p>}
+              {form.location_id && <p>Location ID: {form.location_id}</p>}
               <div className="form-actions">
                 <button 
                   onClick={() => navigate(`/formEdit/${form.id}`)}
