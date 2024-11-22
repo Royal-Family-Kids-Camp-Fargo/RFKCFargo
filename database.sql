@@ -48,6 +48,9 @@ CREATE TABLE "user_status" (
 "user_id" INT references "user" on delete cascade,
 "pipeline_status_id" INT references "pipeline_status" on delete cascade
 );
+-- Alter table to put unique constraint on key to prevent duplicate pairings
+ ALTER TABLE "user_status"
+ADD CONSTRAINT unique_user_pipeline_status UNIQUE (user_id, pipeline_status_id);
 
 CREATE TABLE "forms" (
 "id" SERIAL PRIMARY KEY,
