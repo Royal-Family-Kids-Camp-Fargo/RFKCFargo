@@ -121,6 +121,39 @@ INSERT INTO "location" ("id", "name") VALUES
 (2, 'Moorhead'),
 (3, 'Sioux Falls');
 
+	-- Seed data for pipeline table 
+	INSERT INTO "pipeline" (id, name, type, location_id) VALUES
+	(1, 'Volunteer_fargo', 'volunteer', 1),
+	(3, 'Donor_fargo', 'donor', 1),
+	(4, 'Newpipeline', 'volunteer', 1),
+	(6, 'Volunteer- Sioux Fall', 'volunteer', 3),
+	(7, 'Donor- Sioux Falls', 'donor', 3),
+	(8, 'Volunteer- Moorhead', 'volunteer', 2),
+	(13, 'Volunteer- Fargo', 'volunteer', 1);
+
+	-- Seed data for pipeline_status table 
+	INSERT INTO "pipeline_status" (id, pipeline_id, "order", name) VALUES
+	(2, 1, 1, 'Application submitted'),
+	(3, 1, 2, 'Application Review'),
+	(4, 1, 3, 'Interview'),
+	(5, 1, 4, 'Background Check'),
+	(6, 1, 5, 'Verified/Accepted'),
+	(7, 3, 1, 'Interested'),
+	(8, 3, 2, 'Discussed'),
+	(9, 3, 3, 'Check sent'),
+	(10, 3, 4, 'Check verified'),
+	(11, 3, 5, 'Donated'),
+	(12, 8, 1, 'application submitted'),
+	(13, 8, 3, 'interview'),
+	(14, 8, 2, 'application review'),
+	(15, 8, 4, 'background check'),
+	(16, 8, 5, 'verified/accepted'),
+	(22, 13, 1, 'application submitted'),
+	(23, 13, 3, 'interview'),
+	(24, 13, 5, 'verified/accepted'),
+	(25, 13, 2, 'application review'),
+	(26, 13, 4, 'background check');
+
 -- Seed data, needs to be updated to be correct (these arent the actual questions)
 -- Seed data for form
 INSERT INTO "forms" ("name", "location_id", "default_pipeline_id") VALUES
@@ -135,20 +168,20 @@ INSERT INTO "sections" ("name", "description", "form_id", "order") VALUES
 
 
 -- Seed data for questions
-INSERT INTO "question" ("question", "description", "answer_type", "order", "section_id") VALUES
+INSERT INTO "question" ("question", "description", "answer_type", "order", "section_id", "required") VALUES
 -- Section 1: Personal Information
-('What is your full name?', 'Please enter your first and last name.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('What is your date of birth?', 'Enter in the format YYYY-MM-DD.', 'text', 2, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('What is your email address?', 'This will be used to contact you.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('What is your phone number?', 'Include country code if applicable.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('Do you have any dietary restrictions?', 'Specify if applicable.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('What is your full name?', 'Please enter your first and last name.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), TRUE),
+('What is your date of birth?', 'Enter in the format YYYY-MM-DD.', 'text', 2, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), TRUE),
+('What is your email address?', 'This will be used to contact you.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), TRUE),
+('What is your phone number?', 'Include country code if applicable.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), TRUE),
+('Do you have any dietary restrictions?', 'Specify if applicable.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Personal Information' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), TRUE),
 
 -- Section 2: Volunteer Experience
-('Have you volunteered with us before?', 'Provide details if applicable.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('How many years of volunteer experience do you have?', 'Specify in number of years.', 'text', 2, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('What type of volunteering have you done before?', 'List relevant types.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('Why are you interested in volunteering?', 'Briefly describe your motivation.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('What is your preferred volunteering activity?', 'Select one or more.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('Have you volunteered with us before?', 'Provide details if applicable.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), TRUE),
+('How many years of volunteer experience do you have?', 'Specify in number of years.', 'text', 2, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), TRUE),
+('What type of volunteering have you done before?', 'List relevant types.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), TRUE),
+('Why are you interested in volunteering?', 'Briefly describe your motivation.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), TRUE),
+('What is your preferred volunteering activity?', 'Select one or more.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), TRUE),
 
 -- Section 3: Availability
 ('What days of the week are you available?', 'Select all that apply.', 'multiple_choice', 1, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
@@ -294,40 +327,7 @@ VALUES
 	(18, 2, FALSE),
 	(19, 2, FALSE),
 	(20, 2, FALSE);
-
-	-- Seed data for pipeline table 
-	INSERT INTO "pipeline" (id, name, type, location_id) VALUES
-	(1, 'Volunteer_fargo', 'volunteer', 1),
-	(3, 'Donor_fargo', 'donor', 1),
-	(4, 'Newpipeline', 'volunteer', 1),
-	(6, 'Volunteer- Sioux Fall', 'volunteer', 3),
-	(7, 'Donor- Sioux Falls', 'donor', 3),
-	(8, 'Volunteer- Moorhead', 'volunteer', 2),
-	(13, 'Volunteer- Fargo', 'volunteer', 1);
-
-	-- Seed data for pipeline_status table 
-	INSERT INTO "pipeline_status" (id, pipeline_id, "order", name) VALUES
-	(2, 1, 1, 'Application submitted'),
-	(3, 1, 2, 'Application Review'),
-	(4, 1, 3, 'Interview'),
-	(5, 1, 4, 'Background Check'),
-	(6, 1, 5, 'Verified/Accepted'),
-	(7, 3, 1, 'Interested'),
-	(8, 3, 2, 'Discussed'),
-	(9, 3, 3, 'Check sent'),
-	(10, 3, 4, 'Check verified'),
-	(11, 3, 5, 'Donated'),
-	(12, 8, 1, 'application submitted'),
-	(13, 8, 3, 'interview'),
-	(14, 8, 2, 'application review'),
-	(15, 8, 4, 'background check'),
-	(16, 8, 5, 'verified/accepted'),
-	(22, 13, 1, 'application submitted'),
-	(23, 13, 3, 'interview'),
-	(24, 13, 5, 'verified/accepted'),
-	(25, 13, 2, 'application review'),
-	(26, 13, 4, 'background check');
-
+	
 	 -- Seed data for user_status table 
 	 INSERT INTO "user_status" (user_id, pipeline_status_id) VALUES
 	(2, 2),
