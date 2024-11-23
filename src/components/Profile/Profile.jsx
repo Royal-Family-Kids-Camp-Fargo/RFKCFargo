@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useReducer } from 'react';
 import useStore from '../../zustand/store';
 import { useParams, Link } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
@@ -8,6 +8,19 @@ import Card from 'react-bootstrap/Card';
 import Table from 'react-bootstrap/Table';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Badge from 'react-bootstrap/Badge';
+import { FaUserCircle } from 'react-icons/fa';
+
+const formatPhoneNumber = (phoneNumber) => {
+  if (!phoneNumber) return '';
+  // Remove all non-numeric characters
+  const cleaned = phoneNumber.replace(/\D/g, '');
+  // Format as (XXX)XXX-XXXX
+  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+  if (match) {
+    return `(${match[1]})${match[2]}-${match[3]}`;
+  }
+  return phoneNumber;
+};
 
 export default function Profile() {
   const { userId } = useParams();
@@ -19,18 +32,38 @@ export default function Profile() {
     fetchUserActions: state.fetchUserActions,
   }));
 
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
+
   useEffect(() => {
     fetchUserById(userId);
     fetchUserActions(userId);
   }, [userId]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      // Force a re-render when window size changes
+      forceUpdate({});
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString('en-US', {
+    const date = new Date(dateString);
+    if (window.innerWidth < 768) {
+      // Mobile format: MM/DD/YYYY
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      });
+    }
+    // Desktop format: Month DD, YYYY
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'short',
+      month: 'long',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     });
   };
 
@@ -40,17 +73,30 @@ export default function Profile() {
         <Col md={8}>
           <Card className='shadow-sm mb-4'>
             <Card.Body>
-              <Card.Title as='h1' className='mb-4'>
-                {userById.first_name} {userById.last_name}
-              </Card.Title>
+              <div className='d-flex justify-content-between align-items-center'>
+                <div className='flex-grow-1 ps-4'>
+                  <h1 className='mb-3' style={{ color: '#4b0082' }}>
+                    {userById.first_name} {userById.last_name}
+                  </h1>
+                  <div className='mb-2' style={{ fontSize: '1.1rem' }}>
+                    {userById.username}
+                  </div>
+                  <div>{formatPhoneNumber(userById.phone_number)}</div>
+                </div>
+                <div className='ms-4'>
+                  <FaUserCircle
+                    size={window.innerWidth < 768 ? 100 : 160}
+                    className='text-secondary d-none d-sm-block'
+                  />
+                  <FaUserCircle size={60} className='text-secondary d-block d-sm-none' />
+                </div>
+              </div>
+            </Card.Body>
+          </Card>
 
+          <Card className='shadow-sm mb-4' style={{ borderLeft: '4px solid #4b0082' }}>
+            <Card.Body>
               <ListGroup variant='flush'>
-                <ListGroup.Item>
-                  <strong>Username:</strong> {userById.username}
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <strong>Phone:</strong> {userById.phone_number}
-                </ListGroup.Item>
                 <ListGroup.Item>
                   <strong>Pipeline:</strong> {userById.pipeline_name}
                 </ListGroup.Item>
@@ -74,16 +120,17 @@ export default function Profile() {
                   <thead className='table-light'>
                     <tr>
                       <th className='text-nowrap'>Type</th>
-                      <th>Name</th>
-                      <th className='text-nowrap'>Started</th>
-                      <th className='text-nowrap'>Completed</th>
+                      <th>Action Details</th>
+                      <th className='text-nowrap'>Date</th>
                     </tr>
                   </thead>
                   <tbody>
                     {userActions?.map((action) => (
                       <tr key={action.id}>
                         <td>
-                          <span className='badge bg-secondary text-white'>{action.type}</span>
+                          <span className='badge' style={{ backgroundColor: '#4b0082' }}>
+                            {action.type}
+                          </span>
                         </td>
                         <td>
                           {action.type === 'submission' ? (
@@ -94,13 +141,12 @@ export default function Profile() {
                             action.name
                           )}
                         </td>
-                        <td className='text-nowrap'>{formatDate(action.started_at)}</td>
                         <td className='text-nowrap'>{formatDate(action.finished_at)}</td>
                       </tr>
                     ))}
                     {(!userActions || userActions.length === 0) && (
                       <tr>
-                        <td colSpan='4' className='text-center text-muted py-4'>
+                        <td colSpan='3' className='text-center text-muted py-4'>
                           No actions found
                         </td>
                       </tr>

@@ -74,8 +74,28 @@
   color: #cc0000;
 }
 
+.actions-table tr:hover {
+  background-color: rgba(204, 0, 0, 0.05);
+}
+
 .no-actions {
   text-align: center;
   color: #666;
   padding: 2rem;
+}
+
+.text-muted {
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+.card-body {
+  padding: 2.5rem;
+}
+
+h1 {
+  color: #4b0082;
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin: 0;
 }
