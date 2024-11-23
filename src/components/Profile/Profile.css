@@ -1,0 +1,81 @@
+.profile-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 20px;
+}
+
+.user-card {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+}
+
+.user-info {
+  display: grid;
+  gap: 1rem;
+}
+
+.user-info h2 {
+  color: #4b0082;
+  margin: 0 0 1rem 0;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+}
+
+.info-item svg {
+  color: #4b0082;
+}
+
+.actions-section {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.actions-section h2 {
+  color: #4b0082;
+  margin-bottom: 1.5rem;
+}
+
+.actions-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.actions-table th,
+.actions-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.actions-table th {
+  background-color: #4b0082;
+  color: white;
+  font-weight: 500;
+}
+
+.actions-table a {
+  color: #4b0082;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.actions-table a:hover {
+  color: #cc0000;
+}
+
+.no-actions {
+  text-align: center;
+  color: #666;
+  padding: 2rem;
+}
