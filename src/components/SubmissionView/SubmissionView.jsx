@@ -26,7 +26,7 @@ export default function SubmissionView() {
 
   useEffect(() => {
     if (sectionIndex === undefined || isNaN(sectionIndex)) {
-      navigate(`/submission/${submissionId}/0`);
+      navigate(`/submission/${submissionId}/0`, { replace: true });
     }
   }, [sectionIndex]);
 

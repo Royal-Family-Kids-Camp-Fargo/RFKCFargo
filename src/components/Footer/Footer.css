@@ -1,0 +1,62 @@
+footer {
+  display: flex;
+  flex-basis: 8em;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 20px;
+  background: linear-gradient(to bottom, #4b0082, #3c0066);
+  border-top: 1px solid #3c0066;
+  margin-top: 2rem;
+}
+
+.footer-content {
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+footer p {
+  margin: 0.8rem 0;
+  color: white;
+}
+
+.contact-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  letter-spacing: 0.5px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon {
+  font-size: 0.9rem;
+  color: white;
+}
+
+.separator {
+  color: #cc0000;
+  font-weight: bold;
+}
+
+footer a {
+  color: white;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+footer a:hover {
+  color: #cc0000;
+}
+
+.btn-donate {
+  background-color: #4b0082;
+  border-color: #4b0082;
+  font-size: 0.9rem;
+  border-radius: 3px;
+  padding: 0.4rem 0.8rem;
+}
