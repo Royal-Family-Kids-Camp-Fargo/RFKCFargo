@@ -1,31 +1,48 @@
 import { Link } from 'react-router-dom';
+import Nav from 'react-bootstrap/Nav';
 import useStore from '../../zustand/store';
 
-function Nav() {
+function Navigation() {
   const user = useStore(store => store.user);
   const logout = useStore(store => store.logout);
 
   return (
-    <nav>
+    <Nav className="ms-auto">
       {user.id ? (
         // If a user is logged in, show these links
         <>
-          <Link to="/">Home</Link>
-          <Link to="/pipeline">Pipeline</Link>
-          <Link to="/admin/forms">Form Admin</Link>
-          <Link to="/about">About</Link>
-          <button onClick={logout}>Log Out</button>
+          <Nav.Link as={Link} to="/">
+            Home
+          </Nav.Link>
+          <Nav.Link as={Link} to="/pipeline">
+            Pipeline
+          </Nav.Link>
+          <Nav.Link as={Link} to="/admin/forms">
+            Form Admin
+          </Nav.Link>
+          <Nav.Link as={Link} to="/about">
+            About
+          </Nav.Link>
+          <Nav.Link onClick={logout} role="button">
+            Log Out
+          </Nav.Link>
         </>
       ) : (
         // If user is not logged in, show these links
         <>
-          <Link to="/login">Login</Link>
-          <Link to="/registration">Register</Link>
-          <Link to="/about">About</Link>
+          <Nav.Link as={Link} to="/login">
+            Login
+          </Nav.Link>
+          <Nav.Link as={Link} to="/registration">
+            Register
+          </Nav.Link>
+          <Nav.Link as={Link} to="/about">
+            About
+          </Nav.Link>
         </>
       )}
-    </nav>
+    </Nav>
   );
 }
 
-export default Nav;
+export default Navigation;

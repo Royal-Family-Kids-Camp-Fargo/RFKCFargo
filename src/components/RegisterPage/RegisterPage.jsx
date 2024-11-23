@@ -1,4 +1,10 @@
 import { useState, useEffect } from 'react';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Alert from 'react-bootstrap/Alert';
 import useStore from '../../zustand/store';
 
 function RegisterPage() {
@@ -20,7 +26,6 @@ function RegisterPage() {
 
   const handleRegister = (event) => {
     event.preventDefault();
-
     register({
       username: username,
       password: password,
@@ -31,37 +36,60 @@ function RegisterPage() {
   };
 
   return (
-    <>
-      <h2>Register Page</h2>
-      <form onSubmit={handleRegister}>
-        <label htmlFor='username'>Username:</label>
-        <input type='email' id='username' required value={username} onChange={(e) => setUsername(e.target.value)} />
+    <Container>
+      <Row className="justify-content-center">
+        <Col md={6} lg={4}>
+          <div className="bg-white p-4 rounded shadow-sm">
+            <h2 className="text-center mb-4">Register</h2>
+            
+            {errorMessage && (
+              <Alert variant="danger" className="mb-4">
+                {errorMessage}
+              </Alert>
+            )}
 
-        <label htmlFor='password'>Password:</label>
-        <input type='password' id='password' required value={password} onChange={(e) => setPassword(e.target.value)} />
+            <Form onSubmit={handleRegister}>
+              <Form.Group className="mb-3" controlId="username">
+                <Form.Label>Username</Form.Label>
+                <Form.Control 
+                  type="email" 
+                  placeholder="Enter username" 
+                  value={username} 
+                  onChange={(e) => setUsername(e.target.value)} 
+                  required
+                />
+              </Form.Group>
 
-        <label htmlFor='firstName'>First Name</label>
-        <input type='text' id='firstName' required value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+              <Form.Group controlId="password">
+                <Form.Label>Password</Form.Label>
+                <Form.Control type="password" placeholder="Enter password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              </Form.Group>
 
-        <label htmlFor='lastName'>Last Name</label>
-        <input type='text' id='lastName' required value={lastName} onChange={(e) => setLastName(e.target.value)} />
+              <Form.Group controlId="firstName">
+                <Form.Label>First Name</Form.Label>
+                <Form.Control type="text" placeholder="Enter first name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+              </Form.Group>
 
-        <label htmlFor='phoneNumber'>Phone Number</label>
-        <input
-          type='text'
-          id='phoneNumber'
-          required
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
-        />
+              <Form.Group controlId="lastName">
+                <Form.Label>Last Name</Form.Label>
+                <Form.Control type="text" placeholder="Enter last name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+              </Form.Group>
 
-        <button type='submit'>Register</button>
-      </form>
-      {
-        // Conditionally render registration error:
-        errorMessage && <h3>{errorMessage}</h3>
-      }
-    </>
+              <Form.Group controlId="phoneNumber">
+                <Form.Label>Phone Number</Form.Label>
+                <Form.Control type="text" placeholder="Enter phone number" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+              </Form.Group>
+
+              <div className="d-grid">
+                <Button variant="primary" type="submit">
+                  Register
+                </Button>
+              </div>
+            </Form>
+          </div>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
