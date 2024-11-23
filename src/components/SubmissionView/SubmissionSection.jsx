@@ -20,7 +20,7 @@ const ReadOnlyAnswer = ({ question, answer }) => {
 };
 
 export default function SubmissionSection({ currentForm, currentSubmission }) {
-  const { sectionIndex } = useParams();
+  const { sectionIndex = 0 } = useParams();
 
   const currentSection = currentForm.sections.sort((a, b) => a.order - b.order)[Number(sectionIndex)];
   const isLastSection = Number(sectionIndex) + 1 >= currentForm.sections.length;
