@@ -31,7 +31,9 @@ function App() {
   // Debug Helper
   const store = useStore((store) => store);
   useEffect(() => {
-    console.log(`Current Store: `, store);
+    console.log(`Current Store: `, Object.fromEntries(
+      Object.entries(store).filter(([_, value]) => typeof value !== 'function')
+    ));
   }, [store]);
 
   console.log(`user:`, user);
