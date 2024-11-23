@@ -8,6 +8,10 @@
 import { useState, useEffect } from "react";
 import useStore from "../../zustand/store";
 import { useNavigate, useParams } from "react-router-dom";
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import Stack from 'react-bootstrap/Stack';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 const Checkbox = ({ label, value, onChange }) => {
     return (
@@ -85,7 +89,7 @@ export default function Section({ currentForm, currentSubmission }) {
     const FormInput = (question) => {
         if (question.answer_type === 'text') {
             return (
-                <input  
+                <Form.Control  
                     value={answers[question.id]?.answer || ''} 
                     onChange={e => updateQuestions(question.id, e.target.value)} 
                     required={question.required}
@@ -93,44 +97,36 @@ export default function Section({ currentForm, currentSubmission }) {
             )
         } else if (question.answer_type === 'dropdown') {
             return (
-                <select name={question.question} 
-                        id={question.id} 
-                        value={answers[question.id]?.answer || ''} 
-                        onChange={e => updateQuestions(question.id, e.target.value)} 
-                        required={question.required}
+                <Form.Select
+                    value={answers[question.id]?.answer || ''} 
+                    onChange={e => updateQuestions(question.id, e.target.value)} 
+                    required={question.required}
                 >
                     <option disabled value=''> -- select an option -- </option>
                     {question.multiple_choice_answers.map((MCAnswer) => (
                         <option key={MCAnswer.id} value={MCAnswer.answer}>{MCAnswer.answer}</option>
                     ))}
-                </select>
+                </Form.Select>
             )
         } else if (question.answer_type === 'multiple_choice') {
-            const allOptions = question.multiple_choice_answers.map(a => a.answer); // ["gluten free", "vegan", "none"]
-            const thisAnswer = answers[question.id]?.answer || ''; // string, comma separated like "gluten free|vegan"
-            console.log('this answer: ', thisAnswer);
+            const thisAnswer = answers[question.id]?.answer || '';
             return (
                 <div>
-                    {
-                        question.multiple_choice_answers.map((MCAnswer, i) =>
-                            <Checkbox
-                                label={MCAnswer.answer}
-                                value={thisAnswer.split('|').some(ans => (ans.trim() === MCAnswer.answer.trim()))}
-                                onChange={e => {
-                                    // when checked, build an answer string that contains only checked values
-                                    // filter out existing selection if it exists
-                                    // note: .split on an empty string returns [''] so we need to filter it out
-                                    const currentSelection = [
-                                        // filtering out the selection
-                                        ...thisAnswer.split('|').filter(a => a !== MCAnswer.answer && a !== ''),
-                                        // adding the answer if we are CHECKING a box
-                                        ...(e.target.checked ? [MCAnswer.answer] : [])
-                                    ]
-                                    updateQuestions(question.id, currentSelection.join('|'));
-                                }}
-                            />
-                        )
-                    }
+                    {question.multiple_choice_answers.map((MCAnswer, i) =>
+                        <Form.Check
+                            key={i}
+                            type="checkbox"
+                            label={MCAnswer.answer}
+                            checked={thisAnswer.split('|').some(ans => (ans.trim() === MCAnswer.answer.trim()))}
+                            onChange={e => {
+                                const currentSelection = [
+                                    ...thisAnswer.split('|').filter(a => a !== MCAnswer.answer && a !== ''),
+                                    ...(e.target.checked ? [MCAnswer.answer] : [])
+                                ]
+                                updateQuestions(question.id, currentSelection.join('|'));
+                            }}
+                        />
+                    )}
                 </div>
             )
         } else {
@@ -139,23 +135,52 @@ export default function Section({ currentForm, currentSubmission }) {
     }
     return (
         <div>
-            <h1>{currentSection.name}</h1>
-            <h2>{currentSection.description}</h2>
-            <h3>Step {Number(sectionIndex) + 1} of {currentForm.sections.length}</h3>
-            <form onSubmit={submitForm}>
-                {currentSection.questions.sort((a, b) => a.order - b.order).map((question, i) => (
-                    <div key={i}>
-                        <h3>{question.question}</h3>
-                        <h4>{question.description}</h4>
-                        {FormInput(question)}
-                    </div>
-                ))}
-                {Number(sectionIndex) > 0 && <button name="prev">Save Progress and Go To Previous Step</button>}
-                {isLastSection
-                    ? <button name="final">Submit Form</button>
-                    : <button name="next">Save Progress and Continue</button>
-                }
-            </form>
+            <h2 className="h4 mb-3">{currentSection.name}</h2>
+            <p className="text-muted mb-4">{currentSection.description}</p>
+            
+            <ProgressBar 
+                now={(Number(sectionIndex) + 1) / currentForm.sections.length * 100} 
+                className="mb-4"
+                label={`Step ${Number(sectionIndex) + 1} of ${currentForm.sections.length}`}
+            />
+
+            <Form onSubmit={submitForm}>
+                <Stack gap={4}>
+                    {currentSection.questions
+                        .sort((a, b) => a.order - b.order)
+                        .map((question, i) => (
+                            <div key={i} className="question-container">
+                                <Form.Group>
+                                    <Form.Label className="fw-bold mb-2">
+                                        {question.question}
+                                    </Form.Label>
+                                    {question.description && (
+                                        <Form.Text className="text-muted d-block mb-2">
+                                            {question.description}
+                                        </Form.Text>
+                                    )}
+                                    {FormInput(question)}
+                                </Form.Group>
+                            </div>
+                        ))}
+                </Stack>
+
+                <div className="d-flex gap-2 justify-content-between mt-4">
+                    {Number(sectionIndex) > 0 && (
+                        <Button variant="outline-primary" name="prev" type="submit">
+                            Previous Step
+                        </Button>
+                    )}
+                    <Button 
+                        variant="primary" 
+                        name={isLastSection ? "final" : "next"} 
+                        type="submit"
+                        className="ms-auto"
+                    >
+                        {isLastSection ? 'Submit Form' : 'Continue'}
+                    </Button>
+                </div>
+            </Form>
         </div>
     )
 }

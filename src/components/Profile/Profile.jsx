@@ -1,7 +1,13 @@
 import { useEffect } from 'react';
 import useStore from '../../zustand/store';
-import { useParams } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Card from 'react-bootstrap/Card';
+import Table from 'react-bootstrap/Table';
+import ListGroup from 'react-bootstrap/ListGroup';
+import Badge from 'react-bootstrap/Badge';
 
 export default function Profile() {
   const { userId } = useParams();
@@ -34,60 +40,86 @@ export default function Profile() {
   };
 
   return (
-    <div className="profile-container">
-      <div className="profile-info">
-        <h1>
-          {userById.first_name} {userById.last_name}
-        </h1>
-        <h2>{userById.username}</h2>
-        <h3>{userById.phone_number}</h3>
-        <p>
-          <strong>Pipeline:</strong> {userById.pipeline_name}
-        </p>
-        <p>
-          <strong>Pipeline Status:</strong> {userById.pipeline_status_name}
-        </p>
-        <p>
-          <strong>Location:</strong> {userById.location_name}
-        </p>
-      </div>
+    <Container className="py-4">
+      <Row className="justify-content-center">
+        <Col md={8}>
+          <Card className="shadow-sm mb-4">
+            <Card.Body>
+              <Card.Title as="h1" className="mb-4">
+                {userById.first_name} {userById.last_name}
+              </Card.Title>
+              
+              <ListGroup variant="flush">
+                <ListGroup.Item>
+                  <strong>Username:</strong> {userById.username}
+                </ListGroup.Item>
+                <ListGroup.Item>
+                  <strong>Phone:</strong> {userById.phone_number}
+                </ListGroup.Item>
+                <ListGroup.Item>
+                  <strong>Pipeline:</strong> {userById.pipeline_name}
+                </ListGroup.Item>
+                <ListGroup.Item>
+                  <strong>Pipeline Status:</strong> {userById.pipeline_status_name}
+                </ListGroup.Item>
+                <ListGroup.Item>
+                  <strong>Location:</strong> {userById.location_name}
+                </ListGroup.Item>
+              </ListGroup>
+            </Card.Body>
+          </Card>
 
-      <div className="actions-section">
-        <h2>Action History</h2>
-        <div className="table-container">
-          <table className="actions-table">
-            <thead>
-              <tr>
-                <th>Type</th>
-                <th>Name</th>
-                <th>Started</th>
-                <th>Completed</th>
-              </tr>
-            </thead>
-            <tbody>
-              {userActions && userActions.map(action => (
-                <tr key={`${action.type}-${action.id}`}>
-                  <td>
-                    <span className={`action-badge ${action.type}`}>
-                      {action.type}
-                    </span>
-                  </td>
-                  <td>{action.type === 'submission' ? <Link to={`/submission/${action.id}`}>{action.name}</Link> : action.name}</td>
-                  <td>{formatDate(action.started_at)}</td>
-                  <td>{formatDate(action.finished_at)}</td>
-                </tr>
-              ))}
-              { userActions && userActions.length === 0 && (
-                <tr>
-                  <td colSpan="4" className="no-actions">
-                    No actions found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+          <Card className="shadow-sm">
+            <Card.Body>
+              <Card.Title as="h2" className="mb-4">Action History</Card.Title>
+              <div className="table-responsive">
+                <Table hover bordered>
+                  <thead className="table-light">
+                    <tr>
+                      <th className="text-nowrap">Type</th>
+                      <th>Name</th>
+                      <th className="text-nowrap">Started</th>
+                      <th className="text-nowrap">Completed</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {userActions?.map((action) => (
+                      <tr key={action.id}>
+                        <td>
+                          <span className="badge bg-secondary text-white">
+                            {action.type}
+                          </span>
+                        </td>
+                        <td>
+                          {action.type === 'submission' ? (
+                            <Link 
+                              to={`/submission/${action.id}/0`}
+                              className="text-decoration-none"
+                            >
+                              {action.name}
+                            </Link>
+                          ) : (
+                            action.name
+                          )}
+                        </td>
+                        <td className="text-nowrap">{formatDate(action.started_at)}</td>
+                        <td className="text-nowrap">{formatDate(action.finished_at)}</td>
+                      </tr>
+                    ))}
+                    {(!userActions || userActions.length === 0) && (
+                      <tr>
+                        <td colSpan="4" className="text-center text-muted py-4">
+                          No actions found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </Table>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 }
