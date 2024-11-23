@@ -14,6 +14,7 @@ import FormEditor from '../FormEditPage/FormEditPage';
 import FormAdmin from '../FormAdmin/FormAdmin';
 import QuestionManager from '../QuestionManager/QuestionManager';
 import SubmissionView from '../SubmissionView/SubmissionView';
+import Footer from '../Footer/Footer';
 
 function App() {
   const user = useStore((state) => state.user);
@@ -129,9 +130,7 @@ function App() {
           <Route path='*' element={<h2>404 Page</h2>} />
         </Routes>
       </main>
-      <footer>
-        <p>Copyright © {new Date().getFullYear()}</p>
-      </footer>
+      <Footer />
     </>
   );
 }
