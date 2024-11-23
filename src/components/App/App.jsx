@@ -18,6 +18,7 @@ import FormEditor from '../FormEditPage/FormEditPage';
 import FormAdmin from '../FormAdmin/FormAdmin';
 import QuestionManager from '../QuestionManager/QuestionManager';
 import SubmissionView from '../SubmissionView/SubmissionView';
+import Footer from '../Footer/Footer';
 
 function App() {
   const user = useStore((state) => state.user);
@@ -155,14 +156,7 @@ function App() {
           </Routes>
         </main>
       </Container>
-
-      <footer className="bg-light py-3 mt-auto">
-        <Container>
-          <p className="text-center mb-0">
-            Copyright © {new Date().getFullYear()}
-          </p>
-        </Container>
-      </footer>
+      <Footer />
     </>
   );
 }

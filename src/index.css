@@ -1,6 +1,5 @@
-
 /* Box-Sizing Fix: */
-  /* https://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/ */
+/* https://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/ */
 *,
 *::before,
 *::after {
@@ -8,7 +7,8 @@
 }
 
 /* Remove Margin/Padding: */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }
@@ -16,7 +16,7 @@ html, body {
 /* Typography: */
 body {
   font-family: sans-serif;
-  background-color: #f0f0f0;
+  background-color: #ffffff;
   color: rgba(0, 0, 0, 0.75);
 }
 
@@ -28,14 +28,14 @@ body {
 }
 
 #root > * {
-  padding: 0 20px
+  padding: 0 20px;
 }
 
 main {
   flex-grow: 1;
 }
 
-header, footer {
+header {
   display: flex;
   flex-basis: 6em;
   align-items: center;
@@ -89,9 +89,10 @@ button {
   margin-top: 10px;
 }
 
-button:hover, button:focus {
+button:hover,
+button:focus {
   outline-color: transparent;
-  outline-style:solid;
+  outline-style: solid;
   box-shadow: 0 0 3px 1px #20c997;
   transition: 0.7s;
 }

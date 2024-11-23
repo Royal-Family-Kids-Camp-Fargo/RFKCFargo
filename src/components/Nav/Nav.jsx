@@ -4,7 +4,7 @@ import useStore from '../../zustand/store';
 
 function Navigation() {
   const user = useStore(store => store.user);
-  const logout = useStore(store => store.logout);
+  const logOut = useStore(store => store.logOut);
 
   return (
     <Nav className="ms-auto">
@@ -23,7 +23,7 @@ function Navigation() {
           <Nav.Link as={Link} to="/about">
             About
           </Nav.Link>
-          <Nav.Link onClick={logout} role="button">
+          <Nav.Link onClick={logOut} role="button">
             Log Out
           </Nav.Link>
         </>
