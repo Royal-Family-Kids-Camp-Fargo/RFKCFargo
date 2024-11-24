@@ -10,7 +10,7 @@ export default function UserStatus({ person }) {
   const deleteUserFromPipeline = useStore((state) => state.deleteUserFromPipeline);
   const moveUserOnPipeline = useStore((state) => state.moveUserOnPipeline);
 
-  const [pipelineStatus, setPipelineStatus] = useState('');
+  const [pipelineStatus, setPipelineStatus] = useState(person.pipeline_status_id);
 
   const moveLane = () => {
     if (pipelineStatus) {
@@ -38,6 +38,21 @@ export default function UserStatus({ person }) {
     navigate(`/profile/${person.id}`);
   };
 
+  const moveLaneWithoutSubmit = (event) => {
+    event.preventDefault();
+    const pipelineStatus = event.target.value;
+    if (pipelineStatus) {
+      const moveMe = {
+        pipeline_status_id: pipelineStatus,
+        user_id: person.id,
+        pipeline_id: mySelectedPipeline.pipeline_id,
+      };
+      moveUserOnPipeline(moveMe);
+    } else {
+      alert('Please select a status');
+    }
+  };
+
   if (person.id) {
     return (
       <Card className="mb-3 shadow-sm">
@@ -56,12 +71,11 @@ export default function UserStatus({ person }) {
               </Form.Label>
               <Col sm={8}>
                 <Form.Select
-                  value={pipelineStatus}
-                  onChange={(event) => setPipelineStatus(event.target.value)}
+                  onChange={moveLaneWithoutSubmit}
                 >
                   <option value="">Select Status</option>
                   {statuses?.map((stat) => (
-                    <option key={stat.pipeline_status_id} value={stat.pipeline_status_id}>
+                    <option key={stat.pipeline_status_id} value={stat.pipeline_status_id} selected={stat.pipeline_status_id.toString() === pipelineStatus.toString()}>
                       {stat.status}
                     </option>
                   ))}
@@ -70,14 +84,6 @@ export default function UserStatus({ person }) {
             </Form.Group>
 
             <div className="d-flex justify-content-between">
-              <Button
-                variant="primary"
-                onClick={moveLane}
-                className="btn-sm"
-                disabled={!pipelineStatus}
-              >
-                Move
-              </Button>
               <Button variant="danger" onClick={removeUser} className="btn-sm">
                 Remove
               </Button>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Button, Card } from 'react-bootstrap';
 import useStore from '../../zustand/store';
 import PipelineStatus from '../PipelineStatus/PipelineStatus';
 import PipelineForm from '../PipelineForm/PipelineForm';
@@ -11,9 +12,6 @@ export default function Pipeline() {
   const selectedPipelineWithData = useStore((state) => state.selectedPipeline);
   const fetchPipeline = useStore((state) => state.fetchPipeline);
   const fetchPipelineById = useStore((state) => state.fetchPipelineById);
-  const searchingApplicant = useStore((state) => state.searchingApplicant);
-  const selectedUserId = useStore((state) => state.selectedUserId);
-  const addUserStatus = useStore((state) => state.addUserStatus);
 
   const [pipelineId, setPipelineId] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -37,9 +35,8 @@ export default function Pipeline() {
       {/* Other controls */}
       <div>
         <h1>Pipeline Page</h1>
-        <div>
-          <label htmlFor="pipelines">Choose Pipeline</label>
-          <select value={pipelineId} onChange={(event) => setPipelineId(Number(event.target.value))}>
+        <div className="input-group">
+          <select id="pipelines" className="form-control" value={pipelineId} onChange={(event) => setPipelineId(Number(event.target.value))}>
             <option>Select Pipeline</option>
             {pipelines.map((pipeline) => (
               <option key={pipeline.id} value={pipeline.id}>
@@ -47,7 +44,8 @@ export default function Pipeline() {
               </option>
             ))}
           </select>
-          <button onClick={loadPipeline}>Load Pipeline</button>
+          <Button onClick={loadPipeline}>Load Pipeline</Button>
+          <PipelineForm />
         </div>
         {initialPipelineStatusId && (
           <AddUserToPipeline
@@ -57,16 +55,28 @@ export default function Pipeline() {
           )}
       </div>
 
-      <div className="horizontal-scroll">
-        {selectedPipelineWithData?.statuses?.map((status) => (
-          <div key={status.pipeline_status_id} className="pipeline-status">
-            <h3>{status.status}</h3>
-            <PipelineStatus status={status} />
-          </div>
-        ))}
-      </div>
-
-      {showModal && <PipelineForm setShowModal={setShowModal} />}
+      {/* Display the pipeline statuses, if we haven't selected a pipeline ask the user to select one */}
+      {(!selectedPipelineWithData || Object.keys(selectedPipelineWithData).length === 0) ? (
+        <div className="mt-4">
+          <Card>
+            <Card.Body>
+              <Card.Title>No Pipeline Selected</Card.Title>
+              <Card.Text>
+                Please select a pipeline to view its statuses.
+              </Card.Text>
+            </Card.Body>
+          </Card>
+        </div>
+      ) : (
+        <div className="horizontal-scroll mt-4">
+          {selectedPipelineWithData?.statuses?.map((status) => (
+            <div key={status.pipeline_status_id} className="pipeline-status">
+              <h3>{status.status}</h3>
+              <PipelineStatus status={status} />
+            </div>
+          ))}
+        </div>
+      )}
     </>
   );
 }
