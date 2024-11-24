@@ -20,7 +20,7 @@ function Navigation() {
               Pipeline
             </Nav.Link>
             <Nav.Link as={Link} to='/admin/forms' active={location.pathname === '/admin/forms'}>
-              Form Admin
+              Manage Forms
             </Nav.Link>
             <Nav.Link as={Link} to='/about' active={location.pathname === '/about'}>
               About
