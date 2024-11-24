@@ -63,14 +63,19 @@ export default function SectionManager({ formId }) {
           <div style={{ width: '300px' }}>
             <Form.Group>
               <Form.Label className='fw-bold mb-2'>Section Name:</Form.Label>
-              <div className='p-1 bg-light rounded'>
+              <div className='bg-light rounded'>
                 <Form.Control
                   type='text'
                   id='name'
                   value={newSection.name}
                   onChange={(e) => setNewSection({ ...newSection, name: e.target.value })}
                   required
-                  style={{ border: 'none', backgroundColor: 'transparent', padding: '2px 0' }}
+                  style={{
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    height: '32px',
+                    padding: '0 8px',
+                  }}
                 />
               </div>
             </Form.Group>
@@ -79,14 +84,19 @@ export default function SectionManager({ formId }) {
           <div style={{ width: '100px' }}>
             <Form.Group>
               <Form.Label className='fw-bold mb-2'>Order:</Form.Label>
-              <div className='p-1 bg-light rounded'>
+              <div className='bg-light rounded'>
                 <Form.Control
                   type='number'
                   id='order'
                   value={Number(newSection.order)}
                   onChange={(e) => setNewSection({ ...newSection, order: parseInt(e.target.value) })}
                   required
-                  style={{ border: 'none', backgroundColor: 'transparent', padding: '2px 0' }}
+                  style={{
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    height: '32px',
+                    padding: '0 8px',
+                  }}
                 />
               </div>
             </Form.Group>
@@ -133,10 +143,41 @@ export default function SectionManager({ formId }) {
         {currentForm?.sections
           ?.sort((a, b) => a.order - b.order)
           .map((section) => (
-            <div key={section.id} className='section-item'>
-              <h4>{section.name}</h4>
-              <p>{section.description}</p>
-              <p>Order: {section.order}</p>
+            <div key={section.id} className='section-item mb-4'>
+              <div className='mb-2'>
+                <h4
+                  style={{
+                    fontSize: '1.3rem',
+                    color: '#333',
+                    marginBottom: '0.5rem',
+                    fontWeight: '600',
+                    letterSpacing: '0.2px',
+                  }}
+                >
+                  {section.name}
+                </h4>
+                <p
+                  style={{
+                    color: '#666',
+                    fontSize: '0.95rem',
+                    lineHeight: '1.5',
+                    marginBottom: '0.5rem',
+                  }}
+                >
+                  {section.description}
+                </p>
+                <p
+                  style={{
+                    color: '#777',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    marginBottom: '0.75rem',
+                  }}
+                >
+                  Order: {section.order}
+                </p>
+              </div>
+
               <div className='d-flex gap-2 align-items-center'>
                 <Button
                   variant='primary'
