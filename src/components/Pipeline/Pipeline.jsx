@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Button, Card } from 'react-bootstrap';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+
 import useStore from '../../zustand/store';
 import PipelineStatus from '../PipelineStatus/PipelineStatus';
 import PipelineForm from '../PipelineForm/PipelineForm';
 
 import './Pipeline.css'; // Assuming the styles are in this file
 import AddUserToPipeline from './AddUserToPipeline';
+
+export const DRAG_TYPE = 'user-status';
 
 export default function Pipeline() {
   const pipelines = useStore((state) => state.pipelines);
@@ -68,14 +73,16 @@ export default function Pipeline() {
           </Card>
         </div>
       ) : (
-        <div className="horizontal-scroll mt-4">
-          {selectedPipelineWithData?.statuses?.map((status) => (
-            <div key={status.pipeline_status_id} className="pipeline-status">
-              <h3>{status.status}</h3>
-              <PipelineStatus status={status} />
-            </div>
-          ))}
-        </div>
+        <DndProvider backend={HTML5Backend}>
+          <div className="horizontal-scroll mt-4">
+            {selectedPipelineWithData?.statuses?.map((status) => (
+              <div key={status.pipeline_status_id} className="pipeline-status">
+                <h3>{status.status}</h3>
+                <PipelineStatus status={status} pipelineId={pipelineId} />
+              </div>
+            ))}
+          </div>
+        </DndProvider>
       )}
     </>
   );
