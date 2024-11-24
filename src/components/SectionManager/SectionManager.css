@@ -28,16 +28,16 @@
   border-radius: 4px;
 }
 
-.section-manager button {
+.section-manager button[type='submit'] {
   padding: 10px;
   background-color: #4b0082;
   color: white;
-  border: none;
+  border: 1px solid #4b0082;
   border-radius: 4px;
   cursor: pointer;
 }
 
-.section-manager button:hover {
+.section-manager button[type='submit']:hover {
   opacity: 0.9;
 }
 
@@ -56,17 +56,29 @@
 
 .section-item h4 {
   margin: 0 0 10px 0;
-  color: #4b0082;
 }
 
 .section-item button {
   background-color: white;
-  color: #4b0082;
-  border: 1px solid #4b0082;
+  color: #cc0000;
+  border: 1px solid #cc0000;
   margin-top: 10px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .section-item button:hover {
-  background-color: #4b0082;
+  background-color: #cc0000;
   color: white;
+}
+
+.section-manager h2,
+.section-item h4 {
+  color: #4b0082;
+  border-left: 4px solid #4b0082;
+  padding-left: 12px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
 }
