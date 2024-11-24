@@ -358,3 +358,5 @@ SELECT setval(pg_get_serial_sequence('sections', 'id'), (SELECT MAX(id) FROM "se
 SELECT setval(pg_get_serial_sequence('question', 'id'), (SELECT MAX(id) FROM "question"));
 SELECT setval(pg_get_serial_sequence('answer', 'id'), (SELECT MAX(id) FROM "answer"));
 SELECT setval(pg_get_serial_sequence('multiple_choice_answers', 'id'), (SELECT MAX(id) FROM "multiple_choice_answers"));
+
+CREATE EXTENSION pg_trgm;

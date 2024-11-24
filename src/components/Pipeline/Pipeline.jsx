@@ -4,21 +4,19 @@ import PipelineStatus from '../PipelineStatus/PipelineStatus';
 import PipelineForm from '../PipelineForm/PipelineForm';
 
 import './Pipeline.css'; // Assuming the styles are in this file
+import AddUserToPipeline from './AddUserToPipeline';
 
 export default function Pipeline() {
   const pipelines = useStore((state) => state.pipelines);
   const selectedPipelineWithData = useStore((state) => state.selectedPipeline);
   const fetchPipeline = useStore((state) => state.fetchPipeline);
   const fetchPipelineById = useStore((state) => state.fetchPipelineById);
-  const foundUsers = useStore((state) => state.foundUsers);
   const searchingApplicant = useStore((state) => state.searchingApplicant);
-  const setSelectedUserId = useStore((state) => state.setSelectedUserId);
   const selectedUserId = useStore((state) => state.selectedUserId);
   const addUserStatus = useStore((state) => state.addUserStatus);
 
   const [pipelineId, setPipelineId] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [searchString, setSearchString] = useState('');
 
   useEffect(() => {
     fetchPipeline();
@@ -28,24 +26,11 @@ export default function Pipeline() {
     fetchPipelineById(pipelineId);
   };
 
-  const searchQuery = () => {
-    searchingApplicant(searchString);
-  };
-
-  const addUserToPipeline = () => {
-    if (!selectedPipelineWithData || Object.keys(selectedPipelineWithData).length === 0) {
-      alert('Please select a pipeline');
-      return;
-    }
-
-    const newUserStatus = {
-      pipeline_id: selectedPipelineWithData.pipeline_id,
-      user_id: selectedUserId,
-      pipeline_status_id: selectedPipelineWithData.statuses[0].pipeline_status_id,
-    };
-    addUserStatus(newUserStatus);
-    setSearchString('');
-  };
+  // Get the initial status id for the pipeline if it exists
+  let initialPipelineStatusId = null;
+  if (selectedPipelineWithData?.statuses?.length > 0) {
+    initialPipelineStatusId = selectedPipelineWithData.statuses[0].pipeline_status_id;
+  }
 
   return (
     <>
@@ -64,6 +49,12 @@ export default function Pipeline() {
           </select>
           <button onClick={loadPipeline}>Load Pipeline</button>
         </div>
+        {initialPipelineStatusId && (
+          <AddUserToPipeline
+            pipelineId={pipelineId}
+            initialPipelineStatusId={initialPipelineStatusId}
+          />
+          )}
       </div>
 
       <div className="horizontal-scroll">
