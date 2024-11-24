@@ -9,10 +9,10 @@ function Navigation() {
   const location = useLocation();
 
   return (
-    <Nav className='w-100 d-flex'>
+    <Nav className='w-100 d-flex bg-light'>
       {user.id ? (
         <>
-          <div className='d-flex'>
+          <div className='d-lg-flex'>
             <Nav.Link as={Link} to='/' active={location.pathname === '/'}>
               Home
             </Nav.Link>
@@ -26,7 +26,7 @@ function Navigation() {
               About
             </Nav.Link>
           </div>
-          <div className='ms-auto'>
+          <div className='ms-lg-auto'>
             <Nav.Link onClick={logOut} role='button'>
               Log Out
             </Nav.Link>
@@ -37,7 +37,7 @@ function Navigation() {
           <Nav.Link as={Link} to='/about' className='me-auto' active={location.pathname === '/about'}>
             About
           </Nav.Link>
-          <div className='d-flex'>
+          <div className='d-lg-flex'>
             <Nav.Link as={Link} to='/login' active={location.pathname === '/login'}>
               Login
             </Nav.Link>

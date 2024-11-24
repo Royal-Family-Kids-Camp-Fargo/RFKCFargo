@@ -1,0 +1,16 @@
+.horizontal-scroll {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 10px;
+  gap: 16px;
+}
+
+.pipeline-status {
+  min-width: 300px; /* Set a fixed width for each status column */
+  flex-shrink: 0;
+  background-color: #f8f9fa; /* Light gray background */
+  border: 1px solid #dee2e6; /* Border for each column */
+  border-radius: 8px;
+  padding: 10px;
+}

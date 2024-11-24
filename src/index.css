@@ -73,10 +73,8 @@ label {
 
 input {
   display: block;
-  padding: 5px;
   outline: none;
   border: 1px solid rgba(0, 0, 0, 0.75);
-  margin-bottom: 10px;
 }
 
 input:focus {
