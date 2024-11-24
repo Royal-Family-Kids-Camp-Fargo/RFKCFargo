@@ -7,16 +7,19 @@ footer {
   background: linear-gradient(to bottom, #4b0082, #3c0066);
   border-top: 1px solid #3c0066;
   margin-top: 2rem;
+  text-align: center;
 }
 
 .footer-content {
   text-align: center;
   font-size: 0.9rem;
+  width: 100%;
 }
 
 footer p {
   margin: 0.8rem 0;
   color: white;
+  text-align: center;
 }
 
 .contact-info {
@@ -25,11 +28,13 @@ footer p {
   justify-content: center;
   gap: 1.5rem;
   letter-spacing: 0.5px;
+  flex-wrap: wrap;
 }
 
 .contact-item {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
 }
 

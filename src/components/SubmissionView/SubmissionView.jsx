@@ -2,6 +2,9 @@ import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../../zustand/store';
 import SubmissionSection from './SubmissionSection';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 export default function SubmissionView() {
   const { submissionId, sectionIndex } = useParams();
@@ -31,13 +34,34 @@ export default function SubmissionView() {
   }, [sectionIndex]);
 
   if (!currentForm || !currentSubmission) {
-    return <div>Loading...</div>;
+    return (
+      <Container className='text-center py-5'>
+        <div className='spinner-border' role='status'>
+          <span className='visually-hidden'>Loading...</span>
+        </div>
+      </Container>
+    );
   }
 
   return (
-    <div>
-      <h1>Submission Review - {currentForm.name}</h1>
-      <SubmissionSection currentForm={currentForm} currentSubmission={currentSubmission} />
-    </div>
+    <Container>
+      <Row className='justify-content-center'>
+        <Col md={8}>
+          <div
+            className='bg-white p-4 rounded shadow-sm'
+            style={{ backgroundColor: 'rgba(255, 192, 203, 0.1) !important' }}
+          >
+            <h1 className='text-center mb-2 fw-bold' style={{ color: '#cc0000' }}>
+              Submission Review
+            </h1>
+            <h2 className='text-center mb-4 h4' style={{ color: '#4b0082' }}>
+              {currentForm.name}
+            </h2>
+            <hr className='mb-4' style={{ borderColor: '#4b0082', opacity: 0.25 }} />
+            <SubmissionSection currentForm={currentForm} currentSubmission={currentSubmission} />
+          </div>
+        </Col>
+      </Row>
+    </Container>
   );
 }

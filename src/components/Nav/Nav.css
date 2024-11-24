@@ -1,0 +1,38 @@
+.navbar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  position: relative;
+  z-index: 1000;
+  padding: 10px 80px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-brand {
+  color: #4b0082;
+  font-weight: 600;
+}
+
+.nav-link {
+  color: #666;
+  transition: all 0.3s ease;
+  padding: 6px 16px !important;
+  margin: 0 2px;
+  border-radius: 2px;
+  text-decoration: none !important;
+  font-size: 0.9rem;
+  height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+.nav-link:hover {
+  color: #4b0082;
+}
+
+.nav-link.active {
+  background-color: #4b0082;
+  color: white !important;
+  border-radius: 2px;
+}

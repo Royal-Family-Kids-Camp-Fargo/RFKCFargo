@@ -18,7 +18,7 @@ function LoginPage() {
     // Clear the auth error message when the component unmounts:
     return () => {
       setAuthErrorMessage('');
-    }
+    };
   }, []);
 
   const handleLogIn = (event) => {
@@ -31,42 +31,42 @@ function LoginPage() {
 
   return (
     <Container>
-      <Row className="justify-content-center">
+      <Row className='justify-content-center'>
         <Col md={6} lg={4}>
-          <div className="bg-white p-4 rounded shadow-sm">
-            <h2 className="text-center mb-4">Login</h2>
-            
+          <div className='bg-white p-4 rounded shadow-sm'>
+            <h2 className='text-center mb-4'>Login</h2>
+
             {errorMessage && (
-              <Alert variant="danger" className="mb-4">
+              <Alert variant='danger' className='mb-4'>
                 {errorMessage}
               </Alert>
             )}
 
             <Form onSubmit={handleLogIn}>
-              <Form.Group className="mb-3" controlId="username">
-                <Form.Label>Username</Form.Label>
+              <Form.Group className='mb-3' controlId='username'>
+                <Form.Label>Email</Form.Label>
                 <Form.Control
-                  type="text"
+                  type='text'
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter username"
+                  placeholder='Enter email'
                 />
               </Form.Group>
 
-              <Form.Group className="mb-4" controlId="password">
+              <Form.Group className='mb-4' controlId='password'>
                 <Form.Label>Password</Form.Label>
                 <Form.Control
-                  type="password"
+                  type='password'
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password"
+                  placeholder='Enter password'
                 />
               </Form.Group>
 
-              <div className="d-grid">
-                <Button variant="primary" type="submit">
+              <div className='d-grid'>
+                <Button variant='primary' type='submit'>
                   Log In
                 </Button>
               </div>
