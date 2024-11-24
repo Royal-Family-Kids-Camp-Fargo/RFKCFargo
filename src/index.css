@@ -16,7 +16,7 @@ body {
 /* Typography: */
 body {
   font-family: sans-serif;
-  background-color: #ffffff;
+  background-color: #f0f0f0;
   color: rgba(0, 0, 0, 0.75);
 }
 
@@ -35,7 +35,8 @@ main {
   flex-grow: 1;
 }
 
-header {
+header,
+footer {
   display: flex;
   flex-basis: 6em;
   align-items: center;
