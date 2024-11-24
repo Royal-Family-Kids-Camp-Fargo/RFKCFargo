@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Card, Button, Form, Row, Col } from 'react-bootstrap';
+import { useDrag } from 'react-dnd';
 import useStore from '../../zustand/store';
 import { useNavigate } from 'react-router-dom';
+
+import { DRAG_TYPE } from '../Pipeline/Pipeline';
 
 export default function UserStatus({ person }) {
   const navigate = useNavigate();
@@ -11,6 +14,12 @@ export default function UserStatus({ person }) {
   const moveUserOnPipeline = useStore((state) => state.moveUserOnPipeline);
 
   const [pipelineStatus, setPipelineStatus] = useState(person.pipeline_status_id);
+
+  // Allow the User Status to be dragged into another Pipeline Status
+  const [isDragging, drag, dragPreview] = useDrag(() => ({
+    type: DRAG_TYPE,
+    item: person,
+  }));
 
   const moveLane = () => {
     if (pipelineStatus) {
@@ -55,8 +64,8 @@ export default function UserStatus({ person }) {
 
   if (person.id) {
     return (
-      <Card className="mb-3 shadow-sm">
-        <Card.Body>
+      <Card className="mb-3 shadow-sm" ref={dragPreview} style={{ opacity: isDragging ? 1 : 0.5}}>
+        <Card.Body ref={drag}>
           <div onClick={moveToProfile} className="mb-3" style={{ cursor: 'pointer' }}>
             <Card.Title>
               {person.user_firstName} {person.user_lastName}
@@ -72,6 +81,7 @@ export default function UserStatus({ person }) {
               <Col sm={8}>
                 <Form.Select
                   onChange={moveLaneWithoutSubmit}
+                  value={pipelineStatus}
                 >
                   <option value="">Select Status</option>
                   {statuses?.map((stat) => (
