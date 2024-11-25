@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Card } from 'react-bootstrap';
+import { Button, Card, Modal, Form } from 'react-bootstrap';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -39,9 +39,20 @@ export default function Pipeline() {
     <>
       {/* Other controls */}
       <div>
-        <h1>Pipeline Page</h1>
-        <div className="input-group">
-          <select id="pipelines" className="form-control" value={pipelineId} onChange={(event) => setPipelineId(Number(event.target.value))}>
+        <div className='text-center mb-4'>
+          <h1 style={{ color: '#4b0082' }}>
+            {selectedPipelineWithData?.pipeline_name
+              ? `${selectedPipelineWithData.pipeline_name} Pipeline`
+              : 'Pipeline'}
+          </h1>
+        </div>
+        <div className='input-group mb-4'>
+          <select
+            id='pipelines'
+            className='form-control'
+            value={pipelineId}
+            onChange={(event) => setPipelineId(Number(event.target.value))}
+          >
             <option>Select Pipeline</option>
             {pipelines.map((pipeline) => (
               <option key={pipeline.id} value={pipeline.id}>
@@ -49,35 +60,40 @@ export default function Pipeline() {
               </option>
             ))}
           </select>
-          <Button onClick={loadPipeline}>Load Pipeline</Button>
+          <Button
+            onClick={loadPipeline}
+            variant='outline-secondary'
+            className='px-4'
+            style={{
+              borderColor: '#4b0082',
+              color: '#4b0082',
+            }}
+          >
+            Load Pipeline
+          </Button>
           <PipelineForm />
         </div>
         {initialPipelineStatusId && (
-          <AddUserToPipeline
-            pipelineId={pipelineId}
-            initialPipelineStatusId={initialPipelineStatusId}
-          />
-          )}
+          <AddUserToPipeline pipelineId={pipelineId} initialPipelineStatusId={initialPipelineStatusId} />
+        )}
       </div>
 
       {/* Display the pipeline statuses, if we haven't selected a pipeline ask the user to select one */}
-      {(!selectedPipelineWithData || Object.keys(selectedPipelineWithData).length === 0) ? (
-        <div className="mt-4">
+      {!selectedPipelineWithData || Object.keys(selectedPipelineWithData).length === 0 ? (
+        <div className='mt-4'>
           <Card>
             <Card.Body>
               <Card.Title>No Pipeline Selected</Card.Title>
-              <Card.Text>
-                Please select a pipeline to view its statuses.
-              </Card.Text>
+              <Card.Text>Please select a pipeline to view its statuses.</Card.Text>
             </Card.Body>
           </Card>
         </div>
       ) : (
         <DndProvider backend={HTML5Backend}>
-          <div className="horizontal-scroll mt-4">
+          <div className='horizontal-scroll mt-4'>
             {selectedPipelineWithData?.statuses?.map((status) => (
-              <div key={status.pipeline_status_id} className="pipeline-status">
-                <h3>{status.status}</h3>
+              <div key={status.pipeline_status_id} className='pipeline-status'>
+                <h3 className='text-center pipeline-status-title'>{status.status}</h3>
                 <PipelineStatus status={status} pipelineId={pipelineId} />
               </div>
             ))}

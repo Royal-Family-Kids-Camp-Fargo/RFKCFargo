@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Modal } from 'react-bootstrap';
+import { Button, Modal, Form } from 'react-bootstrap';
 import useStore from '../../zustand/store';
 
 export default function PipelineForm() {
@@ -28,55 +28,59 @@ export default function PipelineForm() {
 
   return (
     <>
-      <Button onClick={() => setShowModal(true)}>Add New Pipeline</Button>
+      <Button
+        onClick={() => setShowModal(true)}
+        variant='success'
+        style={{
+          boxShadow: 'none',
+          backgroundColor: '#4b0082',
+          borderColor: '#4b0082',
+          color: 'white',
+        }}
+      >
+        Add New Pipeline
+      </Button>
+
       <Modal show={showModal} onHide={closeModal} size='lg'>
         <Modal.Header closeButton>
-          <Modal.Title>Add New Pipeline</Modal.Title>
+          <Modal.Title style={{ color: '#4b0082' }}>Add New Pipeline</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <form onSubmit={addNewPipeline} id='pipelineForm'>
-            <label htmlFor='NewPipelineName'>New Pipeline Name:</label>
-            <input
-              value={pipelineName}
-              onChange={(event) => setPipelineName(event.target.value)}
-              type='text'
-              id='newPipelineName'
-              name='newPipelineName'
-              required
-            />
+          <Form>
+            <Form.Group className='mb-3'>
+              <Form.Control
+                type='text'
+                placeholder='Enter pipeline name'
+                value={pipelineName}
+                onChange={(e) => setPipelineName(e.target.value)}
+                required
+              />
+            </Form.Group>
 
-            <label htmlFor='type'>Type:</label>
-            <select
-              value={pipelineType}
-              onChange={(event) => setPipelineType(event.target.value)}
-              id='pipeline_type'
-              name='pipeline_type'
-              required
-            >
-              <option value=''>--Select --</option>
-              <option value='volunteer'>Volunteer</option>
-              <option value='donor'>Donor</option>
-            </select>
+            <div className='d-flex gap-3'>
+              <Form.Group className='mb-3 flex-grow-1'>
+                <Form.Select value={pipelineType} onChange={(e) => setPipelineType(e.target.value)} required>
+                  <option value=''>--Select Type--</option>
+                  <option value='volunteer'>Volunteer</option>
+                  <option value='donor'>Donor</option>
+                </Form.Select>
+              </Form.Group>
 
-            <label htmlFor='location'>Location:</label>
-            <select
-              value={locationId}
-              onChange={(event) => setLocationId(event.target.value)}
-              id='location'
-              name='location'
-              required
-            >
-              <option value=''>--Select Location--</option>
-              {user.locations?.map((location) => (
-                <option key={location.id} value={location.id}>
-                  {location.name}
-                </option>
-              ))}
-            </select>
-          </form>
+              <Form.Group className='mb-3 flex-grow-1'>
+                <Form.Select value={locationId} onChange={(e) => setLocationId(e.target.value)} required>
+                  <option value=''>--Select Location--</option>
+                  {user.locations?.map((location) => (
+                    <option key={location.id} value={location.id}>
+                      {location.name}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </div>
+          </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button type='submit' onClick={addNewPipeline}>
+          <Button onClick={addNewPipeline} style={{ backgroundColor: '#4b0082', borderColor: '#4b0082' }}>
             Add Pipeline
           </Button>
         </Modal.Footer>
