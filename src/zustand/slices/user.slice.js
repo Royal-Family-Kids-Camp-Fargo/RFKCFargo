@@ -22,7 +22,8 @@ const createUserSlice = (set, get) => ({
   fetchUserById: async (userId) => {
     try {
       const { data } = await axios.get(`/api/user/${userId}`);
-      set({ userById: data[0] }); //this was an array, index 0 to get the only one
+      console.log('fetchUserById data:', data);
+      set({ userById: data[0] || {} }); //this was an array, index 0 to get the only one
     } catch (err) {
       console.error('fetchUserById error:', err);
       set({ userById: {} });
