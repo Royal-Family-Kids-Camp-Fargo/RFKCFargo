@@ -693,7 +693,8 @@ router.post('/user_status', rejectUnauthenticated, (req, res) => {
   const newLogQuery = `
   INSERT INTO "user_status" 
     ("user_id", "pipeline_status_id")
-    VALUES ($1, $2);
+    VALUES ($1, $2)
+    ON CONFLICT ON CONSTRAINT unique_user_pipeline_status DO NOTHING;
   `;
   pool
     .query(newLogQuery, [req.body.user_id, req.body.pipeline_status_id])

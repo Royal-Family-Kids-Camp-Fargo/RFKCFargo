@@ -76,12 +76,12 @@ export default function Profile() {
               <div className='d-flex justify-content-between align-items-center'>
                 <div className='flex-grow-1 ps-4'>
                   <h1 className='mb-3' style={{ color: '#4b0082' }}>
-                    {userById.first_name} {userById.last_name}
+                    {userById?.first_name} {userById?.last_name}
                   </h1>
                   <div className='mb-2' style={{ fontSize: '1.1rem' }}>
-                    {userById.username}
+                    {userById?.username}
                   </div>
-                  <div>{formatPhoneNumber(userById.phone_number)}</div>
+                  <div>{formatPhoneNumber(userById?.phone_number)}</div>
                 </div>
                 <div className='ms-4'>
                   <FaUserCircle
@@ -98,13 +98,13 @@ export default function Profile() {
             <Card.Body>
               <ListGroup variant='flush'>
                 <ListGroup.Item>
-                  <strong>Pipeline:</strong> {userById.pipeline_name}
+                  <strong>Pipeline:</strong> {userById?.pipeline_name}
                 </ListGroup.Item>
                 <ListGroup.Item>
-                  <strong>Pipeline Status:</strong> {userById.pipeline_status_name}
+                  <strong>Pipeline Status:</strong> {userById?.pipeline_status_name}
                 </ListGroup.Item>
                 <ListGroup.Item>
-                  <strong>Location:</strong> {userById.location_name}
+                  <strong>Location:</strong> {userById?.location_name}
                 </ListGroup.Item>
               </ListGroup>
             </Card.Body>

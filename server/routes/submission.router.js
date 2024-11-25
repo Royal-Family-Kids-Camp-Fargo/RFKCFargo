@@ -147,26 +147,41 @@ router.put('/:submissionId/submit', async (req, res) => {
         where id = $1 RETURNING *;
     `;
     const submissionResult = await pool.query(queryText, [req.params.submissionId]);
-    
-    // Get the pipeline_id and first pipeline_status_id for this form
+
+    // Get the pipeline_id, first pipeline_status_id, and location_id for this form
     const pipelineQuery = `
-        SELECT pipeline.id as pipeline_id, pipeline_status.id as status_id 
-                    FROM forms
-                    JOIN pipeline ON forms.default_pipeline_id = pipeline.id
-                    JOIN pipeline_status ON pipeline.id = pipeline_status.pipeline_id
-                    WHERE forms.id = $1 ORDER BY "pipeline_status"."order" ASC LIMIT 1;
-        `;
+        SELECT pipeline.id as pipeline_id, 
+               pipeline_status.id as status_id,
+               forms.location_id
+        FROM forms
+        JOIN pipeline ON forms.default_pipeline_id = pipeline.id
+        JOIN pipeline_status ON pipeline.id = pipeline_status.pipeline_id
+        WHERE forms.id = $1 
+        ORDER BY "pipeline_status"."order" ASC 
+        LIMIT 1;
+    `;
     const pipelineResult = await pool.query(pipelineQuery, [submissionResult.rows[0].form_id]);
 
     // Insert the user's initial status into user_status
     const statusQuery = `
-            INSERT INTO user_status (user_id, pipeline_status_id)
-            VALUES ($1, $2);`;
+        INSERT INTO user_status (user_id, pipeline_status_id)
+        VALUES ($1, $2)
+        ON CONFLICT ON CONSTRAINT unique_user_pipeline_status DO NOTHING;
+    `;
     await pool.query(statusQuery, [req.user.id, pipelineResult.rows[0].status_id]);
-    res.send(200);
+
+    // Insert into user_location, ignoring if entry already exists
+    const locationQuery = `
+        INSERT INTO user_location (user_id, location_id, internal)
+        VALUES ($1, $2, false)
+        ON CONFLICT ON CONSTRAINT unique_user_location DO NOTHING;
+    `;
+    await pool.query(locationQuery, [req.user.id, pipelineResult.rows[0].location_id]);
+
+    res.sendStatus(200);
   } catch (err) {
     console.error('Error submitting submission.', err);
-    res.send(500);
+    res.sendStatus(500);
   }
 });
 // Post for new submission
