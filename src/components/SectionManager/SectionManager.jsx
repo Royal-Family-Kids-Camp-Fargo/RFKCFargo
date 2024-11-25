@@ -184,7 +184,14 @@ export default function SectionManager({ formId }) {
                   onClick={() => handleDelete(section.id)}
                   size='sm'
                   className='px-3'
-                  style={{ backgroundColor: '#cc0000', borderColor: '#cc0000', color: 'white' }}
+                  style={{
+                    backgroundColor: '#cc0000',
+                    borderColor: '#cc0000',
+                    color: 'white',
+                    height: '31px', // Set explicit height
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
                 >
                   Delete
                 </Button>
@@ -194,7 +201,13 @@ export default function SectionManager({ formId }) {
                   to={`/admin/forms/${formId}/section/${section.id}`}
                   size='sm'
                   className='px-3'
-                  style={{ borderColor: '#4b0082', color: '#4b0082' }}
+                  style={{
+                    borderColor: '#4b0082',
+                    color: '#4b0082',
+                    height: '31px', // Match delete button height
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
                 >
                   Manage Questions
                 </Button>

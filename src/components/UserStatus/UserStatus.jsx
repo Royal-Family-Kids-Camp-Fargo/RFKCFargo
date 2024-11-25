@@ -62,30 +62,42 @@ export default function UserStatus({ person }) {
     }
   };
 
+  const formatPhoneNumber = (phoneNumber) => {
+    if (!phoneNumber) return '';
+    const cleaned = phoneNumber.replace(/\D/g, '');
+    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+      return `(${match[1]})${match[2]}-${match[3]}`;
+    }
+    return phoneNumber;
+  };
+
   if (person.id) {
     return (
-      <Card className="mb-3 shadow-sm" ref={dragPreview} style={{ opacity: isDragging ? 1 : 0.5}}>
+      <Card className='mb-3 shadow-sm' ref={dragPreview} style={{ opacity: isDragging ? 1 : 0.5 }}>
         <Card.Body ref={drag}>
-          <div onClick={moveToProfile} className="mb-3" style={{ cursor: 'pointer' }}>
-            <Card.Title>
+          <div onClick={moveToProfile} className='mb-3' style={{ cursor: 'pointer' }}>
+            <Card.Title className='mb-3'>
               {person.user_firstName} {person.user_lastName}
             </Card.Title>
-            <Card.Subtitle className="text-muted">{person.phoneNumber}</Card.Subtitle>
+            <Card.Subtitle className='text-muted mb-2'>{formatPhoneNumber(person.phoneNumber)}</Card.Subtitle>
+            <Card.Text className='text-muted small'>{person.username}</Card.Text>
           </div>
 
           <Form>
-            <Form.Group as={Row} controlId="PipelineStatus" className="mb-3">
-              <Form.Label column sm={4}>
+            <Form.Group as={Row} controlId='PipelineStatus' className='mb-2 align-items-center g-0'>
+              <Form.Label column sm={4} className='pb-0 mb-0'>
                 Status
               </Form.Label>
               <Col sm={8}>
-                <Form.Select
-                  onChange={moveLaneWithoutSubmit}
-                  value={pipelineStatus}
-                >
-                  <option value="">Select Status</option>
+                <Form.Select onChange={moveLaneWithoutSubmit} value={pipelineStatus}>
+                  <option value=''>Select Status</option>
                   {statuses?.map((stat) => (
-                    <option key={stat.pipeline_status_id} value={stat.pipeline_status_id} selected={stat.pipeline_status_id.toString() === pipelineStatus.toString()}>
+                    <option
+                      key={stat.pipeline_status_id}
+                      value={stat.pipeline_status_id}
+                      selected={stat.pipeline_status_id.toString() === pipelineStatus.toString()}
+                    >
                       {stat.status}
                     </option>
                   ))}
@@ -93,8 +105,8 @@ export default function UserStatus({ person }) {
               </Col>
             </Form.Group>
 
-            <div className="d-flex justify-content-between">
-              <Button variant="danger" onClick={removeUser} className="btn-sm">
+            <div className='d-flex justify-content-between'>
+              <Button variant='danger' onClick={removeUser} className='btn-sm'>
                 Remove
               </Button>
             </div>
@@ -104,7 +116,7 @@ export default function UserStatus({ person }) {
     );
   } else {
     return (
-      <Card className="mb-3 shadow-sm">
+      <Card className='mb-3 shadow-sm'>
         <Card.Body>
           <Card.Text>No One in Status</Card.Text>
         </Card.Body>

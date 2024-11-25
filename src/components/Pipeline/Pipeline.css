@@ -7,10 +7,21 @@
 }
 
 .pipeline-status {
-  min-width: 300px; /* Set a fixed width for each status column */
-  flex-shrink: 0;
-  background-color: #f8f9fa; /* Light gray background */
-  border: 1px solid #dee2e6; /* Border for each column */
+  width: 350px;
+  flex: 0 0 350px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
   border-radius: 8px;
   padding: 10px;
+}
+
+.pipeline-status-title {
+  color: #4b0082;
+  font-weight: bold;
+  border-bottom: 2px solid #20c997;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 1.2rem;
 }
