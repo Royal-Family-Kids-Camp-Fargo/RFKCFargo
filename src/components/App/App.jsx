@@ -19,6 +19,7 @@ import FormAdmin from '../FormAdmin/FormAdmin';
 import QuestionManager from '../QuestionManager/QuestionManager';
 import SubmissionView from '../SubmissionView/SubmissionView';
 import Footer from '../Footer/Footer';
+import favicon from '../../../public/favicon.png';
 
 function App() {
   const user = useStore((state) => state.user);
@@ -41,7 +42,17 @@ function App() {
     <>
       <Navbar bg="light" expand="lg" className="mb-4">
         <Container>
-          <Navbar.Brand>EDA Solo Project</Navbar.Brand>
+
+          <Navbar.Brand>
+            <img
+              src={favicon}
+              width="30"
+              height="30"
+              className="d-inline-block align-top me-2"
+              alt="Brand logo"
+            />
+            <span className="d-none d-sm-inline">Royal Family Kids Camp</span>
+          </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Navigation />
