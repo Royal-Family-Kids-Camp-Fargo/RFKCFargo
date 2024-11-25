@@ -31,26 +31,27 @@ function App() {
   // Debug Helper
   const store = useStore((store) => store);
   useEffect(() => {
-    console.log(`Current Store: `, Object.fromEntries(
-      Object.entries(store).filter(([_, value]) => typeof value !== 'function')
-    ));
+    console.log(
+      `Current Store: `,
+      Object.fromEntries(Object.entries(store).filter(([_, value]) => typeof value !== 'function'))
+    );
   }, [store]);
 
   console.log(`user:`, user);
   return (
     <>
-      <Navbar bg="light" expand="lg" className="mb-4">
+      <Navbar bg='light' expand='lg' className='mb-4'>
         <Container>
-          <Navbar.Brand>EDA Solo Project</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
+          <Navbar.Brand> Royal Famly Kids Camp </Navbar.Brand>
+          <Navbar.Toggle aria-controls='basic-navbar-nav' />
+          <Navbar.Collapse id='basic-navbar-nav'>
             <Navigation />
           </Navbar.Collapse>
         </Container>
       </Navbar>
 
       <Container>
-        <main className="py-2">
+        <main className='py-2'>
           <Routes>
             <Route
               exact
@@ -111,40 +112,43 @@ function App() {
               exact
               path='/about'
               element={
-                <Container className="py-1">
-                  <Row className="justify-content-center">
+                <Container className='py-1'>
+                  <Row className='justify-content-center'>
                     <Col md={8}>
-                      <div className="bg-white p-4 rounded shadow-sm">
-                        <h1 className="display-4 mb-4">About Programming</h1>
-                        
-                        <p className="lead mb-4">
-                          Intelligence doesn't seem like an aspect of personal character, and it isn't. 
-                          Coincidentally, great intelligence is only loosely connected to being a good programmer.
+                      <div className='bg-white p-4 rounded shadow-sm'>
+                        <h1 className='display-4 mb-4'>About Programming</h1>
+
+                        <p className='lead mb-4'>
+                          Intelligence doesn't seem like an aspect of personal character, and it isn't. Coincidentally,
+                          great intelligence is only loosely connected to being a good programmer.
                         </p>
-                        
-                        <h2 className="h4 text-primary mb-3">What? You don't have to be superintelligent?</h2>
-                        
-                        <p className="mb-4">
-                          No, you don't. Nobody is really smart enough to program computers. Fully understanding an average
-                          program requires an almost limitless capacity to absorb details and an equal capacity to comprehend
-                          them all at the same time. The way you focus your intelligence is more important than how much
-                          intelligence you have…
+
+                        <h2 className='h4 text-primary mb-3'>What? You don't have to be superintelligent?</h2>
+
+                        <p className='mb-4'>
+                          No, you don't. Nobody is really smart enough to program computers. Fully understanding an
+                          average program requires an almost limitless capacity to absorb details and an equal capacity
+                          to comprehend them all at the same time. The way you focus your intelligence is more important
+                          than how much intelligence you have…
                         </p>
-                        
-                        <p className="mb-4">
-                          …most of programming is an attempt to compensate for the strictly limited size of our skulls. The
-                          people who are the best programmers are the people who realize how small their brains are. They are
-                          humble. The people who are the worst at programming are the people who refuse to accept the fact that
-                          their brains aren't equal to the task. Their egos keep them from being great programmers. The more you
-                          learn to compensate for your small brain, the better a programmer you'll be.
+
+                        <p className='mb-4'>
+                          …most of programming is an attempt to compensate for the strictly limited size of our skulls.
+                          The people who are the best programmers are the people who realize how small their brains are.
+                          They are humble. The people who are the worst at programming are the people who refuse to
+                          accept the fact that their brains aren't equal to the task. Their egos keep them from being
+                          great programmers. The more you learn to compensate for your small brain, the better a
+                          programmer you'll be.
                         </p>
-                        
-                        <p className="squiggle h5 text-center my-5">
+
+                        <p className='squiggle h5 text-center my-5'>
                           The more humble you are, the faster you'll improve.
                         </p>
-                        
-                        <footer className="text-muted text-end">
-                          <small>--From Steve McConnell's <em>Code Complete</em>.</small>
+
+                        <footer className='text-muted text-end'>
+                          <small>
+                            --From Steve McConnell's <em>Code Complete</em>.
+                          </small>
                         </footer>
                       </div>
                     </Col>
