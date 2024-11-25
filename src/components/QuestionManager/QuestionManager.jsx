@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useStore from '../../zustand/store';
+import { Button, Form, Card } from 'react-bootstrap';
+import './QuestionManager.css';
 
 export default function QuestionManager() {
   const { formId, sectionId } = useParams();
@@ -158,221 +160,258 @@ export default function QuestionManager() {
   return (
     <div className="question-manager">
       <h2>Questions for Section: {currentSection?.name}</h2>
+      
       <div className="questions-list">
         {questions.sort((a,b) => a.order - b.order).map(question => (
-          <div key={question.id} className="question-item">
-            {editingQuestionId === question.id ? (
-              <div className="edit-form">
-                <div>
-                  <label>Question Order:</label>
-                  <div className="order-controls">
-                    <button 
-                      type="button"
-                      onClick={() => handleOrderChange(editForm.order - 1)}
-                      disabled={editForm.order <= 1}
+          <Card key={question.id} className="question-item mb-3">
+            <Card.Body>
+              {editingQuestionId === question.id ? (
+                <Form>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-bold">Question Order:</Form.Label>
+                    <div className="order-controls">
+                      <Button 
+                        variant="outline-primary"
+                        onClick={() => handleOrderChange(editForm.order - 1)}
+                        disabled={editForm.order <= 1}
+                      >↑</Button>
+                      <span>{editForm.order}</span>
+                      <Button 
+                        variant="outline-primary"
+                        onClick={() => handleOrderChange(editForm.order + 1)}
+                        disabled={editForm.order >= questions.length}
+                      >↓</Button>
+                    </div>
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-bold">Question:</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={editForm.question}
+                      onChange={e => setEditForm({...editForm, question: e.target.value})}
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-bold">Description:</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      value={editForm.description}
+                      onChange={e => setEditForm({...editForm, description: e.target.value})}
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-bold">Answer Type:</Form.Label>
+                    <Form.Select
+                      value={editForm.answer_type}
+                      onChange={e => setEditForm({...editForm, answer_type: e.target.value})}
                     >
-                      ↑
-                    </button>
-                    <span>{editForm.order}</span>
-                    <button 
-                      type="button"
-                      onClick={() => handleOrderChange(editForm.order + 1)}
-                      disabled={editForm.order >= questions.length}
-                    >
-                      ↓
-                    </button>
-                  </div>
-                </div>
+                      <option value="text">Text</option>
+                      <option value="dropdown">Dropdown</option>
+                      <option value="multiple_choice">Multiple Choice</option>
+                    </Form.Select>
+                  </Form.Group>
 
-                <div>
-                  <label>Question:</label>
-                  <input
-                    value={editForm.question}
-                    onChange={e => setEditForm({...editForm, question: e.target.value})}
-                  />
-                </div>
-
-                <div>
-                  <label>Description:</label>
-                  <textarea
-                    value={editForm.description}
-                    onChange={e => setEditForm({...editForm, description: e.target.value})}
-                  />
-                </div>
-
-                <div>
-                  <label>Answer Type:</label>
-                  <select
-                    value={editForm.answer_type}
-                    onChange={e => setEditForm({...editForm, answer_type: e.target.value})}
-                  >
-                    <option value="text">Text</option>
-                    <option value="dropdown">Dropdown</option>
-                    <option value="multiple_choice">Multiple Choice</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label>
-                    <input
+                  <Form.Group className="mb-3">
+                    <Form.Check
                       type="checkbox"
+                      label="Required"
                       checked={editForm.required}
                       onChange={e => setEditForm({...editForm, required: e.target.checked})}
                     />
-                    Required
-                  </label>
-                </div>
+                  </Form.Group>
 
-                {(editForm.answer_type === 'multiple_choice' || editForm.answer_type === 'dropdown') && (
-                  <div className="multiple-choice-section">
-                    <h4>Multiple Choice Options:</h4>
-                    <div className="add-option">
-                      <input
-                        type="text"
-                        value={editForm.newOption}
-                        onChange={e => setEditForm({...editForm, newOption: e.target.value})}
-                        placeholder="New option"
-                      />
-                      <button type="button" onClick={handleAddEditOption}>Add Option</button>
+                  {(editForm.answer_type === 'multiple_choice' || editForm.answer_type === 'dropdown') && (
+                    <div className="multiple-choice-section">
+                      <h4>Multiple Choice Options:</h4>
+                      <Form.Group className="mb-3 d-flex gap-2">
+                        <Form.Control
+                          type="text"
+                          value={editForm.newOption}
+                          onChange={e => setEditForm({...editForm, newOption: e.target.value})}
+                          placeholder="New option"
+                        />
+                        <Button 
+                          variant="outline-primary"
+                          onClick={handleAddEditOption}
+                          style={{ whiteSpace: 'nowrap' }}
+                        >
+                          Add Option
+                        </Button>
+                      </Form.Group>
+                      <ul className="options-list">
+                        {editForm.multiple_choice_answers.map(option => (
+                          <li key={option.id}>
+                            <Form.Control
+                              type="text"
+                              value={option.answer}
+                              onChange={e => handleEditOption(option.id, e.target.value)}
+                            />
+                            <Button 
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => handleRemoveEditOption(option.id)}
+                            >
+                              Remove
+                            </Button>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <ul className="options-list">
-                      {editForm.multiple_choice_answers.map(option => (
-                        <li key={option.id}>
-                          <input
-                            type="text"
-                            value={option.answer}
-                            onChange={e => handleEditOption(option.id, e.target.value)}
-                          />
-                          <button 
-                            type="button"
-                            onClick={() => handleRemoveEditOption(option.id)}
-                          >
-                            Remove
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                  )}
 
-                <div className="edit-actions">
-                  <button type="button" onClick={handleSave}>Save</button>
-                  <button type="button" onClick={() => setEditingQuestionId(null)}>Cancel</button>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <h3>{question.question}</h3>
-                <p>{question.description}</p>
-                <p>Type: {question.answer_type}</p>
-                {question.multiple_choice_answers && (
-                  <div>
-                    <p>Options:</p>
-                    <ul>
-                      {question.multiple_choice_answers.map(option => (
-                        <li key={option.id}>{option.answer}</li>
-                      ))}
-                    </ul>
+                  <div className="d-flex gap-2">
+                    <Button 
+                      variant="primary"
+                      onClick={handleSave}
+                      style={{ backgroundColor: '#4b0082', borderColor: '#4b0082' }}
+                    >
+                      Save
+                    </Button>
+                    <Button 
+                      variant="outline-secondary"
+                      onClick={() => setEditingQuestionId(null)}
+                    >
+                      Cancel
+                    </Button>
                   </div>
-                )}
-                <div>
-                  <button onClick={() => handleEdit(question)}>Edit</button>
-                  <button onClick={() => handleArchive(question.id)}>Archive</button>
-                </div>
-              </div>
-            )}
-          </div>
+                </Form>
+              ) : (
+                <>
+                  <h3>{question.question}</h3>
+                  <p className="text-muted">{question.description}</p>
+                  <p><strong>Type:</strong> {question.answer_type}</p>
+                  {question.multiple_choice_answers && (
+                    <div>
+                      <p><strong>Options:</strong></p>
+                      <ul className="list-unstyled">
+                        {question.multiple_choice_answers.map(option => (
+                          <li key={option.id}>{option.answer}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <div className="d-flex gap-2 mt-3">
+                    <Button 
+                      variant="outline-primary"
+                      onClick={() => handleEdit(question)}
+                      style={{ borderColor: '#4b0082', color: '#4b0082' }}
+                    >
+                      Edit
+                    </Button>
+                    <Button 
+                      variant="outline-danger"
+                      onClick={() => handleArchive(question.id)}
+                    >
+                      Archive
+                    </Button>
+                  </div>
+                </>
+              )}
+            </Card.Body>
+          </Card>
         ))}
       </div>
-      <div className="create-question-form">
-        <h3>Create New Question</h3>
-        <form onSubmit={handleCreate}>
-          <div>
-            <label htmlFor="question">Question:</label>
-            <input
-              id="question"
-              value={newQuestion.question}
-              onChange={e => setNewQuestion({...newQuestion, question: e.target.value})}
-              placeholder="Question"
-              required
-            />
-          </div>
 
-          <div>
-            <label htmlFor="description">Description:</label>
-            <textarea
-              id="description"
-              value={newQuestion.description}
-              onChange={e => setNewQuestion({...newQuestion, description: e.target.value})}
-              placeholder="Description"
-            />
-          </div>
+      <Card className="create-question-form mt-4">
+        <Card.Body>
+          <h3>Create New Question</h3>
+          <Form onSubmit={handleCreate}>
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-bold">Question:</Form.Label>
+              <Form.Control
+                type="text"
+                value={newQuestion.question}
+                onChange={e => setNewQuestion({...newQuestion, question: e.target.value})}
+                placeholder="Question"
+                required
+              />
+            </Form.Group>
 
-          <div>
-            <label htmlFor="answer_type">Answer Type:</label>
-            <select
-              id="answer_type"
-              value={newQuestion.answer_type}
-              onChange={e => setNewQuestion({...newQuestion, answer_type: e.target.value})}
-            >
-              <option value="text">Text</option>
-              <option value="dropdown">Dropdown</option>
-              <option value="multiple_choice">Multiple Choice</option>
-            </select>
-          </div>
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-bold">Description:</Form.Label>
+              <Form.Control
+                as="textarea"
+                value={newQuestion.description}
+                onChange={e => setNewQuestion({...newQuestion, description: e.target.value})}
+                placeholder="Description"
+              />
+            </Form.Group>
 
-          <div>
-            <label>
-              <input
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-bold">Answer Type:</Form.Label>
+              <Form.Select
+                value={newQuestion.answer_type}
+                onChange={e => setNewQuestion({...newQuestion, answer_type: e.target.value})}
+              >
+                <option value="text">Text</option>
+                <option value="dropdown">Dropdown</option>
+                <option value="multiple_choice">Multiple Choice</option>
+              </Form.Select>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Check
                 type="checkbox"
+                label="Required"
                 checked={newQuestion.required}
                 onChange={e => setNewQuestion({...newQuestion, required: e.target.checked})}
               />
-              Required
-            </label>
-          </div>
+            </Form.Group>
 
-          {(newQuestion.answer_type === 'multiple_choice' || newQuestion.answer_type === 'dropdown') && (
-            <div className="multiple-choice-section">
-              <h4>Multiple Choice Options:</h4>
-              <div className="add-option">
-                <input
-                  type="text"
-                  value={newQuestion.newOption}
-                  onChange={e => setNewQuestion({...newQuestion, newOption: e.target.value})}
-                  placeholder="Enter an option"
-                />
-                <button type="button" onClick={handleAddNewOption}>Add Option</button>
+            {(newQuestion.answer_type === 'multiple_choice' || newQuestion.answer_type === 'dropdown') && (
+              <div className="multiple-choice-section">
+                <h4>Multiple Choice Options:</h4>
+                <Form.Group className="mb-3 d-flex gap-2">
+                  <Form.Control
+                    type="text"
+                    value={newQuestion.newOption}
+                    onChange={e => setNewQuestion({...newQuestion, newOption: e.target.value})}
+                    placeholder="Enter an option"
+                  />
+                  <Button 
+                    variant="outline-primary"
+                    onClick={handleAddNewOption}
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    Add Option
+                  </Button>
+                </Form.Group>
+                {newQuestion.multiple_choice_options.length > 0 && (
+                  <ul className="options-list">
+                    {newQuestion.multiple_choice_options.map((option, index) => (
+                      <li key={index}>
+                        <span>{option}</span>
+                        <Button 
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => handleRemoveNewOption(index)}
+                          className="remove-option"
+                        >
+                          Remove
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-              {newQuestion.multiple_choice_options.length > 0 && (
-                <ul className="options-list">
-                  {newQuestion.multiple_choice_options.map((option, index) => (
-                    <li key={index}>
-                      <span>{option}</span>
-                      <button 
-                        type="button"
-                        onClick={() => handleRemoveNewOption(index)}
-                        className="remove-option"
-                      >
-                        Remove
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
+            )}
 
-          <div className="form-actions">
-            <button 
-              type="submit"
-              disabled={(newQuestion.answer_type === 'multiple_choice' || newQuestion.answer_type === 'dropdown') && newQuestion.multiple_choice_options.length === 0}
-            >
-              Create Question
-            </button>
-          </div>
-        </form>
-      </div>
+            <div className="d-flex gap-2">
+              <Button 
+                variant="primary"
+                type="submit"
+                disabled={(newQuestion.answer_type === 'multiple_choice' || newQuestion.answer_type === 'dropdown') && newQuestion.multiple_choice_options.length === 0}
+                style={{ backgroundColor: '#4b0082', borderColor: '#4b0082' }}
+              >
+                Create Question
+              </Button>
+            </div>
+          </Form>
+        </Card.Body>
+      </Card>
     </div>
   );
 } 
