@@ -24,11 +24,13 @@ export default function AddUserToPipeline({ pipelineId, initialPipelineStatusId 
     setShowModal(true);
   };
 
-  const searchQuery = () => {
+  const searchQuery = (e) => {
+    e.preventDefault();
     searchingApplicant(searchString);
   };
 
-  const addUserToPipeline = () => {
+  const addUserToPipeline = (e) => {
+    e.preventDefault();
     if (!selectedPipelineWithData || Object.keys(selectedPipelineWithData).length === 0) {
       alert('Please select a pipeline');
       return;
@@ -86,7 +88,7 @@ export default function AddUserToPipeline({ pipelineId, initialPipelineStatusId 
           <Modal.Title style={{ color: '#4b0082' }}>Add User to Pipeline</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form onSubmit={searchQuery}>
             <InputGroup className='mb-3'>
               <Form.Control
                 type='text'

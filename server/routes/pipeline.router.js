@@ -744,29 +744,33 @@ router.post('/user_status', rejectUnauthenticated, (req, res) => {
  *       '500':
  *         description: Internal Server Error (failure to update user status).
  */
-router.put('/user_status', rejectUnauthenticated, (req, res) => {
+router.put('/user_status', rejectUnauthenticated, async (req, res) => {
   //we need to know
   //1. the pipeline id
   //2. the user to advance to next swim lane, ie jenny 'interview' -> 'background check'
   //3. know the next swimlane
   console.log('req body', req.body); // {user_id: 1, pipeline_status_id: 4}
 
-  const updateUserStatusQuery = `
-    UPDATE "user_status"
-    SET "pipeline_status_id" = $1
-    WHERE "user_id" = $2;
-  `;
+  try {
+    const deleteQuery = `
+    delete from "user_status"
+      where user_id = $1
+      and pipeline_status_id in (select id from pipeline_status
+      where pipeline_status.pipeline_id = (select pipeline_id from pipeline_status where id = $2));
+    `;
+    await pool.query(deleteQuery, [req.body.user_id, req.body.pipeline_status_id]);
 
-  pool
-    .query(updateUserStatusQuery, [req.body.pipeline_status_id, req.body.user_id])
-    .then(() => {
-      console.log(`User ${req.body.user_id} moved to pipeline status ${req.body.pipeline_status_id}`);
-      res.sendStatus(200);
-    })
-    .catch((error) => {
-      console.log('Error updating user status:', error);
-      res.sendStatus(500);
-    });
+    const updateUserStatusQuery = `
+    INSERT INTO "user_status" ("pipeline_status_id", "user_id")
+    VALUES ($1, $2)`;
+
+    await pool.query(updateUserStatusQuery, [req.body.pipeline_status_id, req.body.user_id]);
+    console.log(`User ${req.body.user_id} moved to pipeline status ${req.body.pipeline_status_id}`);
+    res.sendStatus(200);
+  } catch (error) {
+    console.log('Error updating user status:', error);
+    res.sendStatus(500);
+  }
 });
 /**
  * @swagger
