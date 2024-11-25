@@ -4,10 +4,9 @@ import UserStatus from '../UserStatus/UserStatus';
 import useStore from '../../zustand/store';
 
 import { DRAG_TYPE } from '../Pipeline/Pipeline';
-
+import './PipelineStatus.css';
 export default function PipelineStatus({ status, pipelineId }) {
   const moveUserOnPipeline = useStore((state) => state.moveUserOnPipeline);
-
 
   const [{ canDrop, isOver }, drop] = useDrop(() => ({
     // The type (or types) to accept - strings or symbols
@@ -23,8 +22,8 @@ export default function PipelineStatus({ status, pipelineId }) {
     },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
-      canDrop: monitor.canDrop()
-    })
+      canDrop: monitor.canDrop(),
+    }),
   }));
 
   const dropUserIntoPipelineStatus = (item) => {
@@ -37,9 +36,8 @@ export default function PipelineStatus({ status, pipelineId }) {
   };
 
   return (
-    <Card>
-      <Card.Header>{status.status}</Card.Header>
-      <Card.Body ref={drop} style={{ backgroundColor: isOver ? 'red' : 'white'}}>
+    <Card className='pipeline-status-card'>
+      <Card.Body ref={drop} style={{ backgroundColor: isOver ? '#f0f0f0' : 'white' }}>
         {status?.applicants?.map((person) => (
           <UserStatus key={person.id} person={person} />
         ))}
