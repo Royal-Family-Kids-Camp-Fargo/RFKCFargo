@@ -84,7 +84,7 @@ export default function UserStatus({ person }) {
             <Card.Text className='text-muted small'>{person.username}</Card.Text>
           </div>
 
-          <Form>
+          <Form onSubmit={(e) => e.preventDefault()}>
             <Form.Group as={Row} controlId='PipelineStatus' className='mb-2 align-items-center g-0'>
               <Form.Label column sm={4} className='pb-0 mb-0'>
                 Status

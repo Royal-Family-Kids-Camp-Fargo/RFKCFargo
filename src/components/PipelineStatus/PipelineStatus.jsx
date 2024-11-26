@@ -13,9 +13,6 @@ export default function PipelineStatus({ status, pipelineId }) {
     accept: DRAG_TYPE,
     // Props to collect
     drop: (item, monitor) => {
-      // This is where you handle the drop
-      // You can check the type of item and perform different actions
-      // based on the type
       console.log('item', item);
       console.log('monitor', monitor);
       dropUserIntoPipelineStatus(item);
