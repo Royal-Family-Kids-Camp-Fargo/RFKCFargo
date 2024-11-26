@@ -13,6 +13,7 @@ export default function PipelineStatus({ status, pipelineId }) {
     accept: DRAG_TYPE,
     // Props to collect
     drop: (item, monitor) => {
+      event.preventDefault();
       // This is where you handle the drop
       // You can check the type of item and perform different actions
       // based on the type
@@ -27,6 +28,7 @@ export default function PipelineStatus({ status, pipelineId }) {
   }));
 
   const dropUserIntoPipelineStatus = (item) => {
+    event.preventDefault();
     const moveMe = {
       pipeline_status_id: status.pipeline_status_id,
       user_id: item.id,

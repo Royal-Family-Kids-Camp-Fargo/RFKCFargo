@@ -76,6 +76,7 @@ const createPipelineSlice = (set, get) => ({
   },
 
   moveUserOnPipeline: async (moveObject) => {
+    event.preventDefault();
     try {
       await axios.put('/api/pipeline/user_status', moveObject);
       console.log('user has been moved on the pipeline');

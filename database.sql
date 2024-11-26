@@ -125,7 +125,6 @@ INSERT INTO "location" ("id", "name") VALUES
 	INSERT INTO "pipeline" (id, name, type, location_id) VALUES
 	(1, 'Volunteer_fargo', 'volunteer', 1),
 	(3, 'Donor_fargo', 'donor', 1),
-	(4, 'Newpipeline', 'volunteer', 1),
 	(6, 'Volunteer- Sioux Fall', 'volunteer', 3),
 	(7, 'Donor- Sioux Falls', 'donor', 3),
 	(8, 'Volunteer- Moorhead', 'volunteer', 2),
@@ -184,18 +183,18 @@ INSERT INTO "question" ("question", "description", "answer_type", "order", "sect
 ('What is your preferred volunteering activity?', 'Select one or more.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Volunteer Experience' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), TRUE),
 
 -- Section 3: Availability
-('What days of the week are you available?', 'Select all that apply.', 'multiple_choice', 1, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('What time of the day works best for you?', 'Choose from the options.', 'multiple_choice', 2, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('How many hours can you commit each week?', 'Provide a rough estimate.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('Are you open to on-call volunteering?', 'Yes or No.', 'multiple_choice', 4, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('Do you have any upcoming commitments we should be aware of?', 'Provide details.', 'text', 5, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
+('What days of the week are you available?', 'Select all that apply.', 'multiple_choice', 1, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), FALSE),
+('What time of the day works best for you?', 'Choose from the options.', 'multiple_choice', 2, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), FALSE),
+('How many hours can you commit each week?', 'Provide a rough estimate.', 'text', 3, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), FALSE),
+('Are you open to on-call volunteering?', 'Yes or No.', 'multiple_choice', 4, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), FALSE),
+('Do you have any upcoming commitments we should be aware of?', 'Provide details.', 'text', 5, (SELECT id FROM "sections" WHERE "name" = 'Availability' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), FALSE),
 
 -- Section 4: Skills and Preferences
-('What skills do you bring to volunteering?', 'List relevant skills.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('Do you prefer working with children or adults?', 'Choose one.', 'multiple_choice', 2, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('Are you comfortable leading activities?', 'Yes or No.', 'multiple_choice', 3, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('Do you have any certifications related to volunteering?', 'Specify if applicable.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form'))),
-('What type of environment do you prefer?', 'Select one.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')));
+('What skills do you bring to volunteering?', 'List relevant skills.', 'text', 1, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), FALSE),
+('Do you prefer working with children or adults?', 'Choose one.', 'multiple_choice', 2, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), FALSE),
+('Are you comfortable leading activities?', 'Yes or No.', 'multiple_choice', 3, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), FALSE),
+('Do you have any certifications related to volunteering?', 'Specify if applicable.', 'text', 4, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), FALSE),
+('What type of environment do you prefer?', 'Select one.', 'multiple_choice', 5, (SELECT id FROM "sections" WHERE "name" = 'Skills and Preferences' AND form_id = (SELECT id FROM "forms" WHERE "name" = 'Fargo New Volunteer Form')), FALSE);
 
 -- Seed data for multiple_choice_answers
 INSERT INTO "multiple_choice_answers" ("question_id", "answer") VALUES
@@ -287,23 +286,23 @@ VALUES
     (2, 'Jenny@email.com', '$2a$10$H8GXZ2rxhn0hfSw4AkL4UOgj0eOEIXBL9voNACAyf4LPD1UDLG29C', 'Jenny', 'Lagervall', '2024-11-13 17:30:59.27662', '2024-11-13 17:30:59.27662', '5554446666'),
     (3, 'John@email.com', '$2a$10$aI5qmttW.229Cjw0tC4Lj.NafXJb6eef8FQPuEPY265e1wnA28MG.', 'John', 'Johnson', '2024-11-13 20:53:08.527638', '2024-11-13 20:53:08.527638', '5554446666'),
 	(4, 'Jane@email.com', '$2a$10$nTK10uKgnnds5dEfw32q6utqrnuPCTHoqVsH96WONZz4oQjGpIqxW', 'Jane', 'Doe', '2024-11-16 17:06:16.940875', '2024-11-16 17:06:16.940875', '5554446666'),
-	(5, 'Bobby@email.com', '$2a$10$1jFipmwYGaT8PREfICcaL.mH2.1e1c6gj86zWZv8cPNE06rnBO9iW', 'Bobby', 'DropTable', '2024-11-16 17:06:43.238385', '2024-11-16 17:06:43.238385', '5554446666'),
-	(6, 'Jill@email.com', '$2a$10$FtfWTKMFzWtAGNqqux8JR.JDJZAXPyowhReDMLKaTWwg3.HYfeLZu', 'Jill', 'JillLastname', '2024-11-16 17:38:17.819879', '2024-11-16 17:38:17.819879', '5554446666'),
-	(7, 'Jack@email.com', '$2a$10$oKFMocpP26/1I4Ugw.n4eOqvMa8cty9vJy31T5fwP6YJczk1n0gda', 'Jack', 'JackLastname', '2024-11-16 17:38:31.094039', '2024-11-16 17:38:31.094039', '5554446666'),
-	(8, 'Bennie@email.com', '$2a$10$jSgojv37i3B/eEsEB3IZn.UrhMMn2V5Qh25uC4NKbgkB9lIBR.7Le', 'Bennie', 'Andthejets', '2024-11-16 21:38:32.019924', '2024-11-16 21:38:32.019924', '5554446666'),
-	(9, 'Roxanne@email.com', '$2a$10$nhTrhkygHNFQC/Y7FMa0m.9NR1rbmWUC3LfXVYDuyYmiZBD0SRHJe', 'Roxanne', 'Redlights', '2024-11-16 21:39:02.479261', '2024-11-16 21:39:02.479261', '5554446666'),
+	(5, 'Bobby@email.com', '$2a$10$1jFipmwYGaT8PREfICcaL.mH2.1e1c6gj86zWZv8cPNE06rnBO9iW', 'Bob', 'Parker', '2024-11-16 17:06:43.238385', '2024-11-16 17:06:43.238385', '5554446666'),
+	(6, 'Jill@email.com', '$2a$10$FtfWTKMFzWtAGNqqux8JR.JDJZAXPyowhReDMLKaTWwg3.HYfeLZu', 'Jill', 'Johanneson', '2024-11-16 17:38:17.819879', '2024-11-16 17:38:17.819879', '5554446666'),
+	(7, 'Jack@email.com', '$2a$10$oKFMocpP26/1I4Ugw.n4eOqvMa8cty9vJy31T5fwP6YJczk1n0gda', 'Jack', 'Schmidt', '2024-11-16 17:38:31.094039', '2024-11-16 17:38:31.094039', '5554446666'),
+	(8, 'Bennie@email.com', '$2a$10$jSgojv37i3B/eEsEB3IZn.UrhMMn2V5Qh25uC4NKbgkB9lIBR.7Le', 'Bennie', 'Lavonne', '2024-11-16 21:38:32.019924', '2024-11-16 21:38:32.019924', '5554446666'),
+	(9, 'Roxanne@email.com', '$2a$10$nhTrhkygHNFQC/Y7FMa0m.9NR1rbmWUC3LfXVYDuyYmiZBD0SRHJe', 'Roxanne', 'Reuter', '2024-11-16 21:39:02.479261', '2024-11-16 21:39:02.479261', '5554446666'),
 	(10, 'Robert@email.com', '$2a$10$YhMCJlcUhDpQWVes6GvpLekzb0rqORBqD2RZ59DeSGF2jTXjOfzWq', 'Robert', 'Dylan', '2024-11-16 21:39:28.678322', '2024-11-16 21:39:28.678322', '5554446666'),
-	(11, 'James@email.com', '$2a$10$U8fnyT7pXUUkH2M6ctSYxOzbxvYHHpHp8QY3JdKQmaxm3Ffqnahi6', 'James', 'Hendrix', '2024-11-16 21:39:47.148731', '2024-11-16 21:39:47.148731', '5554446666'),
-	(12, 'Dave@email.com', '$2a$10$AP6i.RQ9P.oTaSCWgbpzku4oI8WT/UfvCHkDlS4.mpYGTcPVaPejm', 'Dave', 'Davidson', '2024-11-18 15:57:37.139603', '2024-11-18 15:57:37.139603', '5554446666'),
+	(11, 'James@email.com', '$2a$10$U8fnyT7pXUUkH2M6ctSYxOzbxvYHHpHp8QY3JdKQmaxm3Ffqnahi6', 'James', 'Carlson', '2024-11-16 21:39:47.148731', '2024-11-16 21:39:47.148731', '5554446666'),
+	(12, 'Dave@email.com', '$2a$10$AP6i.RQ9P.oTaSCWgbpzku4oI8WT/UfvCHkDlS4.mpYGTcPVaPejm', 'Dave', 'Jackson', '2024-11-18 15:57:37.139603', '2024-11-18 15:57:37.139603', '5554446666'),
 	(13, 'Sixton@email.com', '$2a$10$WNoQmHJPXMu9ATEiwevC8urXb75WxSXJMvCpIE4rBBj7N9VwHpHRa', 'Sixton', 'Lagervall', '2024-11-19 16:41:53.556703', '2024-11-19 16:41:53.556703', '5554446666'),
-	(14, 'Jimi@email.com', '$2a$10$5Ky1o8ESWkxqIL.ZJWkjaukIc1nck6PRb0KyX/BXUxCIQKJKOOHvq', 'Jimi', 'Hendrix', '2024-11-19 16:42:25.351542', '2024-11-19 16:42:25.351542', '5554446666'),
-	(15, 'Katie@email.com', '$2a$10$0LwMj3bbbXWDAY3lFv6w1OKQk8XQrOKYOcUVLshmtc6h1kc2RkA46', 'Katie', 'EDA', '2024-11-19 16:43:00.849151', '2024-11-19 16:43:00.849151', '5554446666'),
+	(14, 'Jimi@email.com', '$2a$10$5Ky1o8ESWkxqIL.ZJWkjaukIc1nck6PRb0KyX/BXUxCIQKJKOOHvq', 'Jimi', 'Dolo', '2024-11-19 16:42:25.351542', '2024-11-19 16:42:25.351542', '5554446666'),
+	(15, 'Katie@email.com', '$2a$10$0LwMj3bbbXWDAY3lFv6w1OKQk8XQrOKYOcUVLshmtc6h1kc2RkA46', 'Katie', 'Townsend', '2024-11-19 16:43:00.849151', '2024-11-19 16:43:00.849151', '5554446666'),
 	(16, 'Aimee@email.com', '$2a$10$.SRrmd.7YqRvr5N3GHIXNOQ9XvqYN5UsuxYuVoep0LP.QTxn8z2J2', 'Aimee', 'Larson', '2024-11-19 16:43:36.034627', '2024-11-19 16:43:36.034627', '5554446666'),
-	(17, 'Nana@email.com', '$2a$10$HJdJaJsvB/ay5ctL/oKcI.xn6r8oUbc2vbYOMsHCo2Ng1d9IRObJq', 'Nane', 'Tucket', '2024-11-19 16:44:04.615592', '2024-11-19 16:44:04.615592', '5554446666'),
-	(18, 'Dakota@email.com', '$2a$10$bfxuX8E1RK81hXBb725VmOIczoUMV6Pl2neoF6nzGrpXcz//wKRD2', 'Dakota', 'South', '2024-11-19 16:44:40.868682', '2024-11-19 16:44:40.868682', '5554446666'),
+	(17, 'Nana@email.com', '$2a$10$HJdJaJsvB/ay5ctL/oKcI.xn6r8oUbc2vbYOMsHCo2Ng1d9IRObJq', 'Nane', 'McHenry', '2024-11-19 16:44:04.615592', '2024-11-19 16:44:04.615592', '5554446666'),
+	(18, 'Dakota@email.com', '$2a$10$bfxuX8E1RK81hXBb725VmOIczoUMV6Pl2neoF6nzGrpXcz//wKRD2', 'Dakota', 'Miller', '2024-11-19 16:44:40.868682', '2024-11-19 16:44:40.868682', '5554446666'),
 	(19, 'Sara@email.com', '$2a$10$dGThAXImwP/oLx9gUhy3VuDNxEJKdWTUcEPvHeh4QVd1KiZcQfrUO', 'Sara', 'Stevens', '2024-11-19 16:45:50.937091', '2024-11-19 16:45:50.937091', '5554446666'),
-	(20, 'Allison@email.com', '$2a$10$cUboRN/lITEXnUjqngJqUuVCYN3QoD2QeYlXvsGMf1rojU9sJ0WAq', 'Allison', 'Mae', '2024-11-19 23:03:18.662008', '2024-11-19 23:03:18.662008', '9998887777');
-
+	(20, 'Allison@email.com', '$2a$10$cUboRN/lITEXnUjqngJqUuVCYN3QoD2QeYlXvsGMf1rojU9sJ0WAq', 'Allison', 'Mae', '2024-11-19 23:03:18.662008', '2024-11-19 23:03:18.662008', '9998887777'),
+	(21. 'Alan@email.com', '$2a$10$Ab2C.QW8mQZMcf/ubYf7P.LV/pc.HdF18Jfwwd/0bNvibs/DIqqNe', 'Alan', 'James', '2024-11-26 00:51:01.954965','2024-11-26 00:51:01.954965', '1112223333' );
  -- Seed data for user_location table 
 	INSERT INTO "user_location" (user_id, location_id, internal) VALUES
 	(2, 1, TRUE),
@@ -330,7 +329,6 @@ VALUES
 	
 	 -- Seed data for user_status table 
 	 INSERT INTO "user_status" (user_id, pipeline_status_id) VALUES
-	(2, 2),
 	(3, 6),
 	(4, 2),
 	(5, 4),
@@ -359,4 +357,6 @@ SELECT setval(pg_get_serial_sequence('question', 'id'), (SELECT MAX(id) FROM "qu
 SELECT setval(pg_get_serial_sequence('answer', 'id'), (SELECT MAX(id) FROM "answer"));
 SELECT setval(pg_get_serial_sequence('multiple_choice_answers', 'id'), (SELECT MAX(id) FROM "multiple_choice_answers"));
 
+-- Create extension for pg_trgm
+-- ONLY RUN ONCE
 CREATE EXTENSION pg_trgm;
