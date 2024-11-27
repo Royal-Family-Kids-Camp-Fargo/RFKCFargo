@@ -8,7 +8,7 @@ export default function AddUserToPipeline({ pipelineId, initialPipelineStatusId 
   const searchingApplicant = useStore((state) => state.searchingApplicant);
   const setSelectedUserId = useStore((state) => state.setSelectedUserId);
   const addUserStatus = useStore((state) => state.addUserStatus);
-
+  const clearFoundUsers = useStore((state) => state.clearFoundUsers);
   const [showModal, setShowModal] = useState(false);
   const [searchString, setSearchString] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
@@ -17,7 +17,7 @@ export default function AddUserToPipeline({ pipelineId, initialPipelineStatusId 
     setShowModal(false);
     setSearchString('');
     setSelectedUser(null);
-    searchingApplicant('');
+    clearFoundUsers();
   };
 
   const openModal = () => {
@@ -49,8 +49,8 @@ export default function AddUserToPipeline({ pipelineId, initialPipelineStatusId 
     addUserStatus(newUserStatus);
     setSearchString('');
     setSelectedUser(null);
+    clearFoundUsers();
     setShowModal(false);
-    searchingApplicant('');
   };
 
   let usersAvailableToAdd = [];

@@ -33,6 +33,10 @@ const createPipelineSlice = (set, get) => ({
     }
   },
 
+  clearFoundUsers: () => {
+    set({ foundUsers: [] });
+  },
+
   setSelectedUserId: (userId) => {
     set(() => ({
       // '{user.id: 1, first_name: 'joe'}'
@@ -53,10 +57,12 @@ const createPipelineSlice = (set, get) => ({
   addPipeline: async (newPipeline) => {
     //  Post the pipeline data from the /api/pipeline endpoint.
     try {
-      await axios.post('/api/pipeline', newPipeline);
+      const { data } = await axios.post('/api/pipeline', newPipeline);
       //refresh the data in dropdown selections
       get().fetchPipeline();
       console.log('data refreshed');
+      console.log('new pipeline id', data.data);
+      get().fetchPipelineById(data.data);
     } catch (err) {
       console.log('error creating new pipeline', err);
     }
