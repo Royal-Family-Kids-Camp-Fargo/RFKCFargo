@@ -7,7 +7,7 @@ export default function PipelineForm() {
   const user = useStore((state) => state.user);
   const [pipelineName, setPipelineName] = useState('');
   const [pipelineType, setPipelineType] = useState('');
-  const [locationId, setLocgitationId] = useState('');
+  const [locationId, setLocationId] = useState('');
   const [showModal, setShowModal] = useState(false);
 
   function addNewPipeline(event) {
@@ -19,6 +19,9 @@ export default function PipelineForm() {
     };
 
     addPipeline(newPipeline);
+    setPipelineName('');
+    setPipelineType('');
+    setLocationId('');
     setShowModal(false);
   }
 

@@ -18,7 +18,7 @@ export default function Pipeline() {
   const fetchPipeline = useStore((state) => state.fetchPipeline);
   const fetchPipelineById = useStore((state) => state.fetchPipelineById);
 
-  const [pipelineId, setPipelineId] = useState('');
+  const [pipelineId, setPipelineId] = useState(selectedPipelineWithData.pipeline_id || '');
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function Pipeline() {
           <select
             id='pipelines'
             className='form-control'
-            value={pipelineId}
+            value={selectedPipelineWithData.pipeline_id ?? pipelineId}
             onChange={(event) => setPipelineId(Number(event.target.value))}
           >
             <option>Select Pipeline</option>

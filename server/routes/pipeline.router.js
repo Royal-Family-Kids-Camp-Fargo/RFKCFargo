@@ -28,6 +28,7 @@ const PIPELINE_STATUS_DONOR = [
 
 router.get('/search', (req, res) => {
   const searchTerm = req.query.term;
+  console.log('searchTerm', searchTerm);
   const sqlQuery = `
   SELECT 
     "username", 
@@ -462,7 +463,7 @@ router.post('/', rejectUnauthenticated, (req, res) => {
           return;
         }
 
-        res.sendStatus(201);
+        res.send({ data: newPipelineId });
       })
       .catch((error) => {
         console.log('error in POST on pipeline', error);
