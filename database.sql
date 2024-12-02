@@ -123,12 +123,9 @@ INSERT INTO "location" ("id", "name") VALUES
 
 	-- Seed data for pipeline table 
 	INSERT INTO "pipeline" (id, name, type, location_id) VALUES
-	(1, 'Volunteer_fargo', 'volunteer', 1),
-	(3, 'Donor_fargo', 'donor', 1),
-	(6, 'Volunteer- Sioux Fall', 'volunteer', 3),
-	(7, 'Donor- Sioux Falls', 'donor', 3),
-	(8, 'Volunteer- Moorhead', 'volunteer', 2),
-	(13, 'Volunteer- Fargo', 'volunteer', 1);
+	(1, 'Volunteer-Fargo', 'volunteer', 1),
+	(3, 'Donor-Fargo', 'donor', 1),
+
 
 	-- Seed data for pipeline_status table 
 	INSERT INTO "pipeline_status" (id, pipeline_id, "order", name) VALUES
@@ -142,16 +139,7 @@ INSERT INTO "location" ("id", "name") VALUES
 	(9, 3, 3, 'Check sent'),
 	(10, 3, 4, 'Check verified'),
 	(11, 3, 5, 'Donated'),
-	(12, 8, 1, 'application submitted'),
-	(13, 8, 3, 'interview'),
-	(14, 8, 2, 'application review'),
-	(15, 8, 4, 'background check'),
-	(16, 8, 5, 'verified/accepted'),
-	(22, 13, 1, 'application submitted'),
-	(23, 13, 3, 'interview'),
-	(24, 13, 5, 'verified/accepted'),
-	(25, 13, 2, 'application review'),
-	(26, 13, 4, 'background check');
+	
 
 -- Seed data, needs to be updated to be correct (these arent the actual questions)
 -- Seed data for form
