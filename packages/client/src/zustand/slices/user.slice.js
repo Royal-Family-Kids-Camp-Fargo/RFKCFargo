@@ -1,29 +1,53 @@
-import axios from 'axios';
+import SessionApi from '../../api/sessions';
+import UserApi from '../../api/user';
 
-// All requests made with axios will include credentials, which means
-// the cookie that corresponds with the session will be sent along
-// inside every request's header
-axios.defaults.withCredentials = true;
+// Initialize the APIs
+const sessionApi = new SessionApi();
+const userApi = new UserApi();
 
 const createUserSlice = (set, get) => ({
   user: {},
   userById: {},
   authErrorMessage: '',
-  fetchUser: async () => {
-    //  Retrieves the current user's data from the /api/user endpoint.
+  isInitialized: false,
+
+  initializeAuth: async () => {
+    if (get().isInitialized) return;
+
     try {
-      const { data } = await axios.get('/api/user');
-      set({ user: data });
+      // Check if we have valid stored credentials
+      const hasValidSession = await sessionApi.validateAndRefreshSession();
+      
+      if (hasValidSession) {
+        // If we have valid credentials, fetch the user data
+        await get().fetchUser();
+      } else {
+        // If no valid credentials, perform anonymous authentication
+        await sessionApi.anonymousAuthenticate();
+      }
+    } catch (error) {
+      console.error('Authentication initialization error:', error);
+      // Fallback to anonymous auth if something goes wrong
+      await sessionApi.anonymousAuthenticate();
+    } finally {
+      set({ isInitialized: true });
+    }
+  },
+
+  fetchUser: async () => {
+    try {
+      const userData = await userApi.getCurrentUser();
+      set({ user: userData });
     } catch (err) {
       console.log('fetchUser error:', err);
       set({ user: {} });
     }
   },
+
   fetchUserById: async (userId) => {
     try {
-      const { data } = await axios.get(`/api/user/${userId}`);
-      console.log('fetchUserById data:', data);
-      set({ userById: data[0] || {} }); //this was an array, index 0 to get the only one
+      const userData = await userApi.getUserById(userId);
+      set({ userById: userData });
     } catch (err) {
       console.error('fetchUserById error:', err);
       set({ userById: {} });
@@ -31,48 +55,45 @@ const createUserSlice = (set, get) => ({
   },
 
   register: async (newUserCredentials) => {
-    // Registers a new user by sending a POST request to
-    // /api/user/register, and then attempts to log them in.
     get().setAuthErrorMessage('');
     try {
-      await axios.post('/api/user/register', newUserCredentials);
-      get().logIn(newUserCredentials);
+      await sessionApi.register({
+        login: newUserCredentials.username,
+        password: newUserCredentials.password,
+        firstName: newUserCredentials.first_name,
+        lastName: newUserCredentials.last_name,
+      });
+      get().fetchUser();
     } catch (err) {
       console.log('register error:', err);
       get().setAuthErrorMessage('Oops! Registration failed. That username might already be taken. Try again!');
     }
   },
+
   logIn: async (userCredentials) => {
-    // Logs in an existing user by sending a POST request
-    // to /api/user/login and then retrieves their data.
     get().setAuthErrorMessage('');
     try {
-      await axios.post('/api/user/login', userCredentials);
+      await sessionApi.authenticate({
+        login: userCredentials.username,
+        password: userCredentials.password,
+      });
       get().fetchUser();
     } catch (err) {
       console.log('logIn error:', err);
-      if (err.response.status === 401) {
-        // 401 is the status code sent from passport if user isn't in the database or
-        // if the username and password don't match in the database, so:
-        get().setAuthErrorMessage('Oops! Login failed. You have entered an invalid username or password. Try again!');
-      } else {
-        // Got an error that wasn't status 401, so we'll show a more generic error:
-        get().setAuthErrorMessage('Oops! Login failed. It might be our fault. Try again!');
-      }
+      get().setAuthErrorMessage('Oops! Login failed. You have entered an invalid username or password. Try again!');
     }
   },
+
   logOut: async () => {
-    // Logs out the current user by sending a POST request to
-    // /api/user/logout, and then clears their data.
     try {
-      await axios.post('/api/user/logout');
+      await sessionApi.logout();
       set({ user: {} });
     } catch (err) {
       console.log('logOut error:', err);
     }
   },
+
   setAuthErrorMessage: (message) => {
-    // Sets an error message for authentication-related issues.
     set({ authErrorMessage: message });
   },
 });
