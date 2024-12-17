@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Modal, Form, Button, Alert, Nav } from 'react-bootstrap';
 import useStore from '../../zustand/store';
 import { sessionApi } from '../../api/sessions';
+import { toast } from 'react-toastify';
 
 function AuthModal({ show, onHide }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,23 +12,21 @@ function AuthModal({ show, onHide }) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   
-  const errorMessage = useStore((state) => state.authErrorMessage);
-  const setAuthErrorMessage = useStore((state) => state.setAuthErrorMessage);
-  const setIsLoggedIn = useStore((state) => state.setIsLoggedIn);
+  const setRoleId = useStore((state) => state.setRoleId);
+  const setClasses = useStore((state) => state.setClasses);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    return () => {
-      setAuthErrorMessage('');
-    };
-  }, []);
+//   useEffect(() => {
+//     return () => {
+//       setAuthErrorMessage('');
+//     };
+//   }, []);
 
   const resetForm = () => {
     setEmail('');
     setPassword('');
     setFirstName('');
     setLastName('');
-    setAuthErrorMessage('');
   };
 
   const handleClose = () => {
@@ -42,10 +41,15 @@ function AuthModal({ show, onHide }) {
       sessionApi.login({
         login: email,
         password: password,
-      }).then(() => {
-        setIsLoggedIn(true);
-        handleClose();
-        navigate('/');
+      }).then((data) => {
+          console.log("login data", data);
+          setRoleId(data.roleId);
+          setClasses(data.classes);
+          handleClose();
+          navigate('/');
+      }).catch((error) => {
+        console.log("login error", error);
+        toast.error("Login Error");
       });
     } else {
       sessionApi.register({
@@ -53,7 +57,9 @@ function AuthModal({ show, onHide }) {
         password: password,
         firstName: firstName,
         lastName: lastName,
-      }).then(() => {
+      }).then((data) => {
+        setRoleId(data.roleId);
+        setClasses(data.classes);
         handleClose();
         navigate('/');
       });
@@ -90,12 +96,6 @@ function AuthModal({ show, onHide }) {
             </Nav.Link>
           </Nav.Item>
         </Nav>
-
-        {errorMessage && (
-          <Alert variant="danger" className="mb-4">
-            {errorMessage}
-          </Alert>
-        )}
 
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="email">

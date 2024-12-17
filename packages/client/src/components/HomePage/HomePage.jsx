@@ -1,38 +1,8 @@
-import useStore from '../../zustand/store';
-import { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import './HomePage.css';
 
 function HomePage() {
-  const user = useStore((state) => state.user);
-  const allForms = useStore((store) => store.allForms);
-  const fetchForms = useStore((store) => store.fetchForms);
-  const navigate = useNavigate();
-
-  // TODO: Create a button for each form type.
-  // If not logged in they are sent to register/login page
-  // When clicked, performs a POST request to create
-  // the initial form.
-  // Grab the form ID and redirect the user to that page
-  useEffect(() => {
-    fetchForms();
-  }, []);
-
-  const handleVolunteerClick = (isNew) => {
-    if (!user.id) {
-      navigate('/login');
-      return;
-    }
-
-    if (isNew) {
-      const volunteerForm = allForms[0];
-      if (volunteerForm) {
-        navigate(`/form/${volunteerForm.id}/0`);
-      }
-    }
-  };
-
   return (
     <Container fluid>
       <Row className='home-banner text-center'>
@@ -57,10 +27,10 @@ function HomePage() {
                 Help us create a safe, fun, and unforgettable camp experience for children who need it most.
               </Card.Text>
               <div className='d-grid gap-2'>
-                <Button variant='primary' className='btn-volunteer' onClick={() => handleVolunteerClick(true)}>
+                <Button variant='primary' className='btn-volunteer' >
                   New Volunteer Registration
                 </Button>
-                <Button variant='outline-primary' className='btn-volunteer' onClick={() => handleVolunteerClick(false)}>
+                <Button variant='outline-primary' className='btn-volunteer' >
                   Returning Volunteer Registration
                 </Button>
               </div>

@@ -45,7 +45,7 @@ export class UserApi extends BaseApi {
    * @returns {Promise<User>} The created user
    */
   async create(input) {
-    return super.create(input);
+    const user = await super.create(input);
   }
 
   /**
