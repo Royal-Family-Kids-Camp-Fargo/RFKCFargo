@@ -1,0 +1,9 @@
+version: "3"
+agent:
+    authtoken: AUTH TOKEN HERE
+
+endpoints:
+  - name: nlapi-tunnel
+    url: https://quick-notable-duck.ngrok-free.app
+    upstream:
+        url: 5573

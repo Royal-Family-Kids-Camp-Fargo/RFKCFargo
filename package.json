@@ -1,43 +1,40 @@
 {
-  "name": "prime-solo-project",
+  "name": "rfkc-volunteer-tracker",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "engines": {
-    "node": ">=18.x"
-  },
-  "dependencies": {
-    "axios": "^1.7.7",
-    "bcryptjs": "^2.4.3",
-    "bootstrap": "^5.3.3",
-    "connect-pg-simple": "^9.0.1",
-    "dotenv": "^16.4.5",
-    "env": "^0.0.2",
-    "express": "^4.17.1",
-    "express-session": "^1.18.0",
-    "passport": "^0.7.0",
-    "passport-local": "^1.0.0",
-    "pg": "^8.5.1",
-    "react": "^18.2.0",
-    "react-bootstrap": "^2.10.5",
-    "react-dnd": "^16.0.1",
-    "react-dnd-html5-backend": "^16.0.1",
-    "react-dom": "^18.2.0",
-    "react-icons": "^5.3.0",
-    "react-router-dom": "^6.26.2",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1",
-    "zustand": "^4.5.5"
+    "node": ">=20.x"
   },
   "scripts": {
-    "start": "node server/server.js",
-    "client": "vite --host",
-    "server": "nodemon --watch server server/server.js",
-    "build": "vite build",
-    "test": "vitest"
+    "prepare": "husky",
+    "start": "npm run start:prod",
+    "build": "npm run build --workspaces",
+    "seed": "npm run seed --workspace=server",
+    "sync": "npm run sync --workspace=server",
+    "dev": "npm run start-db && npm-run-all --parallel --print-label dev:client dev:server dev:ngrok",
+    "dev:ngrok": "ngrok start --config=ngrok.yml nlapi-tunnel",
+    "dev:client": "npm run dev --workspace=client",
+    "dev:server": "npm run dev --workspace=server",
+    "start-db": "node scripts/start-db.js",
+    "start:prod": "npm-run-all --parallel --print-label prod:client prod:server",
+    "prod:client": "npm run start --workspace=client",
+    "prod:server": "npm run start --workspace=server",
+    "lint": "npm run lint --workspaces",
+    "test": "npm run test --workspaces",
+    "format": "npm run format --workspaces",
+    "check-todos": "grep -r --exclude-dir=node_modules --exclude-dir=.vite --exclude=package.json 'TODO:' . && echo 'TODOs found, please resolve them before pushing.' && exit 1 ||  echo 'No TODOs found'",
+    "check-env": "node scripts/check-env.js",
+    "setup-nlapi-portal": "node scripts/setup-nlapi-portal.mjs",
+    "update-schemas": "node scripts/update-schemas.mjs",
+    "fetch-hubspot-apis": "node scripts/fetch-hubspot-apis.js"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
     "nodemon": "^3.1.0",
+    "npm-run-all": "^4.1.5",
     "vite": "^5.2.11",
     "vitest": "^1.6.0"
   },

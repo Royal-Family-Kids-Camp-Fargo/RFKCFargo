@@ -1,38 +1,30 @@
-# syntax = docker/dockerfile:1
+# Use a Node.js image to build the frontend
+FROM node:20-slim AS build
 
-# Adjust NODE_VERSION as desired
-ARG NODE_VERSION=20.6.0
-FROM node:${NODE_VERSION}-slim as base
-
-LABEL fly_launch_runtime="Node.js"
-
-# Node.js app lives here
+# Set the working directory
 WORKDIR /app
 
-# Set production environment
-ENV NODE_ENV="production"
+# Copy package.json and package-lock.json for both frontend and backend
+# NOTE: this is not optimal, we should not have to copy the package.json for both frontend and backend
+COPY packages/server/package.json .
 
+# Install dependencies for both  backend
+RUN npm install
 
-# Throw-away build stage to reduce size of final image
-FROM base as build
+# Copy the rest of the application code
+COPY packages/server .
 
-# Install packages needed to build node modules
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
+# Use a Node.js image to run both frontend and backend
+FROM node:20-slim
 
-# Install node modules
-COPY --link package-lock.json package.json ./
-RUN npm ci
+# Set the working directory
+WORKDIR /app
 
-# Copy application code
-COPY --link . .
-
-# Final stage for app image
-FROM base
-
-# Copy built application
+# Copy the backend code
 COPY --from=build /app /app
 
-# Start the server by default, this can be overwritten at runtime
+# Expose the necessary port
 EXPOSE 5001
-CMD [ "npm", "run", "start" ]
+
+# Start the backend
+CMD ["npm", "start"]
