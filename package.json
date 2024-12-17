@@ -51,5 +51,9 @@
       "last 1 safari version"
     ]
   },
-  "heroku-run-build-script": true
+  "heroku-run-build-script": true,
+  "dependencies": {
+    "@tanstack/react-query": "^5.62.8",
+    "node-fetch": "^3.3.2"
+  }
 }

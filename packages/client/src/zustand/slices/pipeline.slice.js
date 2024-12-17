@@ -102,5 +102,6 @@ const createPipelineSlice = (set, get) => ({
       alert('Failed to delete user from pipeline.');
     }
   },
+
 });
 export default createPipelineSlice;

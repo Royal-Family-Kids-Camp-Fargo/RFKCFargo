@@ -21,6 +21,8 @@ import Footer from './components/Footer/Footer';
 import favicon from '../public/favicon.png';
 import { sessionApi } from './api/sessions';
 import { ToastContainer } from 'react-toastify';
+import ChatBubble from './components/ChatBubble';
+import settings from './config/settings';
 
 function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -75,6 +77,7 @@ function App() {
               Component={HomePage}
             />
             <Route exact path='/pipeline' Component={Pipeline} />
+            <Route exact path='/pipeline/:pipelineId' Component={Pipeline} />
             <Route
               path='/submission/:submissionId/:sectionIndex?'
               element={roleId ? <SubmissionView /> : <Navigate to='/' replace />}
@@ -94,6 +97,7 @@ function App() {
       </Container>
       <Footer />
       <ToastContainer />
+      {roleId && roleId != String(settings.nobodyRoleId) && <ChatBubble />}
     </>
   );
 }

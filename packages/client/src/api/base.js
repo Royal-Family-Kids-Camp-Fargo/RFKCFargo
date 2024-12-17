@@ -92,6 +92,49 @@ class BaseApi {
     }
   }
 
+  async getAll(pagination = { limit: 10, offset: 0, ordering: "", filter: "" }) {
+    console.log('pagination', pagination);
+    console.log('this.model', this.model);
+    const subquery = `query{ ${this.model} { id } }`;
+    const query = gql`
+      query GetAll${this.model}($subquery: String, $filter: String, $limit: Int, $ordering: [String], $offset: Int) {
+        Aggregates {
+          count(
+            subquery: $subquery,
+            filter: $filter
+          )
+        }
+        ${this.model}(
+          limit: $limit, 
+          offset: $offset, 
+          ordering: $ordering,
+          filter: $filter
+        ) {
+          ${this.fields.join("\n")}
+        }
+      }
+    `;
+    console.log('query', query);
+
+    try {
+      const response = await this.client.query({
+        query,
+        variables: { ...pagination, subquery }
+      });
+      return {
+        data: response.data[this.model],
+        total: response.data.Aggregates.count,
+        limit: pagination.limit,
+        offset: pagination.offset,
+        ordering: pagination.ordering,
+        filter: pagination.filter,
+      };
+    } catch (error) {
+      console.error(`Error fetching ${this.model}:`, error);
+      throw error;
+    }
+  }
+
   /**
    * Update a record
    * @template T

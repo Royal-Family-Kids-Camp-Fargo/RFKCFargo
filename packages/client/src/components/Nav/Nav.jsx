@@ -1,16 +1,16 @@
-import { Nav } from 'react-bootstrap';
+import { Nav, NavDropdown } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
 import useStore from '../../zustand/store';
 import { sessionApi } from '../../api/sessions';
 import './Nav.css';
 import settings from '../../config/settings';
+import NavPipeline from './NavPipeline';
 
 function Navigation({ onAuthClick }) {
   const location = useLocation();
   const roleId = useStore((state) => state.roleId);
   const setRoleId = useStore((state) => state.setRoleId);
   const classes = useStore((state) => state.classes);
-
 
   const handleLogout = () => {
     sessionApi.logout().then(() => {
@@ -19,12 +19,9 @@ function Navigation({ onAuthClick }) {
       window.location.href = '/';
     });
   };
-  console.log("classes", classes);
-  console.log("roleId", roleId);
+
   const isLoggedIn = roleId && roleId != settings.nobodyRoleId;
   const isAdmin = classes.includes(String(settings.adminClassId));
-  console.log("isAdmin", isAdmin);
-  console.log("isLoggedIn", isLoggedIn);
 
   return (
     <Nav className='w-100 d-flex bg-light'>
@@ -34,9 +31,7 @@ function Navigation({ onAuthClick }) {
             <Nav.Link as={Link} to='/' active={location.pathname === '/'}>
               Home
             </Nav.Link>
-            <Nav.Link as={Link} to='/pipeline' active={location.pathname === '/pipeline'}>
-              Pipeline
-            </Nav.Link>
+            <NavPipeline />
             <Nav.Link as={Link} to='/admin/forms' active={location.pathname === '/admin/forms'}>
               Manage Forms
             </Nav.Link>

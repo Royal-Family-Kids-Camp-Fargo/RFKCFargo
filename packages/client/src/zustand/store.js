@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import userSlice from './slices/user.slice.js';
 import pipelineSlice from './slices/pipeline.slice.js';
+import endpointSlice from './slices/endpoint.slice.js';
+import botSlice from './slices/bot.slice.js';
 import formSlice from './slices/form.slice.js';
 import submissionSlice from './slices/submission.slice.js';
 import sectionSlice from './slices/section.slice.js';
@@ -10,7 +12,9 @@ import createActionSlice from './slices/action.slice.js';
 // Combine all slices in the store:
 const useStore = create((set, get) => ({
   ...userSlice(set, get),
-  // ...pipelineSlice(set, get),
+  ...pipelineSlice(set, get),
+  ...endpointSlice(set, get),
+  ...botSlice(set, get),
   // ...formSlice(set, get),
   // ...submissionSlice(set, get),
   // ...sectionSlice(set, get),

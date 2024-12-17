@@ -2,28 +2,36 @@ import { useState, useEffect } from 'react';
 import { Button, Card, Modal, Form } from 'react-bootstrap';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { useParams } from 'react-router-dom';
 
 import useStore from '../../zustand/store';
 import PipelineStatus from '../PipelineStatus/PipelineStatus';
 import PipelineForm from '../PipelineForm/PipelineForm';
 
-import './Pipeline.css'; // Assuming the styles are in this file
+import './Pipeline.css';
 import AddUserToPipeline from './AddUserToPipeline';
 
 export const DRAG_TYPE = 'user-status';
 
 export default function Pipeline() {
+  const { pipelineId: urlPipelineId } = useParams();
   const pipelines = useStore((state) => state.pipelines);
   const selectedPipelineWithData = useStore((state) => state.selectedPipeline);
   const fetchPipeline = useStore((state) => state.fetchPipeline);
   const fetchPipelineById = useStore((state) => state.fetchPipelineById);
 
-  const [pipelineId, setPipelineId] = useState(selectedPipelineWithData.pipeline_id || '');
-  const [showModal, setShowModal] = useState(false);
+  const [pipelineId, setPipelineId] = useState(urlPipelineId || '');
 
   useEffect(() => {
     fetchPipeline();
   }, [fetchPipeline]);
+
+  useEffect(() => {
+    if (urlPipelineId) {
+      setPipelineId(urlPipelineId);
+      fetchPipelineById(urlPipelineId);
+    }
+  }, [urlPipelineId, fetchPipelineById]);
 
   const loadPipeline = () => {
     fetchPipelineById(pipelineId);
@@ -37,7 +45,6 @@ export default function Pipeline() {
 
   return (
     <>
-      {/* Other controls */}
       <div>
         <div className='text-center mb-4'>
           <h1 style={{ color: '#4b0082' }}>
@@ -50,10 +57,10 @@ export default function Pipeline() {
           <select
             id='pipelines'
             className='form-control'
-            value={selectedPipelineWithData.pipeline_id ?? pipelineId}
+            value={pipelineId}
             onChange={(event) => setPipelineId(Number(event.target.value))}
           >
-            <option>Select Pipeline</option>
+            <option value="">Select Pipeline</option>
             {pipelines.map((pipeline) => (
               <option key={pipeline.id} value={pipeline.id}>
                 {pipeline.name}
