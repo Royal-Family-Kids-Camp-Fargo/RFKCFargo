@@ -22,11 +22,15 @@ import settings from './config/settings';
 
 function App() {
   const user = useStore((state) => state.user);
+  const setIsLoggedIn = useStore((state) => state.setIsLoggedIn);
 
   useEffect(() => {
     if (!localStorage.getItem('accessToken')) {
       sessionApi.anonymousAuthenticate();
     } else {
+      if (localStorage.getItem('accessToken') && localStorage.getItem('roleId') != settings.anonymousRoleId) {
+        setIsLoggedIn(true);
+      }
       sessionApi.validateAndRefreshSession();
     }
   }, []);

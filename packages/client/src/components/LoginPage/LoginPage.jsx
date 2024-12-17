@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
@@ -7,14 +7,15 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Alert from 'react-bootstrap/Alert';
 import useStore from '../../zustand/store';
+import { sessionApi } from '../../api/sessions';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const logIn = useStore((state) => state.logIn);
   const errorMessage = useStore((state) => state.authErrorMessage);
   const setAuthErrorMessage = useStore((state) => state.setAuthErrorMessage);
-
+  const setIsLoggedIn = useStore((state) => state.setIsLoggedIn);
+  const navigate = useNavigate();
   useEffect(() => {
     return () => {
       setAuthErrorMessage('');
@@ -23,9 +24,12 @@ function LoginPage() {
 
   const handleLogIn = (event) => {
     event.preventDefault();
-    logIn({
-      username: email,
+    sessionApi.login({
+      login: email,
       password: password,
+    }).then(() => {
+      setIsLoggedIn(true);
+      navigate('/');
     });
   };
 

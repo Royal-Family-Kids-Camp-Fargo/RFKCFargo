@@ -15,7 +15,8 @@ const useStore = create((set, get) => ({
   ...submissionSlice(set, get),
   ...sectionSlice(set, get),
   ...questionSlice(set, get),
-  ...createActionSlice(set, get)
+  ...createActionSlice(set, get),
+  setIsLoggedIn: (isLoggedIn) => set({ isLoggedIn })
 }));
 
 

@@ -1,26 +1,26 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
+import { Nav } from 'react-bootstrap';
 import useStore from '../../zustand/store';
 import { sessionApi } from '../../api/sessions';
 import './Nav.css';
 
 function Navigation() {
-  const user = useStore((store) => store.user);
-  const logOut = useStore((store) => store.logOut);
   const location = useLocation();
   const navigate = useNavigate();
 
+  const isLoggedIn = useStore((state) => state.isLoggedIn);
+  const setIsLoggedIn = useStore((state) => state.setIsLoggedIn);
+
   const handleLogout = async () => {
     await sessionApi.logout();
-    logOut();
+    setIsLoggedIn(false);
     navigate('/login');
   };
 
-  const isAuthenticated = localStorage.getItem('accessToken') && localStorage.getItem('roleId');
 
   return (
     <Nav className='w-100 d-flex bg-light'>
-      {isAuthenticated ? (
+      {isLoggedIn ? (
         <>
           <div className='d-lg-flex'>
             <Nav.Link as={Link} to='/' active={location.pathname === '/'}>
@@ -48,10 +48,7 @@ function Navigation() {
             About
           </Nav.Link>
           <div className='ms-lg-auto'>
-            <NavDropdown title="Login / Register" id="auth-nav-dropdown">
-              <NavDropdown.Item as={Link} to='/login'>Login</NavDropdown.Item>
-              <NavDropdown.Item as={Link} to='/registration'>Register</NavDropdown.Item>
-            </NavDropdown>
+            <Nav.Link as={Link} to='/login'>Login</Nav.Link>
           </div>
         </>
       )}

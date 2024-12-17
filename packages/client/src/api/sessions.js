@@ -113,7 +113,7 @@ class SessionApi {
     }
   }
 
-  async authenticate(userCredentials) {
+  async login(userCredentials) {
     if (!userCredentials.login || !userCredentials.password) {
       throw new Error("Username and password are required");
     }
