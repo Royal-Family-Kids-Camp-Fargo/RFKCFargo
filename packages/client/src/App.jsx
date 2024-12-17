@@ -1,12 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
+
+// Import our custom Sass that includes Bootstrap with overrides
+import './styles/custom.scss';
 
 import useStore from './zustand/store';
 import Navigation from './components/Nav/Nav';
 import HomePage from './components/HomePage/HomePage';
-import LoginPage from './components/LoginPage/LoginPage';
-import RegisterPage from './components/RegisterPage/RegisterPage';
+import AuthModal from './components/AuthModal/AuthModal';
 import Pipeline from './components/Pipeline/Pipeline';
 import Profile from './components/Profile/Profile';
 import FormPage from './components/FormPage/FormPage';
@@ -21,6 +23,7 @@ import { sessionApi } from './api/sessions';
 import settings from './config/settings';
 
 function App() {
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const user = useStore((state) => state.user);
   const setIsLoggedIn = useStore((state) => state.setIsLoggedIn);
 
@@ -51,10 +54,12 @@ function App() {
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
-            <Navigation />
+            <Navigation onAuthClick={() => setShowAuthModal(true)} />
           </Navbar.Collapse>
         </Container>
       </Navbar>
+
+      <AuthModal show={showAuthModal} onHide={() => setShowAuthModal(false)} />
 
       <Container>
         <main className='py-2'>
@@ -62,30 +67,18 @@ function App() {
             <Route
               exact
               path='/'
-              element={
-                localStorage.getItem('accessToken') && localStorage.getItem('roleId') != settings.anonymousRoleId ? <HomePage /> : <Navigate to='/login' replace />
-              }
-            />
-            <Route
-              exact
-              path='/login'
-              element={user.id ? <Navigate to='/' replace /> : <LoginPage />}
+              Component={HomePage}
             />
             <Route exact path='/profile/:userId' Component={Profile} />
             <Route exact path='/pipeline' Component={Pipeline} />
             <Route
-              exact
-              path='/registration'
-              element={user.id ? <Navigate to='/' replace /> : <RegisterPage />}
-            />
-            <Route
               path='/submission/:submissionId/:sectionIndex?'
-              element={user.id ? <SubmissionView /> : <LoginPage />}
+              element={user.id ? <SubmissionView /> : <Navigate to='/' replace />}
             />
             <Route
               exact
               path='/form/:formId/:sectionIndex'
-              element={user.id ? <FormPage /> : <LoginPage />}
+              element={user.id ? <FormPage /> : <Navigate to='/' replace />}
             />
             <Route exact path='/finish' element={<SubmissionPage />} />
             <Route exact path='/formEdit/:formId' element={<FormEditor />} />
@@ -131,7 +124,7 @@ function App() {
                 </Container>
               }
             />
-            <Route exact path='/admin/forms' element={user.id ? <FormAdmin /> : <LoginPage />} />
+            <Route exact path='/admin/forms' element={user.id ? <FormAdmin /> : <Navigate to='/' replace />} />
             <Route path='/admin/forms/:formId/section/:sectionId' element={<QuestionManager />} />
             <Route path='*' element={<h2>404 Page</h2>} />
           </Routes>

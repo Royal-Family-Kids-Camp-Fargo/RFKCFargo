@@ -1,20 +1,20 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Nav } from 'react-bootstrap';
+import { Link, useLocation } from 'react-router-dom';
 import useStore from '../../zustand/store';
 import { sessionApi } from '../../api/sessions';
 import './Nav.css';
 
-function Navigation() {
+function Navigation({ onAuthClick }) {
   const location = useLocation();
-  const navigate = useNavigate();
-
-  const isLoggedIn = useStore((state) => state.isLoggedIn);
+  const user = useStore((state) => state.user);
   const setIsLoggedIn = useStore((state) => state.setIsLoggedIn);
+  const isLoggedIn = useStore((state) => state.isLoggedIn);
 
-  const handleLogout = async () => {
-    await sessionApi.logout();
-    setIsLoggedIn(false);
-    navigate('/login');
+  const handleLogout = () => {
+    sessionApi.logout().then(() => {
+      setIsLoggedIn(false);
+      window.location.href = '/';
+    });
   };
 
 
@@ -37,6 +37,7 @@ function Navigation() {
             </Nav.Link>
           </div>
           <div className='ms-lg-auto'>
+            {/* <Nav.Link as={Link} to={`/profile/${user.id}`}>Profile</Nav.Link> */}
             <Nav.Link onClick={handleLogout} role='button'>
               Log Out
             </Nav.Link>
@@ -48,7 +49,9 @@ function Navigation() {
             About
           </Nav.Link>
           <div className='ms-lg-auto'>
-            <Nav.Link as={Link} to='/login'>Login</Nav.Link>
+            <Nav.Link onClick={onAuthClick} role='button'>
+              Login
+            </Nav.Link>
           </div>
         </>
       )}
