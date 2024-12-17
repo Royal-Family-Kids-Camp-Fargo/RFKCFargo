@@ -21,8 +21,8 @@ function Navigation({ onAuthClick }) {
   };
   console.log("classes", classes);
   console.log("roleId", roleId);
-  const isLoggedIn = roleId != settings.nobodyRoleId;
-  const isAdmin = classes.includes(settings.adminClassId);
+  const isLoggedIn = roleId && roleId != settings.nobodyRoleId;
+  const isAdmin = classes.includes(String(settings.adminClassId));
   console.log("isAdmin", isAdmin);
   console.log("isLoggedIn", isLoggedIn);
 

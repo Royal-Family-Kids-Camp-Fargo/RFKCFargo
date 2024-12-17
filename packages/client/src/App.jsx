@@ -26,16 +26,21 @@ function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const roleId = useStore((state) => state.roleId);
   const setRoleId = useStore((state) => state.setRoleId);
-
-  useEffect(async () => {
-    if (!localStorage.getItem('accessToken') || !roleId ) {
-      const { roleId } = await sessionApi.anonymousAuthenticate();
-      console.log("Anonymous roleId", roleId);
-      setRoleId(roleId);
-    } else {
-      sessionApi.validateAndRefreshSession();
-
+  const setClasses = useStore((state) => state.setClasses);
+  useEffect(() => {
+    async function authenticate() {
+      if (!localStorage.getItem('accessToken')) {
+        const { roleId } = await sessionApi.anonymousAuthenticate();
+        setRoleId(roleId);
+      } else {
+        sessionApi.validateAndRefreshSession().then((role) => {
+          console.log("validated roleId", role);
+          setRoleId(role.roleid);
+          setClasses(role.classes);
+        });
+      }
     }
+    authenticate();
   }, []);
 
   return (

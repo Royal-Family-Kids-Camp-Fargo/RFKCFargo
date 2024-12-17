@@ -45,6 +45,8 @@ function AuthModal({ show, onHide }) {
           console.log("login data", data);
           setRoleId(data.roleId);
           setClasses(data.classes);
+          localStorage.setItem('accessToken', data.accessToken);
+          localStorage.setItem('refreshToken', data.refreshToken);
           handleClose();
           navigate('/');
       }).catch((error) => {
@@ -60,6 +62,8 @@ function AuthModal({ show, onHide }) {
       }).then((data) => {
         setRoleId(data.roleId);
         setClasses(data.classes);
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('refreshToken', data.refreshToken);
         handleClose();
         navigate('/');
       });

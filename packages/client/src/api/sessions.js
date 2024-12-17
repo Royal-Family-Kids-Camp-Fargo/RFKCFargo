@@ -34,8 +34,8 @@ class SessionApi {
 
   hasStoredCredentials() {
     const token = localStorage.getItem("accessToken");
-    const roleId = localStorage.getItem("roleId");
-    return token && roleId && roleId !== this.anonymousRoleId;
+    const refreshToken = localStorage.getItem("refreshToken");
+    return token && refreshToken
   }
 
   async validateAndRefreshSession() {
@@ -45,17 +45,18 @@ class SessionApi {
 
     try {
       // Try to validate the current token by making a test query
-      const response = await axios.get(`${this.baseUrl}/query`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      // const response = await axios.get(`${this.baseUrl}/query`, {
+      //   headers: {
+      //     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      //   },
+      // });
       
-      if (response.status === 200) {
-        return true;
-      } else {
-        return this._refreshSession();
-      }
+      // if (response.status === 200) {
+      //   const roleId = this._getRole(response.data.roleid);
+      //   return response.data.roleid;
+      // } else {
+      // }
+      return this._refreshSession();
     } catch (error) {
       // If the token is invalid, clear storage and return false
       this.logout();
@@ -65,16 +66,18 @@ class SessionApi {
 
   async _refreshSession() {
     try {
-      const response = await axios.get(`${this.baseUrl}/query`, {
+      const response = await axios.get(`${this.baseUrl}/auth`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("refreshToken")}`,
         },
       });
+      console.log("refresh session response", response);
       const { access_token: accessToken, refresh_token: refreshToken, roleid: roleId } = response.data;
 
       this._setTokens({ accessToken, refreshToken, roleId });
-
-      return true;
+      const role = await this._getRole(roleId);
+      console.log("refresh session roleId", roleId);
+      return role;
     } catch (error) {
       this.logout();
       return false;
