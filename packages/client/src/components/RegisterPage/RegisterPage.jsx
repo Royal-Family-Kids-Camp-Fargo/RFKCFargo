@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
@@ -6,19 +7,18 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Alert from 'react-bootstrap/Alert';
 import useStore from '../../zustand/store';
+import { sessionApi } from '../../api/sessions';
 
 function RegisterPage() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const register = useStore((state) => state.register);
   const errorMessage = useStore((state) => state.authErrorMessage);
   const setAuthErrorMessage = useStore((state) => state.setAuthErrorMessage);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Clear the auth error message when the component unmounts:
     return () => {
       setAuthErrorMessage('');
     };
@@ -26,12 +26,13 @@ function RegisterPage() {
 
   const handleRegister = (event) => {
     event.preventDefault();
-    register({
-      username: username,
+    sessionApi.register({
+      login: email,
       password: password,
-      first_name: firstName,
-      last_name: lastName,
-      phone_number: phoneNumber,
+      firstName: firstName,
+      lastName: lastName,
+    }).then(() => {
+      navigate('/');
     });
   };
 
@@ -49,43 +50,62 @@ function RegisterPage() {
             )}
 
             <Form onSubmit={handleRegister}>
-              <Form.Group className="mb-3" controlId="username">
-                <Form.Label>Username</Form.Label>
+              <Form.Group className="mb-3" controlId="email">
+                <Form.Label>Email</Form.Label>
                 <Form.Control 
                   type="email" 
-                  placeholder="Enter username" 
-                  value={username} 
-                  onChange={(e) => setUsername(e.target.value)} 
+                  placeholder="Enter email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
                   required
                 />
               </Form.Group>
 
-              <Form.Group controlId="password">
+              <Form.Group className="mb-3" controlId="password">
                 <Form.Label>Password</Form.Label>
-                <Form.Control type="password" placeholder="Enter password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <Form.Control 
+                  type="password" 
+                  placeholder="Enter password" 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)}
+                  required 
+                />
               </Form.Group>
 
-              <Form.Group controlId="firstName">
+              <Form.Group className="mb-3" controlId="firstName">
                 <Form.Label>First Name</Form.Label>
-                <Form.Control type="text" placeholder="Enter first name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                <Form.Control 
+                  type="text" 
+                  placeholder="Enter first name" 
+                  value={firstName} 
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required 
+                />
               </Form.Group>
 
-              <Form.Group controlId="lastName">
+              <Form.Group className="mb-3" controlId="lastName">
                 <Form.Label>Last Name</Form.Label>
-                <Form.Control type="text" placeholder="Enter last name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                <Form.Control 
+                  type="text" 
+                  placeholder="Enter last name" 
+                  value={lastName} 
+                  onChange={(e) => setLastName(e.target.value)}
+                  required 
+                />
               </Form.Group>
 
-              <Form.Group controlId="phoneNumber">
-                <Form.Label>Phone Number</Form.Label>
-                <Form.Control type="text" placeholder="Enter phone number" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
-              </Form.Group>
-
-              <div className="d-grid">
+              <div className="d-grid gap-2">
                 <Button variant="primary" type="submit">
                   Register
                 </Button>
               </div>
             </Form>
+
+            <div className="text-center mt-3">
+              <p className="mb-0">
+                Already have an account? <Link to="/login">Login here</Link>
+              </p>
+            </div>
           </div>
         </Col>
       </Row>

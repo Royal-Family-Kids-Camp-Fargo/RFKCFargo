@@ -3,61 +3,82 @@ import { ApolloClient, InMemoryCache, HttpLink, gql } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import BaseApi from "./base";
 
-class UserApi extends BaseApi {
+/**
+ * @typedef {Object} UserInput
+ * @property {string} email - User's email address
+ * @property {string} first_name - User's first name
+ * @property {string} last_name - User's last name
+ * @property {string} [phone_number] - User's phone number (optional)
+ */
+
+/**
+ * @typedef {Object} User
+ * @property {string} id - User's unique identifier
+ * @property {string} email - User's email address
+ * @property {string} first_name - User's first name
+ * @property {string} last_name - User's last name
+ * @property {string} [phone_number] - User's phone number
+ * @property {string} devii_roleid - User's role ID
+ * @property {string} created_at - Creation timestamp
+ * @property {string} updated_at - Last update timestamp
+ */
+
+export class UserApi extends BaseApi {
   constructor() {
     super();
+    this.model = "user";
+    this.fields = [
+      "id",
+      "email",
+      "first_name",
+      "last_name",
+      "phone_number",
+      "created_at",
+      "updated_at",
+      "devii_roleid",
+    ];
   }
 
-  async getCurrentUser() {
-    const query = gql`
-      query GetCurrentUser {
-        currentUser {
-          id
-          username
-          email
-          firstName
-          lastName
-          createdAt
-          updatedAt
-        }
-      }
-    `;
-
-    try {
-      const response = await this.client.query({ query });
-      return response.data.currentUser;
-    } catch (error) {
-      console.error("Error fetching current user:", error);
-      throw error;
-    }
+  /**
+   * Create a new user
+   * @param {UserInput} input - The user data to create
+   * @returns {Promise<User>} The created user
+   */
+  async create(input) {
+    return super.create(input);
   }
 
-  async getUserById(userId) {
-    const query = gql`
-      query GetUserById($userId: ID!) {
-        user(id: $userId) {
-          id
-          username
-          email
-          firstName
-          lastName
-          createdAt
-          updatedAt
-        }
-      }
-    `;
+  /**
+   * Get a user by ID
+   * @param {string} id - The user ID
+   * @returns {Promise<User>} The user data
+   */
+  async get(id) {
+    return super.get(id);
+  }
 
-    try {
-      const response = await this.client.query({
-        query,
-        variables: { userId },
-      });
-      return response.data.user;
-    } catch (error) {
-      console.error("Error fetching user by ID:", error);
-      throw error;
-    }
+  /**
+   * Update a user
+   * @param {string} id - The user ID
+   * @param {Partial<UserInput>} input - The fields to update
+   * @returns {Promise<User>} The updated user
+   */
+  async update(id, input) {
+    return super.update(id, input);
+  }
+
+  /**
+   * Delete a user
+   * @param {string} id - The user ID to delete
+   * @returns {Promise<{ success: boolean }>} Success status
+   */
+  async delete(id) {
+    return super.delete(id);
   }
 }
 
-export default UserApi;
+// Create a singleton instance
+export const userApi = new UserApi();
+
+// For backward compatibility
+export default userApi;

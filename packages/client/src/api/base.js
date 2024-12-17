@@ -2,23 +2,35 @@
 import { ApolloClient, InMemoryCache, HttpLink, gql } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 
+/**
+ * @typedef {Object} BaseModelFields
+ * @property {string} id - The unique identifier
+ * @property {string} created_at - Creation timestamp
+ * @property {string} updated_at - Last update timestamp
+ */
+
+/**
+ * @typedef {Object} CreateModelResponse
+ * @property {string} id - The ID of the created record
+ */
+
 class BaseApi {
   constructor() {
-    const token = localStorage.getItem('accessToken'); // Retrieve token from local storage
-
     const authLink = setContext((_, { headers }) => {
+      const token = localStorage.getItem('accessToken');
+      console.log('token:', token);
       return {
         headers: {
           ...headers,
           authorization: token ? `Bearer ${token}` : "",
         }
-      }
+      };
     });
 
-    this.queryClient = new ApolloClient({
+    this.client = new ApolloClient({
       link: authLink.concat(new HttpLink({
-        uri: "https://api.devii.io/query", // Your GraphQL endpoint
-        credentials: "same-origin", // Include credentials if needed
+        uri: "https://api.devii.io/query",
+        credentials: "same-origin",
       })),
       cache: new InMemoryCache(),
     });
@@ -26,43 +38,110 @@ class BaseApi {
     this.fields = [];
   }
 
-  async get(id) {
-    const filter = `id: "${id}"`;
-    return this._query(`query Get${this.model}($filter: String) {
-      ${this.model}(filter: $filter) {
-        ${this.fields.join('\n')}
+  /**
+   * Create a new record
+   * @template T
+   * @param {T} input - The data to create the record with
+   * @returns {Promise<T & BaseModelFields>} The created record
+   */
+  async create(input) {
+    const mutation = gql`
+      mutation Create${this.model}($input: ${this.model}Input!) {
+        create_${this.model}(input: $input) {
+          ${this.fields.join('\n')}
+        }
       }
-    }`, { filter });
-  }
+    `;
 
-  // Generic query method
-  async _query(query, variables = {}) {
     try {
-      const response = await this.client.query({
-        query: gql`
-          ${query}
-        `,
-        variables,
+      const response = await this.client.mutate({
+        mutation,
+        variables: { input },
       });
-      return response.data;
+      return response.data[`create_${this.model}`];
     } catch (error) {
-      console.error("GraphQL Query Error:", error);
+      console.error(`Error creating ${this.model}:`, error);
       throw error;
     }
   }
 
-  // Generic mutation method
-  async _mutate(mutation, variables = {}) {
+  /**
+   * Get a record by ID
+   * @param {string} id - The ID of the record to fetch
+   * @returns {Promise<BaseModelFields>} The fetched record
+   */
+  async get(id) {
+    const filter = `id = "${id}"`;
+    const query = gql`
+      query Get${this.model}($filter: String) {
+        ${this.model}(filter: $filter) {
+          ${this.fields.join('\n')}
+        }
+      }
+    `;
+
+    try {
+      const response = await this.client.query({
+        query,
+        variables: { filter },
+      });
+      return response.data[this.model];
+    } catch (error) {
+      console.error(`Error fetching ${this.model}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update a record
+   * @template T
+   * @param {string} id - The ID of the record to update
+   * @param {Partial<T>} input - The fields to update
+   * @returns {Promise<T & BaseModelFields>} The updated record
+   */
+  async update(id, input) {
+    const mutation = gql`
+      mutation Update${this.model}($id: ID!, $input: ${this.model}Input!) {
+        update_${this.model}(id: $id, input: $input) {
+          ${this.fields.join('\n')}
+        }
+      }
+    `;
+
     try {
       const response = await this.client.mutate({
-        mutation: gql`
-          ${mutation}
-        `,
-        variables,
+        mutation,
+        variables: { id, input },
       });
-      return response.data;
+      return response.data[`update_${this.model}`];
     } catch (error) {
-      console.error("GraphQL Mutation Error:", error);
+      console.error(`Error updating ${this.model}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete a record
+   * @param {string} id - The ID of the record to delete
+   * @returns {Promise<{ success: boolean }>} Success status
+   */
+  async delete(id) {
+    const mutation = gql`
+      mutation Delete${this.model}($id: ID!) {
+        delete_${this.model}(id: $id) {
+          success
+        }
+      }
+    `;
+
+    try {
+      const response = await this.client.mutate({
+        mutation,
+        variables: { id },
+      });
+      return response.data[`delete_${this.model}`];
+    } catch (error) {
+      console.error(`Error deleting ${this.model}:`, error);
       throw error;
     }
   }

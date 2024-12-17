@@ -17,15 +17,19 @@ import QuestionManager from './components/QuestionManager/QuestionManager';
 import SubmissionView from './components/SubmissionView/SubmissionView';
 import Footer from './components/Footer/Footer';
 import favicon from '../public/favicon.png';
+import { sessionApi } from './api/sessions';
+import settings from './config/settings';
 
 function App() {
   const user = useStore((state) => state.user);
-  const fetchUser = useStore((state) => state.fetchUser);
-  const initializeAuth = useStore((state) => state.initializeAuth);
 
   useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
+    if (!localStorage.getItem('accessToken')) {
+      sessionApi.anonymousAuthenticate();
+    } else {
+      sessionApi.validateAndRefreshSession();
+    }
+  }, []);
 
   return (
     <>
@@ -54,7 +58,9 @@ function App() {
             <Route
               exact
               path='/'
-              element={user.id ? <HomePage /> : <Navigate to='/login' replace />}
+              element={
+                localStorage.getItem('accessToken') && localStorage.getItem('roleId') != settings.anonymousRoleId ? <HomePage /> : <Navigate to='/login' replace />
+              }
             />
             <Route
               exact

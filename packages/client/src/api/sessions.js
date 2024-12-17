@@ -2,15 +2,16 @@ import axios from 'axios';
 import settings from '../config/settings';
 import { ApolloClient, InMemoryCache, HttpLink, gql } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
-import { UserApi } from './user';
+import { userApi } from './user';
 
 class SessionApi {
   constructor() {
     this.baseUrl = "https://api.devii.io";
     this.anonymousRoleId = "anonymous"; // Set your anonymous role ID here
-    const token = localStorage.getItem("accessToken");
-
+    
     const authLink = setContext((_, { headers }) => {
+      const token = localStorage.getItem("accessToken");
+      console.log('token:', token);
       return {
         headers: {
           ...headers,
@@ -87,7 +88,13 @@ class SessionApi {
         password: userCredentials.password,
         tenantid: settings.tenantId,
       });
-      return { tokens };
+      const user = await userApi.create({
+        email: userCredentials.login,
+        first_name: userCredentials.firstName,
+        last_name: userCredentials.lastName,
+        devii_roleid: tokens.roleId,
+      });
+      return { tokens, user };
     } catch (error) {
       console.error("Role Creation Error:", error);
       throw error;
@@ -172,4 +179,6 @@ class SessionApi {
   }
 }
 
-export default SessionApi;
+export const sessionApi = new SessionApi();
+
+export default sessionApi;

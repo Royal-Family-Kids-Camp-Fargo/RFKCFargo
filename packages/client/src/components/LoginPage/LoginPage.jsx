@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
@@ -8,14 +9,13 @@ import Alert from 'react-bootstrap/Alert';
 import useStore from '../../zustand/store';
 
 function LoginPage() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const logIn = useStore((state) => state.logIn);
   const errorMessage = useStore((state) => state.authErrorMessage);
   const setAuthErrorMessage = useStore((state) => state.setAuthErrorMessage);
 
   useEffect(() => {
-    // Clear the auth error message when the component unmounts:
     return () => {
       setAuthErrorMessage('');
     };
@@ -24,7 +24,7 @@ function LoginPage() {
   const handleLogIn = (event) => {
     event.preventDefault();
     logIn({
-      username: username,
+      username: email,
       password: password,
     });
   };
@@ -43,13 +43,13 @@ function LoginPage() {
             )}
 
             <Form onSubmit={handleLogIn}>
-              <Form.Group className='mb-3' controlId='username'>
+              <Form.Group className='mb-3' controlId='email'>
                 <Form.Label>Email</Form.Label>
                 <Form.Control
-                  type='text'
+                  type='email'
                   required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder='Enter email'
                 />
               </Form.Group>
@@ -65,12 +65,18 @@ function LoginPage() {
                 />
               </Form.Group>
 
-              <div className='d-grid'>
+              <div className='d-grid gap-2'>
                 <Button variant='primary' type='submit'>
                   Log In
                 </Button>
               </div>
             </Form>
+
+            <div className='text-center mt-3'>
+              <p className='mb-0'>
+                Don't have an account? <Link to='/registration'>Register here</Link>
+              </p>
+            </div>
           </div>
         </Col>
       </Row>
