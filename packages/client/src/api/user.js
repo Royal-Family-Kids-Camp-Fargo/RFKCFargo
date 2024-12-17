@@ -6,26 +6,6 @@ import BaseApi from "./base";
 class UserApi extends BaseApi {
   constructor() {
     super();
-    const token = localStorage.getItem("accessToken");
-
-    const authLink = setContext((_, { headers }) => {
-      return {
-        headers: {
-          ...headers,
-          authorization: token ? `Bearer ${token}` : "",
-        }
-      }
-    });
-
-    this.client = new ApolloClient({
-      link: authLink.concat(
-        new HttpLink({
-          uri: "https://api.devii.io/query",
-          credentials: "same-origin",
-        })
-      ),
-      cache: new InMemoryCache(),
-    });
   }
 
   async getCurrentUser() {

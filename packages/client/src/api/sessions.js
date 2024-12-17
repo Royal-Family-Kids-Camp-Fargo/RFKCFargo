@@ -2,6 +2,7 @@ import axios from 'axios';
 import settings from '../config/settings';
 import { ApolloClient, InMemoryCache, HttpLink, gql } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import { UserApi } from './user';
 
 class SessionApi {
   constructor() {
@@ -80,7 +81,7 @@ class SessionApi {
 
   async register(userCredentials) {
     try {
-      await this._createRole(userCredentials);
+      await this._createRole(userCredentials, settings.userClassId);
       const tokens = await this._getTokens("auth", {
         login: userCredentials.login,
         password: userCredentials.password,
@@ -133,7 +134,7 @@ class SessionApi {
     localStorage.setItem("roleId", String(tokens.roleId));
   }
 
-  async _createRole(userCredentials) {
+  async _createRole(userCredentials, classId) {
     const mutation = gql`
       mutation CreateRole($input: roleInput!) {
         create_role(input: $input) {
@@ -148,6 +149,7 @@ class SessionApi {
         login: userCredentials.login,
         tenantid: settings.tenantId,
         password: userCredentials.password,
+        classes: [classId],
       },
     };
 
