@@ -76,8 +76,9 @@ class SessionApi {
 
       this._setTokens({ accessToken, refreshToken, roleId });
       const role = await this._getRole(roleId);
+      const user = await userApi.getByRoleId(roleId);
       console.log("refresh session roleId", roleId);
-      return role;
+      return { ...role, ...user };
     } catch (error) {
       this.logout();
       return false;

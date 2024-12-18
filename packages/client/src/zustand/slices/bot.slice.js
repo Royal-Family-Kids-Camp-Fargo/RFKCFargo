@@ -1,11 +1,11 @@
 
 const createBotSlice = (set) => ({
   context: [],
-  addContext: (newContext) => {
+  addBotContext: (newContext) => {
     console.log("Adding context:", newContext);
     set((state) => ({ context: [...state.context, newContext] }));
   },
-  removeContext: (contextToRemove) => {
+  removeBotContext: (contextToRemove) => {
     console.log("Removing context:", contextToRemove);
     set((state) => ({
       context: state.context.filter((context) => context !== contextToRemove),

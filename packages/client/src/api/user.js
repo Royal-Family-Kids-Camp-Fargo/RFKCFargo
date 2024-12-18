@@ -33,48 +33,17 @@ export class UserApi extends BaseApi {
       "first_name",
       "last_name",
       "phone_number",
+      "location_id",
       "created_at",
       "updated_at",
       "devii_roleid",
     ];
   }
 
-  /**
-   * Create a new user
-   * @param {UserInput} input - The user data to create
-   * @returns {Promise<User>} The created user
-   */
-  async create(input) {
-    const user = await super.create(input);
+  async getByRoleId(roleId) {
+    return super.get(null, `devii_roleid = "${roleId}"`);
   }
 
-  /**
-   * Get a user by ID
-   * @param {string} id - The user ID
-   * @returns {Promise<User>} The user data
-   */
-  async get(id) {
-    return super.get(id);
-  }
-
-  /**
-   * Update a user
-   * @param {string} id - The user ID
-   * @param {Partial<UserInput>} input - The fields to update
-   * @returns {Promise<User>} The updated user
-   */
-  async update(id, input) {
-    return super.update(id, input);
-  }
-
-  /**
-   * Delete a user
-   * @param {string} id - The user ID to delete
-   * @returns {Promise<{ success: boolean }>} Success status
-   */
-  async delete(id) {
-    return super.delete(id);
-  }
 }
 
 // Create a singleton instance

@@ -178,6 +178,7 @@ export default function Component() {
           // Set the thread id to the thread id from the response regardless of streaming or not
           setThreadId(thread_id);
           if (latestEndpoints) {
+            console.log('latestEndpoints', latestEndpoints);
             setEndpoints(latestEndpoints);
           }
         } catch (error) {

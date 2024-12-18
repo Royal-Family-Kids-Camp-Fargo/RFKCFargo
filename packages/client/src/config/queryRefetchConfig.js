@@ -1,33 +1,14 @@
 export const queryRefetchConfig = {
-  recipes: [
+  "pipeline_status": [
     {
-      endpoints: ['/api/recipes'],
-      methods: ['POST'],
-    },
-    {
-      endpoints: ['/api/recipes/*'],
-      methods: ['PUT', 'DELETE'],
-    },
-    {
-      endpoints: ['/api/recipe-ingredients'],
-      methods: ['POST'],
-    },
-    {
-      endpoints: ['/api/recipe-ingredients/*'],
-      methods: ['DELETE'],
-    },
+      path: ['/query'],
+      methods: ['CREATE_PIPELINE_STATUS', 'UPDATE_PIPELINE_STATUS', 'DELETE_PIPELINE_STATUS'],
+    }
   ],
-  'shopping-list': [
+  'pipeline': [
     {
-      endpoints: ['/api/shopping-list'],
-      methods: ['POST', 'DELETE'],
+      path: ['/query'],
+      methods: ['CREATE_PIPELINE', 'UPDATE_PIPELINE', 'DELETE_PIPELINE'],
     },
-  ],
-  // 'recipe': [
-  //   {
-  //     endpoints: ['/api/recipes/*'],
-  //     methods: ['GET'],
-  //   },
-  // ],
-  // Add more mappings as needed
+  ]
 };

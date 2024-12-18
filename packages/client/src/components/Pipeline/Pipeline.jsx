@@ -10,37 +10,39 @@ import PipelineForm from '../PipelineForm/PipelineForm';
 
 import './Pipeline.css';
 import AddUserToPipeline from './AddUserToPipeline';
+import { useQuery } from '@tanstack/react-query';
+import pipelineApi from '../../api/pipelines';
+import pipelineStatusApi from '../../api/pipelineStatuses';
 
 export const DRAG_TYPE = 'user-status';
 
 export default function Pipeline() {
   const { pipelineId: urlPipelineId } = useParams();
-  const pipelines = useStore((state) => state.pipelines);
-  const selectedPipelineWithData = useStore((state) => state.selectedPipeline);
-  const fetchPipeline = useStore((state) => state.fetchPipeline);
-  const fetchPipelineById = useStore((state) => state.fetchPipelineById);
-
-  const [pipelineId, setPipelineId] = useState(urlPipelineId || '');
+  const { data: pipeline, isLoading, error } = useQuery({
+    queryKey: ['pipeline'],
+    queryFn: () => pipelineApi.get(urlPipelineId, null)
+  });
+  const { data: pipelineStatuses, isLoading: pipelineStatusesLoading, error: pipelineStatusesError } = useQuery({
+    queryKey: ['pipelineStatuses'],
+    queryFn: () => pipelineStatusApi.getAll({ filter: `pipeline_id = ${urlPipelineId}` })
+  });
+  const addBotContext = useStore((state) => state.addBotContext);
+  const removeBotContext = useStore((state) => state.removeBotContext);
 
   useEffect(() => {
-    fetchPipeline();
-  }, [fetchPipeline]);
+    addBotContext(`User is looking at pipeline with id ${urlPipelineId}`);
+    return () => {
+      removeBotContext(`User is looking at pipeline with id ${urlPipelineId}`);
+    };
+  }, [urlPipelineId]);
 
-  useEffect(() => {
-    if (urlPipelineId) {
-      setPipelineId(urlPipelineId);
-      fetchPipelineById(urlPipelineId);
-    }
-  }, [urlPipelineId, fetchPipelineById]);
-
-  const loadPipeline = () => {
-    fetchPipelineById(pipelineId);
-  };
+  console.log('pipelineStatuses', pipelineStatuses);
+  console.log('pipeline', pipeline);
 
   // Get the initial status id for the pipeline if it exists
   let initialPipelineStatusId = null;
-  if (selectedPipelineWithData?.statuses?.length > 0) {
-    initialPipelineStatusId = selectedPipelineWithData.statuses[0].pipeline_status_id;
+  if (pipeline?.statuses?.length > 0) {
+    initialPipelineStatusId = pipeline.statuses[0].pipeline_status_id;
   }
 
   return (
@@ -48,12 +50,12 @@ export default function Pipeline() {
       <div>
         <div className='text-center mb-4'>
           <h1 style={{ color: '#4b0082' }}>
-            {selectedPipelineWithData?.pipeline_name
-              ? `${selectedPipelineWithData.pipeline_name} Pipeline`
+            {pipeline?.name
+              ? `${pipeline.name} Pipeline`
               : 'Pipeline'}
           </h1>
         </div>
-        <div className='input-group mb-4'>
+        {/* <div className='input-group mb-4'>
           <select
             id='pipelines'
             className='form-control'
@@ -61,7 +63,7 @@ export default function Pipeline() {
             onChange={(event) => setPipelineId(Number(event.target.value))}
           >
             <option value="">Select Pipeline</option>
-            {pipelines.map((pipeline) => (
+            {pipelines.data.map((pipeline) => (
               <option key={pipeline.id} value={pipeline.id}>
                 {pipeline.name}
               </option>
@@ -78,15 +80,15 @@ export default function Pipeline() {
           >
             Load Pipeline
           </Button>
-          <PipelineForm />
-        </div>
+          {/* <PipelineForm /> */}
+        {/* </div> */} 
         {initialPipelineStatusId && (
           <AddUserToPipeline pipelineId={pipelineId} initialPipelineStatusId={initialPipelineStatusId} />
         )}
       </div>
 
       {/* Display the pipeline statuses, if we haven't selected a pipeline ask the user to select one */}
-      {!selectedPipelineWithData || Object.keys(selectedPipelineWithData).length === 0 ? (
+      {!pipeline ? (
         <div className='mt-4'>
           <Card>
             <Card.Body>
@@ -98,12 +100,20 @@ export default function Pipeline() {
       ) : (
         <DndProvider backend={HTML5Backend}>
           <div className='horizontal-scroll mt-4'>
-            {selectedPipelineWithData?.statuses?.map((status) => (
-              <div key={status.pipeline_status_id} className='pipeline-status'>
-                <h3 className='text-center pipeline-status-title'>{status.status}</h3>
-                <PipelineStatus status={status} pipelineId={pipelineId} />
-              </div>
-            ))}
+            {pipeline ? (
+              pipelineStatuses?.data?.length > 0 ? (
+                pipelineStatuses.data.map((status) => (
+                  <div key={status.id} className='pipeline-status'>
+                    <h3 className='text-center pipeline-status-title'>{status.name}</h3>
+                    <PipelineStatus status={status} pipelineId={pipeline.id} />
+                  </div>
+                ))
+              ) : (
+                <div className='text-center mt-4'>
+                  <p>No statuses found. Please add statuses to this pipeline.</p>
+                </div>
+              )
+            ) : null}
           </div>
         </DndProvider>
       )}

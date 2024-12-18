@@ -70,8 +70,10 @@ class BaseApi {
    * @param {string} id - The ID of the record to fetch
    * @returns {Promise<BaseModelFields>} The fetched record
    */
-  async get(id) {
-    const filter = `id = "${id}"`;
+  async get(id, filter = null) {
+    if (filter === null) {
+      filter = `id = "${id}"`;
+    }
     const query = gql`
       query Get${this.model}($filter: String) {
         ${this.model}(filter: $filter) {
@@ -85,7 +87,10 @@ class BaseApi {
         query,
         variables: { filter },
       });
-      return response.data[this.model];
+      if (response.data[this.model].length === 0) {
+        return null;
+      }
+      return response.data[this.model][0];
     } catch (error) {
       console.error(`Error fetching ${this.model}:`, error);
       throw error;

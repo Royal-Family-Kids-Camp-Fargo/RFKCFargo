@@ -11,11 +11,13 @@ function Navigation({ onAuthClick }) {
   const roleId = useStore((state) => state.roleId);
   const setRoleId = useStore((state) => state.setRoleId);
   const classes = useStore((state) => state.classes);
+  const removeBotContext = useStore((state) => state.removeBotContext);
 
   const handleLogout = () => {
     sessionApi.logout().then(() => {
       console.log("logging out client");
       setRoleId(settings.nobodyRoleId);
+      removeBotContext(`User's location_id is ${role.location_id}`);
       window.location.href = '/';
     });
   };

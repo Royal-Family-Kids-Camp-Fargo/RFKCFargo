@@ -23,12 +23,19 @@ import { sessionApi } from './api/sessions';
 import { ToastContainer } from 'react-toastify';
 import ChatBubble from './components/ChatBubble';
 import settings from './config/settings';
+import useInvalidateQueriesOnStoreChange from './hooks/useInvalidateQueriesOnStoreChange';
+
 
 function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const roleId = useStore((state) => state.roleId);
   const setRoleId = useStore((state) => state.setRoleId);
   const setClasses = useStore((state) => state.setClasses);
+  const setLocationId = useStore((state) => state.setLocationId);
+  const addBotContext = useStore((state) => state.addBotContext);
+
+  useInvalidateQueriesOnStoreChange();
+
   useEffect(() => {
     async function authenticate() {
       if (!localStorage.getItem('accessToken')) {
@@ -39,6 +46,8 @@ function App() {
           console.log("validated roleId", role);
           setRoleId(role.roleid);
           setClasses(role.classes);
+          setLocationId(role.location_id);
+          addBotContext(`User's location_id is ${role.location_id}`);
         });
       }
     }
