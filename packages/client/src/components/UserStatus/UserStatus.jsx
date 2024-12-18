@@ -78,10 +78,10 @@ export default function UserStatus({ person }) {
         <Card.Body ref={drag}>
           <div onClick={moveToProfile} className='mb-3' style={{ cursor: 'pointer' }}>
             <Card.Title className='mb-3'>
-              {person.user_firstName} {person.user_lastName}
+              {person.first_name} {person.last_name}
             </Card.Title>
-            <Card.Subtitle className='text-muted mb-2'>{formatPhoneNumber(person.phoneNumber)}</Card.Subtitle>
-            <Card.Text className='text-muted small'>{person.username}</Card.Text>
+            <Card.Subtitle className='text-muted mb-2'>{formatPhoneNumber(person.phone_number) || 'No phone number'}</Card.Subtitle>
+            <Card.Text className='text-muted small'>{person.email || 'No email'}</Card.Text>
           </div>
 
           <Form onSubmit={(e) => e.preventDefault()}>

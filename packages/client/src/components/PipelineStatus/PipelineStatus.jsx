@@ -35,7 +35,7 @@ export default function PipelineStatus({ status, pipelineId }) {
   return (
     <Card className='pipeline-status-card'>
       <Card.Body ref={drop} style={{ backgroundColor: isOver ? '#f0f0f0' : 'white' }}>
-        {status?.applicants?.map((person) => (
+        {status?.user_collection?.map((person) => (
           <UserStatus key={person.id} person={person} />
         ))}
       </Card.Body>

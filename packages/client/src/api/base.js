@@ -38,6 +38,30 @@ class BaseApi {
     this.fields = [];
   }
 
+  formatFields(fields) {
+    const fieldMap = {};
+
+    fields.forEach(field => {
+      const parts = field.split('.');
+      if (parts.length > 1) {
+        const [parent, child] = parts;
+        if (!fieldMap[parent]) {
+          fieldMap[parent] = [];
+        }
+        fieldMap[parent].push(child);
+      } else {
+        fieldMap[parts[0]] = null;
+      }
+    });
+
+    return Object.entries(fieldMap).map(([parent, children]) => {
+      if (children) {
+        return `${parent} { ${children.join(' ')} }`;
+      }
+      return parent;
+    }).join('\n');
+  }
+
   /**
    * Create a new record
    * @template T
@@ -48,7 +72,7 @@ class BaseApi {
     const mutation = gql`
       mutation Create${this.model}($input: ${this.model}Input!) {
         create_${this.model}(input: $input) {
-          ${this.fields.join('\n')}
+          ${this.formatFields(this.fields)}
         }
       }
     `;
@@ -77,7 +101,7 @@ class BaseApi {
     const query = gql`
       query Get${this.model}($filter: String) {
         ${this.model}(filter: $filter) {
-          ${this.fields.join('\n')}
+          ${this.formatFields(this.fields)}
         }
       }
     `;
@@ -115,7 +139,7 @@ class BaseApi {
           ordering: $ordering,
           filter: $filter
         ) {
-          ${this.fields.join("\n")}
+          ${this.formatFields(this.fields)}
         }
       }
     `;
@@ -151,7 +175,7 @@ class BaseApi {
     const mutation = gql`
       mutation Update${this.model}($id: ID!, $input: ${this.model}Input!) {
         update_${this.model}(id: $id, input: $input) {
-          ${this.fields.join('\n')}
+          ${this.formatFields(this.fields)}
         }
       }
     `;

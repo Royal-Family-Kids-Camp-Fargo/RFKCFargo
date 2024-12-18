@@ -1,6 +1,4 @@
 // packages/client/src/api/user.js
-import { ApolloClient, InMemoryCache, HttpLink, gql } from "@apollo/client";
-import { setContext } from "@apollo/client/link/context";
 import BaseApi from "./base";
 
 /**
