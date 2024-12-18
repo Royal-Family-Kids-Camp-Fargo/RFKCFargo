@@ -47,7 +47,8 @@ function App() {
           setRoleId(role.roleid);
           setClasses(role.classes);
           setLocationId(role.location_id);
-          addBotContext(`User's location_id is ${role.location_id}`);
+          addBotContext(`The logged in user's location_id is ${role.location_id}`);
+          addBotContext(`The logged in user's devii_roleid is ${role.roleid}. Use this to find the user's id with users (filter: 'devii_roleid = ${role.roleid}') if needed.`);
         });
       }
     }

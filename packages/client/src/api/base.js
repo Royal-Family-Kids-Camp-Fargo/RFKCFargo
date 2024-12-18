@@ -39,27 +39,35 @@ class BaseApi {
   }
 
   formatFields(fields) {
-    const fieldMap = {};
+    const buildFieldMap = (fields) => {
+      const fieldMap = {};
 
-    fields.forEach(field => {
-      const parts = field.split('.');
-      if (parts.length > 1) {
-        const [parent, child] = parts;
+      fields.forEach(field => {
+        const parts = field.split('.');
+        const [parent, ...rest] = parts;
         if (!fieldMap[parent]) {
           fieldMap[parent] = [];
         }
-        fieldMap[parent].push(child);
-      } else {
-        fieldMap[parts[0]] = null;
-      }
-    });
+        if (rest.length > 0) {
+          fieldMap[parent].push(rest.join('.'));
+        }
+      });
 
-    return Object.entries(fieldMap).map(([parent, children]) => {
-      if (children) {
-        return `${parent} { ${children.join(' ')} }`;
-      }
-      return parent;
-    }).join('\n');
+      return fieldMap;
+    };
+
+    const formatFieldMap = (fieldMap) => {
+      return Object.entries(fieldMap).map(([parent, children]) => {
+        if (children.length > 0) {
+          const nestedFields = formatFieldMap(buildFieldMap(children));
+          return `${parent} { ${nestedFields} }`;
+        }
+        return parent;
+      }).join('\n');
+    };
+
+    const fieldMap = buildFieldMap(fields);
+    return formatFieldMap(fieldMap);
   }
 
   /**

@@ -110,6 +110,11 @@ export default function UserStatus({ person }) {
                 Remove
               </Button>
             </div>
+            {person.user && person.user.first_name && (
+              <Card.Text className='text-muted small'>
+                Assigned to: {person.user?.first_name}
+              </Card.Text>
+            )}
           </Form>
         </Card.Body>
       </Card>
