@@ -1,20 +1,15 @@
-import { Card } from 'react-bootstrap';
 import { useDrop } from 'react-dnd';
+import { Box, Paper } from '@mui/material';
 import UserStatus from '../UserStatus/UserStatus';
 import useStore from '../../zustand/store';
-
 import { DRAG_TYPE } from '../Pipeline/Pipeline';
-import './PipelineStatus.css';
+
 export default function PipelineStatus({ status, pipelineId }) {
   const moveUserOnPipeline = useStore((state) => state.moveUserOnPipeline);
 
   const [{ canDrop, isOver }, drop] = useDrop(() => ({
-    // The type (or types) to accept - strings or symbols
     accept: DRAG_TYPE,
-    // Props to collect
-    drop: (item, monitor) => {
-      console.log('item', item);
-      console.log('monitor', monitor);
+    drop: (item) => {
       dropUserIntoPipelineStatus(item);
     },
     collect: (monitor) => ({
@@ -33,12 +28,24 @@ export default function PipelineStatus({ status, pipelineId }) {
   };
 
   return (
-    <Card className='pipeline-status-card'>
-      <Card.Body ref={drop} style={{ backgroundColor: isOver ? '#f0f0f0' : 'white' }}>
+    <Paper 
+      ref={drop}
+      elevation={1}
+      sx={{
+        minHeight: { xs: 'auto', sm: '300px' },
+        backgroundColor: isOver ? 'action.hover' : 'background.paper',
+        p: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 1,
+        transition: 'background-color 0.2s ease'
+      }}
+    >
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {status?.user_collection?.map((person) => (
           <UserStatus key={person.id} person={person} />
         ))}
-      </Card.Body>
-    </Card>
+      </Box>
+    </Paper>
   );
 }

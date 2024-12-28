@@ -1,13 +1,22 @@
 import { useState, useEffect } from 'react';
-import { Button, Card, Modal, Form } from 'react-bootstrap';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useParams } from 'react-router-dom';
+import { 
+  Box,
+  Typography,
+  Container,
+  TextField,
+  Paper,
+  useTheme,
+  useMediaQuery
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import InputAdornment from '@mui/material/InputAdornment';
 
 import useStore from '../../zustand/store';
 import PipelineStatus from '../PipelineStatus/PipelineStatus';
 import PipelineForm from '../PipelineForm/PipelineForm';
-
 import './Pipeline.css';
 import AddUserToPipeline from './AddUserToPipeline';
 import { useQuery } from '@tanstack/react-query';
@@ -17,15 +26,21 @@ import pipelineStatusApi from '../../api/pipelineStatuses';
 export const DRAG_TYPE = 'user-status';
 
 export default function Pipeline() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { pipelineId: urlPipelineId } = useParams();
+  const [searchTerms, setSearchTerms] = useState({});
+  
   const { data: pipeline, isLoading, error } = useQuery({
     queryKey: ['pipeline'],
     queryFn: () => pipelineApi.get(urlPipelineId, null)
   });
+  
   const { data: pipelineStatuses, isLoading: pipelineStatusesLoading, error: pipelineStatusesError } = useQuery({
     queryKey: ['pipelineStatuses'],
     queryFn: () => pipelineStatusApi.getAll({ filter: `pipeline_id = ${urlPipelineId}` })
   });
+  
   const addBotContext = useStore((state) => state.addBotContext);
   const removeBotContext = useStore((state) => state.removeBotContext);
 
@@ -36,87 +51,144 @@ export default function Pipeline() {
     };
   }, [urlPipelineId]);
 
-  console.log('pipelineStatuses', pipelineStatuses);
-  console.log('pipeline', pipeline);
-
   // Get the initial status id for the pipeline if it exists
   let initialPipelineStatusId = null;
   if (pipeline?.statuses?.length > 0) {
     initialPipelineStatusId = pipeline.statuses[0].pipeline_status_id;
   }
 
-  return (
-    <>
-      <div>
-        <div className='text-center mb-4'>
-          <h1 style={{ color: '#4b0082' }}>
-            {pipeline?.name
-              ? `${pipeline.name} Pipeline`
-              : 'Pipeline'}
-          </h1>
-        </div>
-        {/* <div className='input-group mb-4'>
-          <select
-            id='pipelines'
-            className='form-control'
-            value={pipelineId}
-            onChange={(event) => setPipelineId(Number(event.target.value))}
-          >
-            <option value="">Select Pipeline</option>
-            {pipelines.data.map((pipeline) => (
-              <option key={pipeline.id} value={pipeline.id}>
-                {pipeline.name}
-              </option>
-            ))}
-          </select>
-          <Button
-            onClick={loadPipeline}
-            variant='outline-secondary'
-            className='px-4'
-            style={{
-              borderColor: '#4b0082',
-              color: '#4b0082',
-            }}
-          >
-            Load Pipeline
-          </Button>
-          {/* <PipelineForm /> */}
-        {/* </div> */} 
-        {initialPipelineStatusId && (
-          <AddUserToPipeline pipelineId={pipelineId} initialPipelineStatusId={initialPipelineStatusId} />
-        )}
-      </div>
+  const handleSearchChange = (statusId, value) => {
+    setSearchTerms(prev => ({
+      ...prev,
+      [statusId]: value.toLowerCase()
+    }));
+  };
 
-      {/* Display the pipeline statuses, if we haven't selected a pipeline ask the user to select one */}
+  const filterUsersBySearch = (users, statusId) => {
+    const searchTerm = searchTerms[statusId] || '';
+    if (!searchTerm) return users;
+
+    return users.filter(user => 
+      user.first_name?.toLowerCase().includes(searchTerm) ||
+      user.last_name?.toLowerCase().includes(searchTerm) ||
+      user.email?.toLowerCase().includes(searchTerm)
+    );
+  };
+
+  return (
+    <Container maxWidth={false} sx={{ pb: 4, px: { xs: 1, sm: 2 } }}>
+      <Box sx={{ textAlign: 'center', mb: 4 }}>
+        <Typography 
+          variant="h4" 
+          sx={{ 
+            color: '#4b0082',
+            fontSize: { xs: '1.5rem', sm: '2.125rem' }
+          }}
+        >
+          {pipeline?.name ? `${pipeline.name} Pipeline` : 'Pipeline'}
+        </Typography>
+      </Box>
+
+      {initialPipelineStatusId && (
+        <AddUserToPipeline pipelineId={urlPipelineId} initialPipelineStatusId={initialPipelineStatusId} />
+      )}
+
       {!pipeline ? (
-        <div className='mt-4'>
-          <Card>
-            <Card.Body>
-              <Card.Title>No Pipeline Selected</Card.Title>
-              <Card.Text>Please select a pipeline to view its statuses.</Card.Text>
-            </Card.Body>
-          </Card>
-        </div>
+        <Paper sx={{ p: 3, mt: 4 }}>
+          <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+            No Pipeline Selected
+          </Typography>
+          <Typography sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+            Please select a pipeline to view its statuses.
+          </Typography>
+        </Paper>
       ) : (
         <DndProvider backend={HTML5Backend}>
-          <div className='horizontal-scroll mt-4'>
-            {pipeline ? (
-              pipelineStatuses?.data?.length > 0 ? (
-                pipelineStatuses.data.map((status) => (
-                  <div key={status.id} className='pipeline-status'>
-                    <h3 className='text-center pipeline-status-title'>{status.name}</h3>
-                    <PipelineStatus status={status} pipelineId={pipeline.id} />
-                  </div>
-                ))
-              ) : (
-                <div className='text-center mt-4'>
-                  <p>No statuses found. Please add statuses to this pipeline.</p>
-                </div>
-              )
-            ) : null}
-          </div>
+          <Box
+            sx={{
+              display: 'flex',
+              overflowX: 'auto',
+              gap: 2,
+              mt: 4,
+              pb: 2,
+              WebkitOverflowScrolling: 'touch',
+              '&::-webkit-scrollbar': {
+                height: 8,
+              },
+              '&::-webkit-scrollbar-track': {
+                backgroundColor: 'rgba(0,0,0,0.1)',
+                borderRadius: 4,
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: 'rgba(0,0,0,0.2)',
+                borderRadius: 4,
+                '&:hover': {
+                  backgroundColor: 'rgba(0,0,0,0.3)',
+                },
+              },
+            }}
+          >
+            {pipeline && pipelineStatuses?.data?.length > 0 ? (
+              pipelineStatuses.data.map((status) => (
+                <Box 
+                  key={status.id} 
+                  sx={{ 
+                    minWidth: { xs: '85vw', sm: '350px' },
+                    maxWidth: { xs: '85vw', sm: '350px' },
+                  }}
+                >
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      color: '#4b0082',
+                      borderBottom: '2px solid #20c997',
+                      pb: 1,
+                      mb: 2,
+                      fontSize: { xs: '1rem', sm: '1.25rem' }
+                    }}
+                  >
+                    {status.name}
+                  </Typography>
+                  
+                  <TextField
+                    fullWidth
+                    size="small"
+                    placeholder="Search users..."
+                    onChange={(e) => handleSearchChange(status.id, e.target.value)}
+                    sx={{ 
+                      mb: 2,
+                      '& .MuiInputBase-root': {
+                        fontSize: { xs: '0.875rem', sm: '1rem' }
+                      }
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  
+                  <PipelineStatus 
+                    status={{
+                      ...status,
+                      user_collection: filterUsersBySearch(status.user_collection || [], status.id)
+                    }} 
+                    pipelineId={pipeline.id}
+                  />
+                </Box>
+              ))
+            ) : (
+              <Box sx={{ textAlign: 'center', mt: 4, width: '100%' }}>
+                <Typography sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                  No statuses found. Please add statuses to this pipeline.
+                </Typography>
+              </Box>
+            )}
+          </Box>
         </DndProvider>
       )}
-    </>
+    </Container>
   );
 }
