@@ -9,9 +9,10 @@ import formApi, { type Form } from '~/api/objects/form';
 // import { refresh } from '~/lib/auth';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState, createContext, useContext } from 'react';
+import type { User } from '~/api/objects/user';
 
 type LoaderData = {
-  user: any;
+  user: User;
   pipelines: Pipeline[];
   forms: Form[];
 };
