@@ -1,4 +1,4 @@
-import BaseApi from "./base";
+import { BaseApi } from "./base.js";
 
 export type Form = {
   id: string;
@@ -10,16 +10,16 @@ export type Form = {
 };
 
 class FormApi extends BaseApi {
-  constructor() {
-    super('forms', [
-      'id',
-      'name',
-      'location_id',
-      'archived',
-      'locationId',
-      'pipelineId',
-    ]);
-  }
+  protected readonly model = "form";
+  protected readonly path = "/query";
+  protected readonly fields = [
+    "id",
+    "name",
+    "location_id",
+    "archived",
+    "locationId",
+    "pipelineId",
+  ];
 }
 
 const formApi = new FormApi();

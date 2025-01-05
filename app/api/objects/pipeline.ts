@@ -1,4 +1,4 @@
-import BaseApi from "./base.js";
+import { BaseApi } from "./base.js";
 
 export type Pipeline = {
   id: string;
@@ -8,9 +8,14 @@ export type Pipeline = {
 };
 
 class PipelineApi extends BaseApi {
-  constructor() {
-    super('pipeline', ['id', 'name', 'type', 'location_id']);
-  }
+  protected readonly model = "pipeline";
+  protected readonly path = "/query";
+  protected readonly fields = [
+    "id",
+    "name",
+    "type",
+    "location_id"
+  ];
 }
 
 const pipelineApi = new PipelineApi();

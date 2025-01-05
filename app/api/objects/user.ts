@@ -1,24 +1,27 @@
-import BaseApi from "./base";
-import { RoleApi } from "./role";
-import type { Role } from "./role";
+import { BaseApi } from "./base.js";
+import { RoleApi } from "./role.js";
+import type { Role } from "./role.js";
 
-export type User = {
-    id: string;
+export type UserBase = {
+    id: string
     email: string;
     first_name: string;
     last_name: string;
+}
+
+export type User = UserBase & {
     phone_number: string;
     location_id: string;
     created_at: string;
     updated_at: string;
+    assigned_to?: UserBase;
     role: Role;
 }
 
 export class UserApi extends BaseApi {
-    roleApi: RoleApi;
-
-    constructor() {
-        super("user", [
+    protected readonly model = "user";
+    protected readonly path = "/query";
+    protected readonly fields = [
         "id",
         "email",
         "first_name",
@@ -27,7 +30,15 @@ export class UserApi extends BaseApi {
         "location_id",
         "created_at",
         "updated_at",
-        ])
+        "user.id",
+        "user.email",
+        "user.first_name",
+        "user.last_name"
+    ];
+    roleApi: RoleApi;
+
+    constructor() {
+        super();
         this.roleApi = new RoleApi();
     }
 

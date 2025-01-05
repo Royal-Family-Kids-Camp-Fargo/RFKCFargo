@@ -1,4 +1,4 @@
-import BaseApi from "./base";
+import { BaseApi } from "./base.js";
 
 export type Role = {
     roleid: string;
@@ -11,15 +11,15 @@ export type Role = {
 }
 
 export class RoleApi extends BaseApi {
-  constructor() {
-    super("role", [
-      "roleid",
-      "name",
-      "login", 
-      "classes.classid",
-      "classes.name"
-    ], "/roles_pbac");
-  }
+  model = "role";
+  fields = [
+    "roleid",
+    "name",
+    "login", 
+    "classes.classid",
+    "classes.name"
+  ];
+  path = "/roles_pbac";
 
   async get(roleId: string) {
     return super.get(null, `roleid = "${roleId}"`);
