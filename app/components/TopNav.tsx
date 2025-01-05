@@ -16,7 +16,7 @@ export function TopNav(props: TopNavProps) {
         padding: 2,
       }}
     >
-      <Typography variant="h6">RFKCFARGO</Typography>
+      <Typography variant="h6">RFK CENTRAL</Typography>
       <Avatar
         sx={{
           backgroundColor: 'primary.main',
