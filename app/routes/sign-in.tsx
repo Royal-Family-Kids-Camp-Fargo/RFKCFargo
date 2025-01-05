@@ -28,6 +28,7 @@ export async function clientLoader() {
   await refresh();
 
   accessToken = authStore.getAccessToken();
+  console.log('accessToken from sign-in', accessToken);
   if (accessToken) {
     return redirect('/dashboard');
   }
@@ -38,26 +39,19 @@ export async function clientLoader() {
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();
 
-  const res = await login(
-    formData.get('email') as string,
-    formData.get('password') as string
-  );
-
-  if (res.status !== 200) {
+  try {
+    const res = await login(
+      formData.get('email') as string,
+      formData.get('password') as string
+    );
+    authStore.setAccessToken(res.access_token);
+    authStore.setUser(res.user);
+    console.log(authStore.getAccessToken());
+    return redirect('/dashboard');
+  } catch (error) {
+    console.error('Login failed:', error);
     return redirect('/sign-in');
   }
-
-  const json = await res.json();
-
-  authStore.setAccessToken(json.access_token);
-  authStore.setDeveloper({
-    id: json.developer.id,
-    email: json.developer.email,
-    name: json.developer.name,
-    roleId: json.developer.role_id,
-  });
-  console.log(authStore.getAccessToken());
-  return redirect('/dashboard');
 }
 
 export default function SignUp() {

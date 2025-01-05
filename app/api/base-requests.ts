@@ -1,6 +1,6 @@
 import { authStore } from '~/stores/auth-store';
 
-const baseUrl = import.meta.env.VITE_NLAPI_BASE_URL;
+const baseUrl = "https://api.devii.io";
 
 type BaseRequestOptions = {
   path?: string;

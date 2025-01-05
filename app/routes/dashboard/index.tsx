@@ -8,25 +8,25 @@ import DashNav from '~/components/DashNav';
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   let accessToken = authStore.getAccessToken();
-  let developer = authStore.getDeveloper();
+  let user = authStore.getUser();
   if (!accessToken) {
     // await refresh();
     accessToken = authStore.getAccessToken();
-    developer = authStore.getDeveloper();
+    user = authStore.getUser();
     if (!accessToken) {
       return redirect('/sign-in');
     }
   }
-  return { developer };
+  return { user };
 }
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  if ('developer' in loaderData) {
-    const developer = loaderData.developer;
+  if ('user' in loaderData) {
+    const user = loaderData.user;
 
     return (
       <>
-        <TopNav developer={developer} />
+        <TopNav user={user} />
         <Divider />
         <Box sx={{ display: 'flex', border: '1px solid green' }} flexGrow={1}>
           <DashNav />

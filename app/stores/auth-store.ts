@@ -1,24 +1,19 @@
-export type Developer = {
-  readonly id: string;
-  readonly email: string;
-  readonly name: string;
-  readonly roleId: string;
-};
+import type { User } from "../api/objects/user";
 
 let accessToken: string | undefined = undefined;
-let developer: Developer | undefined = undefined;
+let user: User | undefined = undefined;
 
 export const authStore = {
   getAccessToken: () => accessToken,
   setAccessToken: (token: string) => {
     accessToken = token;
   },
-  getDeveloper: () => developer,
-  setDeveloper: (dev: Developer) => {
-    developer = dev;
+  getUser: () => user,
+  setUser: (dev: User) => {
+    user = dev;
   },
   clear: () => {
     accessToken = undefined;
-    developer = undefined;
+    user = undefined;
   },
 };

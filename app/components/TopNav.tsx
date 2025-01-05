@@ -1,9 +1,9 @@
 import { Avatar, Box, Typography } from '@mui/material';
 
-import type { Developer } from '../stores/auth-store';
+import type { User } from '~/api/objects/user';
 
 type TopNavProps = {
-  developer?: Developer;
+  user?: User;
 };
 
 export function TopNav(props: TopNavProps) {
@@ -16,18 +16,18 @@ export function TopNav(props: TopNavProps) {
         padding: 2,
       }}
     >
-      <Typography variant="h6">NLAPI</Typography>
+      <Typography variant="h6">RFKCFARGO</Typography>
       <Avatar
         sx={{
           backgroundColor: 'primary.main',
           color: 'primary.contrastText',
         }}
       >
-        {props.developer
-          ? props.developer.name.toUpperCase().split(' ')[0][0]
+        {props.user
+          ? props.user.first_name
           : ''}
-        {props.developer
-          ? props.developer.name.toUpperCase().split(' ')[1][0]
+        {props.user
+          ? props.user.last_name
           : ''}
       </Avatar>
     </Box>
