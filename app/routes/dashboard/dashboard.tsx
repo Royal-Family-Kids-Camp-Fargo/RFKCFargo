@@ -1,4 +1,4 @@
-import { authStore } from '~/stores/auth-store';
+import { authStore } from '~/stores/authStore';
 import type { Route } from './+types/index';
 import { Outlet, redirect } from 'react-router';
 import { Box, Divider, IconButton, useMediaQuery, useTheme } from '@mui/material';
@@ -67,7 +67,6 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
               sx={{ mr: 2 }}
             >
               <MenuIcon />
-              <p>Menu</p>
             </IconButton>
           )}
         </TopNav>

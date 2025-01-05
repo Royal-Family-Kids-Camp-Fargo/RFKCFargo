@@ -22,6 +22,11 @@ class PipelineStatusApi extends BaseApi {
         ];
     }
     protected get path() { return "/query"; }
+
+    async updateUserStatus({userId, fromStatusId, toStatusId}: {userId: string, fromStatusId: string, toStatusId: string}) {
+        console.log("updateUserStatus", userId, fromStatusId, toStatusId);
+        return "ok";
+    }
 }
 
 const pipelineStatusApi = new PipelineStatusApi();

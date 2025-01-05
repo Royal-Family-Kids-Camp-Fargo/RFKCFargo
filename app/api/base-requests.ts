@@ -1,4 +1,4 @@
-import { authStore } from '~/stores/auth-store';
+import { authStore } from '~/stores/authStore';
 
 const baseUrl = "https://api.devii.io";
 

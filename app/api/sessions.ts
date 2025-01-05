@@ -1,6 +1,6 @@
 import { getBaseRequest } from './base-requests';
 import { userApi } from './objects/user';
-import { authStore } from '~/stores/auth-store';
+import { authStore } from '~/stores/authStore';
 const tenantId = '10250';
 
 async function anonymousLogin() {

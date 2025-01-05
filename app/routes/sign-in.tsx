@@ -9,7 +9,7 @@ import {
 import type { Route } from './+types/home';
 import { Form, redirect, useNavigation } from 'react-router';
 import { Link as RouterLink } from 'react-router';
-import { authStore } from '~/stores/auth-store';
+import { authStore } from '~/stores/authStore';
 import { login, refresh } from '~/api/sessions';
 
 export function meta({}: Route.MetaArgs) {

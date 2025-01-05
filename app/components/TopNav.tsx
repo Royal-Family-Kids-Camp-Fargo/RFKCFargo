@@ -1,14 +1,12 @@
 import { Avatar, Box, Typography, IconButton } from '@mui/material';
-import { useDashboard } from '~/routes/dashboard/dashboard';
 import type { User } from '~/api/objects/user';
-import MenuIcon from '@mui/icons-material/Menu';
 
 type TopNavProps = {
-  user?: User;
+  user: User;
+  children?: React.ReactNode;
 };
 
-export function TopNav(props: TopNavProps) {
-  const { isNavOpen, setIsNavOpen } = useDashboard();
+export function TopNav({ user, children }: TopNavProps) {
   return (
     <Box
       sx={{
@@ -25,21 +23,14 @@ export function TopNav(props: TopNavProps) {
           color: 'primary.contrastText',
         }}
       >
-        {props.user
-          ? props.user.first_name
+        {user
+          ? user.first_name
           : ''}
-        {props.user
-          ? props.user.last_name
+        {user
+          ? user.last_name
           : ''}
       </Avatar>
-      <IconButton
-        color="inherit"
-        edge="start"
-        onClick={() => setIsNavOpen(!isNavOpen)}
-        sx={{ mr: 2 }}
-      >
-        <MenuIcon />
-      </IconButton>
+      {children}
     </Box>
   );
 }

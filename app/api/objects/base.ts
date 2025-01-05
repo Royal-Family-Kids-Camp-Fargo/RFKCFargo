@@ -5,7 +5,7 @@ import { gql } from "@apollo/client/core";
 import type { NormalizedCacheObject } from "@apollo/client/core";
 import { setContext } from "@apollo/client/link/context";
 import { settings } from "../../config/settings";
-import { authStore } from "../../stores/auth-store";
+import { authStore } from "../../stores/authStore";
 
 /**
  * @typedef {Object} BaseModelFields
