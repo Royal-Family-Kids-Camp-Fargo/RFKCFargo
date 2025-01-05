@@ -1,91 +1,37 @@
 {
-  "name": "rfkc-volunteer-tracker",
-  "version": "1.0.0",
+  "name": "rfkcfargo",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
-  "engines": {
-    "node": ">=20.x"
-  },
+  "type": "module",
   "scripts": {
-    "start": "vite",
-    "dev": "vite --host",
-    "build": "vite build",
-    "test": "vitest",
-    "prepare": "husky",
-    "seed": "npm run seed --workspace=server",
-    "sync": "npm run sync --workspace=server",
-    "dev:ngrok": "ngrok start --config=ngrok.yml nlapi-tunnel",
-    "dev:client": "npm run dev --workspace=client",
-    "dev:server": "npm run dev --workspace=server",
-    "start-db": "node scripts/start-db.js",
-    "start:prod": "npm-run-all --parallel --print-label prod:client prod:server",
-    "prod:client": "npm run start --workspace=client",
-    "prod:server": "npm run start --workspace=server",
-    "lint": "npm run lint --workspaces",
-    "format": "npm run format --workspaces",
-    "check-todos": "grep -r --exclude-dir=node_modules --exclude-dir=.vite --exclude=package.json 'TODO:' . && echo 'TODOs found, please resolve them before pushing.' && exit 1 ||  echo 'No TODOs found'",
-    "check-env": "node scripts/check-env.js",
-    "setup-nlapi-portal": "node scripts/setup-nlapi-portal.mjs",
-    "update-schemas": "node scripts/update-schemas.mjs",
-    "fetch-hubspot-apis": "node scripts/fetch-hubspot-apis.js"
+    "build": "cross-env NODE_ENV=production react-router build",
+    "dev": "react-router dev",
+    "start": "cross-env NODE_ENV=production react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc"
   },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.2.1",
-    "nodemon": "^3.1.0",
-    "npm-run-all": "^4.1.5",
-    "vite": "^5.2.11",
-    "vitest": "^1.6.0",
-    "bootstrap": "^5.3.3",
-    "sass": "^1.83.0"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not ie <= 11",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "heroku-run-build-script": true,
   "dependencies": {
-    "@tanstack/react-query": "^5.62.8",
-    "lucide-react": "^0.469.0",
-    "node-fetch": "^3.3.2",
-    "react-beautiful-dnd": "^13.1.1",
-    "@apollo/client": "^3.12.3",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^6.2.1",
     "@mui/material": "^6.2.1",
-    "axios": "^1.7.7",
-    "bcryptjs": "^2.4.3",
-    "connect-pg-simple": "^9.0.1",
-    "dotenv": "^16.4.5",
-    "env": "^0.0.2",
-    "eventsource-parser": "^3.0.0",
-    "express": "^4.17.1",
-    "express-session": "^1.18.0",
-    "passport": "^0.7.0",
-    "passport-local": "^1.0.0",
-    "pg": "^8.5.1",
-    "react": "^18.2.0",
-    "react-bootstrap": "^2.10.5",
-    "react-dnd": "^16.0.1",
-    "react-dnd-html5-backend": "^16.0.1",
-    "react-dom": "^18.2.0",
-    "react-icons": "^5.3.0",
-    "react-markdown": "^9.0.1",
-    "react-router-dom": "^6.26.2",
-    "react-toastify": "^11.0.0",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1",
-    "zustand": "^4.5.5"
+    "@react-router/node": "^7.0.2",
+    "@react-router/serve": "^7.0.2",
+    "isbot": "^5.1.17",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router": "^7.0.2",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@react-router/dev": "^7.0.2",
+    "@types/node": "^20",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.1",
+    "autoprefixer": "^10.4.20",
+    "cross-env": "^7.0.3",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }

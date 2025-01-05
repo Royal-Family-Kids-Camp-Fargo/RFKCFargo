@@ -1,0 +1,82 @@
+{
+  "name": "rfkc-volunteer-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20.x"
+  },
+  "scripts": {
+    "start": "vite",
+    "dev": "vite --host",
+    "build": "vite build",
+    "test": "vitest",
+    "dev:ngrok": "ngrok start --config=ngrok.yml nlapi-tunnel",
+    "lint": "npm run lint --workspaces",
+    "format": "npm run format --workspaces",
+    "check-todos": "grep -r --exclude-dir=node_modules --exclude-dir=.vite --exclude=package.json 'TODO:' . && echo 'TODOs found, please resolve them before pushing.' && exit 1 ||  echo 'No TODOs found'",
+    "check-env": "node scripts/check-env.js",
+    "setup-nlapi-portal": "node scripts/setup-nlapi-portal.mjs",
+    "update-schemas": "node scripts/update-schemas.mjs",
+    "fetch-hubspot-apis": "node scripts/fetch-hubspot-apis.js"
+  },
+  "devDependencies": {
+    "@react-router/dev": "^7.1.1",
+    "@react-router/serve": "*",
+    "@vitejs/plugin-react": "^4.2.1",
+    "nodemon": "^3.1.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.7.2",
+    "vite": "^5.2.11",
+    "vitest": "^1.6.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not ie <= 11",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "heroku-run-build-script": true,
+  "dependencies": {
+    "@apollo/client": "^3.12.3",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.2.1",
+    "@mui/material": "^6.2.1",
+    "@react-router/node": "*",
+    "@react-router/serve": "*",
+    "@tanstack/react-query": "^5.62.8",
+    "axios": "^1.7.7",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "env": "^0.0.2",
+    "eventsource-parser": "^3.0.0",
+    "express": "^4.17.1",
+    "express-session": "^1.18.0",
+    "lucide-react": "^0.469.0",
+    "node-fetch": "^3.3.2",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "react": "^18.2.0",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-bootstrap": "^2.10.5",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "react-dom": "^18.2.0",
+    "react-icons": "^5.3.0",
+    "react-markdown": "^9.0.1",
+    "react-toastify": "^11.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "zustand": "^4.5.5"
+  }
+}
