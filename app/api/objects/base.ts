@@ -20,10 +20,12 @@ import { authStore } from "../../stores/auth-store";
  */
 
 export abstract class BaseApi {
-    static client: ApolloClientClass<NormalizedCacheObject>;
-    protected abstract readonly fields: string[];
-    protected abstract readonly model: string;
-    protected abstract readonly path: string;
+    private client!: ApolloClientClass<NormalizedCacheObject>;
+    
+    // Make these abstract getters instead of properties
+    protected abstract get model(): string;
+    protected abstract get path(): string;
+    protected abstract get fields(): string[];
 
     constructor() {
         this.initializeClient();
@@ -40,9 +42,13 @@ export abstract class BaseApi {
             };
         });
 
-        BaseApi.client = new ApolloClientClass({
-            link: authLink.concat(new HttpLink({
-                uri: settings.apiUrl + this.path,
+        const baseUrl = settings.apiUrl.replace(/\/+$/, '');
+        const apiPath = this.path.replace(/^\/+/, '');
+        const fullUrl = `${baseUrl}/${apiPath}`;
+
+        this.client = new ApolloClientClass({
+            link: authLink.concat(new HttpLink({ 
+                uri: fullUrl,
                 credentials: "same-origin",
             })),
             cache: new InMemoryCache(),
@@ -101,7 +107,7 @@ export abstract class BaseApi {
         `;
 
         try {
-            const response = await BaseApi.client.mutate({
+            const response = await this.client.mutate({
                 mutation,
                 variables: { input },
             });
@@ -130,7 +136,7 @@ export abstract class BaseApi {
         `;
 
         try {
-            const response = await BaseApi.client.query({
+            const response = await this.client.query({
                 query,
                 variables: { filter },
             });
@@ -169,7 +175,7 @@ export abstract class BaseApi {
         console.log('query', query);
 
         try {
-            const response = await BaseApi.client.query({
+            const response = await this.client.query({
                 query,
                 variables: { ...pagination, subquery }
             });
@@ -204,7 +210,7 @@ export abstract class BaseApi {
         `;
 
         try {
-            const response = await BaseApi.client.mutate({
+            const response = await this.client.mutate({
                 mutation,
                 variables: { id, input },
             });
@@ -230,7 +236,7 @@ export abstract class BaseApi {
         `;
 
         try {
-            const response = await BaseApi.client.mutate({
+            const response = await this.client.mutate({
                 mutation,
                 variables: { id },
             });

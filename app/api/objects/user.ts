@@ -19,10 +19,11 @@ export type User = UserBase & {
 }
 
 export class UserApi extends BaseApi {
-    protected readonly model = "user";
-    protected readonly path = "/query";
-    protected readonly fields = [
-        "id",
+    protected get model() { return "user"; }
+    protected get path() { return "/query"; }
+    protected get fields() { 
+        return [
+            "id",
         "email",
         "first_name",
         "last_name",
@@ -34,7 +35,8 @@ export class UserApi extends BaseApi {
         "user.email",
         "user.first_name",
         "user.last_name"
-    ];
+        ];
+    }
     roleApi: RoleApi;
 
     constructor() {

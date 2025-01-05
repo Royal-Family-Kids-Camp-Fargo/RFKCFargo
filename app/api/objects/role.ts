@@ -11,15 +11,17 @@ export type Role = {
 }
 
 export class RoleApi extends BaseApi {
-  model = "role";
-  fields = [
-    "roleid",
-    "name",
-    "login", 
-    "classes.classid",
-    "classes.name"
-  ];
-  path = "/roles_pbac";
+  protected get model() { return "role"; }
+  protected get fields() { 
+    return [
+      "roleid",
+      "name",
+      "login", 
+      "classes.classid",
+      "classes.name"
+    ];
+  }
+  protected get path() { return "/roles_pbac"; }
 
   async get(roleId: string) {
     return super.get(null, `roleid = "${roleId}"`);

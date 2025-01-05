@@ -8,14 +8,16 @@ export type Pipeline = {
 };
 
 class PipelineApi extends BaseApi {
-  protected readonly model = "pipeline";
-  protected readonly path = "/query";
-  protected readonly fields = [
-    "id",
-    "name",
-    "type",
-    "location_id"
-  ];
+  protected get model() { return "pipeline"; }
+  protected get path() { return "/query"; }
+  protected get fields() { 
+    return [
+      "id",
+      "name",
+      "type",
+      "location_id"
+    ];
+  }
 }
 
 const pipelineApi = new PipelineApi();

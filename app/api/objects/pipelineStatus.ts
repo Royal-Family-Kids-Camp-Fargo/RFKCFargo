@@ -11,15 +11,17 @@ export type PipelineStatus = {
 
 
 class PipelineStatusApi extends BaseApi {
-    model = "pipeline_status";
-    fields = [
-      "id",
-      "order",
-      "pipeline_id",
-      "name",
-      ...inheritFields(new UserApi(), "user_collection")
-    ];
-    path = "/pipeline_status";
+    protected get model() { return "pipeline_status"; }
+    protected get fields() { 
+        return [
+            "id",
+            "order",
+            "pipeline_id",
+            "name",
+            ...inheritFields(new UserApi(), "user_collection")
+        ];
+    }
+    protected get path() { return "/query"; }
 }
 
 const pipelineStatusApi = new PipelineStatusApi();
