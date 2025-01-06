@@ -5,7 +5,6 @@ import {
   Container,
   Typography,
   TextField,
-  Paper,
   useTheme,
   useMediaQuery,
   InputAdornment,
@@ -17,100 +16,7 @@ import pipelineApi from "~/api/objects/pipeline";
 import pipelineStatusApi from "~/api/objects/pipelineStatus";
 import { botContextStore } from "~/stores/botContextStore";
 import type { Route } from "../+types/dashboard";
-
-interface UserItem {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-}
-
-/**
- * UserCard component.
- */
-function UserCard({ user }: { user: UserItem }) {
-  return (
-    <Paper
-      elevation={1}
-      sx={{
-        mb: 1,
-        p: 1,
-        backgroundColor: "#f8f9fa",
-      }}
-    >
-      <Typography variant="body1" sx={{ fontWeight: 600 }}>
-        {user.first_name || user.last_name
-          ? `${user.first_name} ${user.last_name}`
-          : "No Name"}
-      </Typography>
-      <Typography variant="body2" color="textSecondary">
-        {user.email}
-      </Typography>
-    </Paper>
-  );
-}
-
-/**
- * Each status column.
- */
-function StatusColumn({
-  status,
-  globalSearchTerm,
-}: {
-  status: any;
-  globalSearchTerm: string;
-}) {
-  const theme = useTheme();
-
-  // Filter users based on search
-  const filteredUsers = React.useMemo(() => {
-    if (!status.user_collection || !Array.isArray(status.user_collection)) {
-      return [];
-    }
-    if (!globalSearchTerm) return status.user_collection;
-
-    const term = globalSearchTerm.toLowerCase();
-    return status.user_collection.filter((user: UserItem) => {
-      return (
-        user.first_name?.toLowerCase().includes(term) ||
-        user.last_name?.toLowerCase().includes(term) ||
-        user.email?.toLowerCase().includes(term)
-      );
-    });
-  }, [status.user_collection, globalSearchTerm]);
-
-  return (
-    <Box
-      sx={{
-        minWidth: { xs: "85vw", sm: "350px" },
-        maxWidth: { xs: "85vw", sm: "350px" },
-        backgroundColor: theme.palette.background.paper,
-        border: "1px solid #dee2e6",
-        borderRadius: 2,
-        p: 2,
-      }}
-    >
-      <Typography
-        variant="h6"
-        sx={{
-          color: "#4b0082",
-          borderBottom: "2px solid #20c997",
-          pb: 1,
-          mb: 2,
-          fontSize: { xs: "1rem", sm: "1.25rem" },
-          textTransform: "uppercase",
-          letterSpacing: 1,
-          fontWeight: "bold",
-        }}
-      >
-        {status.name}
-      </Typography>
-      {filteredUsers.map((user: UserItem) => (
-        <UserCard key={user.id} user={user} />
-      ))}
-    </Box>
-  );
-}
+import StatusColumn from "~/components/statusColumn";
 
 // Define the loader function
 export const clientLoader = async ({ params }: Route.ClientLoaderArgs) => {
@@ -136,6 +42,10 @@ export default function ViewPipeline() {
   const { pipelineId } = useParams();
   const [globalSearchTerm, setGlobalSearchTerm] = useState("");
   const queryClient = useQueryClient();
+  
+  // For adding more context to your AI store
+  const addBotContext = botContextStore.addContext;
+  const removeBotContext = botContextStore.removeContext;
 
   // Track ephemeral board state (e.g., statuses with user arrays).
   const [boardData, setBoardData] = useState<any[]>([]);
@@ -178,9 +88,6 @@ export default function ViewPipeline() {
     }
   }, [statusesSuccess, pipelineStatuses]);
 
-  // For adding more context to your AI store
-  const addBotContext = botContextStore.addContext;
-  const removeBotContext = botContextStore.removeContext;
   useEffect(() => {
     if (pipelineId) {
       addBotContext(`User is viewing pipeline with ID ${pipelineId}`);
