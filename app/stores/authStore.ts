@@ -1,19 +1,20 @@
 import type { User } from "../api/objects/user";
 
-let accessToken: string | undefined = undefined;
+let auth: {access_token: string, roleid: string} | undefined = undefined;
 let user: User | undefined = undefined;
 
 export const authStore = {
-  getAccessToken: () => accessToken,
-  setAccessToken: (token: string) => {
-    accessToken = token;
+  getAuth: () => auth,
+  setAuth: ({access_token, roleid}: {access_token: string, roleid: string}) => {
+    auth = {access_token, roleid};
   },
   getUser: () => user,
   setUser: (dev: User) => {
     user = dev;
+    localStorage.setItem('user', JSON.stringify(dev));
   },
   clear: () => {
-    accessToken = undefined;
+    auth = undefined;
     user = undefined;
   },
 };

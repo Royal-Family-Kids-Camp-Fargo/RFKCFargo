@@ -25,7 +25,7 @@ export function getBaseRequest(options: BaseRequestOptions): Request {
     url = baseUrl + path;
   }
 
-  const accessToken = authStore.getAccessToken();
+  const accessToken = authStore.getAuth();
 
   return new Request(url, {
     method: method,

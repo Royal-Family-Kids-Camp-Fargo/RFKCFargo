@@ -10,6 +10,7 @@ import formApi, { type Form } from '~/api/objects/form';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState, createContext, useContext } from 'react';
 import type { User } from '~/api/objects/user';
+import userApi from '~/api/objects/user';
 
 type LoaderData = {
   user: User;
@@ -18,15 +19,18 @@ type LoaderData = {
 };
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-  let accessToken = authStore.getAccessToken();
+  let auth = authStore.getAuth() || JSON.parse(localStorage.getItem('auth') || '{}');
+  authStore.setAuth(auth);
   let user = authStore.getUser();
-  if (!accessToken) {
-    // await refresh();
-    accessToken = authStore.getAccessToken();
-    user = authStore.getUser();
-    if (!accessToken) {
-      return redirect('/sign-in');
-    }
+  console.log('auth', auth);
+  if (!auth.access_token) {
+    console.log('No auth');
+    return redirect('/sign-in');
+  }
+  if (!user) {
+    console.log('Getting user');
+    user = await userApi.get(auth.roleid);
+    authStore.setUser(user);
   }
 
   // Add the pipelines and forms fetch

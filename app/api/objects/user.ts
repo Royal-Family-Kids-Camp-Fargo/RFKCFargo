@@ -24,17 +24,17 @@ export class UserApi extends BaseApi {
     protected get fields() { 
         return [
             "id",
-        "email",
-        "first_name",
-        "last_name",
-        "phone_number",
-        "location_id",
-        "created_at",
-        "updated_at",
-        "user.id",
-        "user.email",
-        "user.first_name",
-        "user.last_name"
+            "email",
+            "first_name",
+            "last_name",
+            "phone_number",
+            "location_id",
+            "created_at",
+            "updated_at",
+            "user.id",
+            "user.email",
+            "user.first_name",
+            "user.last_name"
         ];
     }
     roleApi: RoleApi;
@@ -45,8 +45,10 @@ export class UserApi extends BaseApi {
     }
 
     async get(roleId: string) {
-        const result = await super.get(null, `devii_roleid = "${roleId}"`);
-        const role = await this.roleApi.get(result.role.roleid);
+        const [result, role] = await Promise.all([
+            super.get(null, `devii_roleid = "${roleId}"`),
+            this.roleApi.get(roleId)
+        ]);
         return { ...result, role } as User;
     }
 

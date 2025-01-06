@@ -1,5 +1,5 @@
 import { getBaseRequest } from './base-requests';
-import { userApi } from './objects/user';
+import { UserApi } from './objects/user';
 import { authStore } from '~/stores/authStore';
 const tenantId = '10250';
 
@@ -45,11 +45,10 @@ export async function login(email: string, password: string) {
 
   const res = await fetch(requestOptions);
   const json = await res.json();
-  
-  authStore.setAccessToken(json.access_token);
-  const user = await userApi.get(json.roleid);
+  authStore.setAuth({access_token: json.access_token, roleid: json.roleid});
+  localStorage.setItem('auth', JSON.stringify({access_token: json.access_token, roleid: json.roleid}));
 
-  console.log(json.access_token);
+  const user = await new UserApi().get(json.roleid);
 
   return { user, access_token: json.access_token };
 }

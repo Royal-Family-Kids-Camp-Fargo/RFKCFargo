@@ -20,14 +20,14 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  let accessToken = authStore.getAccessToken();
+  let accessToken = authStore.getAuth();
   if (accessToken) {
     return redirect('/dashboard');
   }
 
   await refresh();
 
-  accessToken = authStore.getAccessToken();
+  accessToken = authStore.getAuth();
   console.log('accessToken from sign-in', accessToken);
   if (accessToken) {
     return redirect('/dashboard');
@@ -44,9 +44,9 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       formData.get('email') as string,
       formData.get('password') as string
     );
-    authStore.setAccessToken(res.access_token);
+    authStore.setAuth({access_token: res.access_token, roleid: res.user.role.roleid});
     authStore.setUser(res.user);
-    console.log(authStore.getAccessToken());
+    console.log(authStore.getAuth());
     return redirect('/dashboard');
   } catch (error) {
     console.error('Login failed:', error);

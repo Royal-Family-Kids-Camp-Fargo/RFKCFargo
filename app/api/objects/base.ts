@@ -33,11 +33,12 @@ export abstract class BaseApi {
 
     private initializeClient() {
         const authLink = setContext((_, { headers }) => {
-            const token = authStore.getAccessToken();
+            const auth = authStore.getAuth();
+            console.log('auth in client base', auth);
             return {
                 headers: {
                     ...headers,
-                    authorization: token ? `Bearer ${token}` : "",
+                    authorization: auth ? `Bearer ${auth.access_token}` : "",
                 }
             };
         });
