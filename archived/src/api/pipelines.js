@@ -4,12 +4,7 @@ class Pipeline extends BaseApi {
   constructor() {
     super();
     this.model = "pipeline";
-    this.fields = [
-      "id",
-      "name",
-      "type",
-      "location_id"
-    ];
+    this.fields = ["id", "name", "type", "location_id"];
   }
 }
 

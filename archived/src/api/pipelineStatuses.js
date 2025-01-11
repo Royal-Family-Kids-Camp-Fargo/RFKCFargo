@@ -15,7 +15,7 @@ class PipelineStatus extends BaseApi {
       "user_collection.email",
       "user_collection.phone_number",
       "user_collection.location_id",
-      "user_collection.user.first_name"
+      "user_collection.user.first_name",
     ];
   }
 }

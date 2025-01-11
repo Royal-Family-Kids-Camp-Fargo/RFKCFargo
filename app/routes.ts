@@ -1,11 +1,14 @@
-import { type RouteConfig, index, route } from '@react-router/dev/routes';
+import { type RouteConfig, index, route } from "@react-router/dev/routes";
 
 export default [
-  index('routes/home.tsx'),
-  route('sign-up', 'routes/sign-up.tsx'),
-  route('sign-in', 'routes/sign-in.tsx'),
-  route('dashboard', 'routes/dashboard/dashboard.tsx', [
-    route('pipelines/:pipelineId', 'routes/dashboard/pipelines/ViewPipeline.tsx'),
-    route('forms/:id', 'routes/dashboard/forms/ViewForm.tsx')
+  index("routes/home.tsx"),
+  route("sign-up", "routes/sign-up.tsx"),
+  route("sign-in", "routes/sign-in.tsx"),
+  route("dashboard", "routes/dashboard/dashboard.tsx", [
+    route(
+      "pipelines/:pipelineId",
+      "routes/dashboard/pipelines/ViewPipeline.tsx"
+    ),
+    route("forms/:id", "routes/dashboard/forms/ViewForm.tsx"),
   ]),
 ] satisfies RouteConfig;

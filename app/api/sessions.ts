@@ -1,12 +1,12 @@
-import { getBaseRequest } from './base-requests';
-import { UserApi } from './objects/user';
-import { authStore } from '~/stores/authStore';
-const tenantId = '10250';
+import { getBaseRequest } from "./base-requests";
+import { UserApi } from "./objects/user";
+import { authStore } from "~/stores/authStore";
+const tenantId = "10250";
 
 async function anonymousLogin() {
   const requestOptions = getBaseRequest({
     path: `/anonauth`,
-    method: 'POST',
+    method: "POST",
     body: {
       tenantid: parseInt(tenantId),
     },
@@ -22,7 +22,7 @@ async function anonymousLogin() {
 async function getRoleId() {
   const requestOptions = getBaseRequest({
     path: `/roles_pbac`,
-    method: 'GET',
+    method: "GET",
   });
 
   const res = await fetch(requestOptions);
@@ -39,14 +39,17 @@ export async function login(email: string, password: string) {
 
   const requestOptions = getBaseRequest({
     path: `/auth`,
-    method: 'POST',
+    method: "POST",
     body: data,
   });
 
   const res = await fetch(requestOptions);
   const json = await res.json();
-  authStore.setAuth({access_token: json.access_token, roleid: json.roleid});
-  localStorage.setItem('auth', JSON.stringify({access_token: json.access_token, roleid: json.roleid}));
+  authStore.setAuth({ access_token: json.access_token, roleid: json.roleid });
+  localStorage.setItem(
+    "auth",
+    JSON.stringify({ access_token: json.access_token, roleid: json.roleid })
+  );
 
   const user = await new UserApi().get(json.roleid);
 
@@ -62,7 +65,7 @@ export async function signup(email: string, password: string, name?: string) {
 
   const requestOptions = getBaseRequest({
     path: `/auth`,
-    method: 'POST',
+    method: "POST",
     body: data,
   });
 
@@ -77,8 +80,8 @@ export async function signup(email: string, password: string, name?: string) {
  * @returns A redirect to the sign-in page if refresh fails.
  */
 export async function refresh(): Promise<Response> {
-  console.log('refreshing --- > TO implement');
-  return new Response('Not implemented');
+  console.log("refreshing --- > TO implement");
+  return new Response("Not implemented");
   // const requestOptions = getBaseRequest({
   //   path: `/auth`,
   //   includeCredentials: true,
@@ -93,7 +96,7 @@ export async function refresh(): Promise<Response> {
 export async function logout() {
   const requestOptions = getBaseRequest({
     path: `/auth`,
-    method: 'DELETE',
+    method: "DELETE",
   });
 
   const res = await fetch(requestOptions);

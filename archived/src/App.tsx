@@ -1,10 +1,10 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import About from './pages/About';
-import Login from './components/Auth/Login';
-import Register from './components/Auth/Register';
-import MainLayout from './components/Layout/MainLayout';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Login from "./components/Auth/Login";
+import Register from "./components/Auth/Register";
+import MainLayout from "./components/Layout/MainLayout";
 
 const App: React.FC = () => {
   return (
@@ -20,6 +20,6 @@ const App: React.FC = () => {
       </MainLayout>
     </Router>
   );
-}
+};
 
-export default App; 
+export default App;

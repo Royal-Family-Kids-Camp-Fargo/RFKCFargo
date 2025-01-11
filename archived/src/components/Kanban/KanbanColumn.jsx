@@ -1,7 +1,5 @@
-import { Droppable } from 'react-beautiful-dnd';
-import KanbanCard from './KanbanCard';
-
-
+import { Droppable } from "react-beautiful-dnd";
+import KanbanCard from "./KanbanCard";
 
 export default function KanbanColumn({ column }) {
   return (
@@ -24,4 +22,3 @@ export default function KanbanColumn({ column }) {
     </div>
   );
 }
-

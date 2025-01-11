@@ -1,5 +1,5 @@
-import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import TextField from '@mui/material/TextField';
+import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import TextField from "@mui/material/TextField";
 
 // interface KanbanControlsProps {
 //   searchTerm: string;
@@ -44,4 +44,3 @@ export default function KanbanControls({
     </div>
   );
 }
-

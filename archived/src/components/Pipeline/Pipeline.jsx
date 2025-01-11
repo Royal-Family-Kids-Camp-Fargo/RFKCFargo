@@ -1,45 +1,54 @@
-import { useState, useEffect } from 'react';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useParams } from 'react-router-dom';
-import { 
+import { useState, useEffect } from "react";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { useParams } from "react-router-dom";
+import {
   Box,
   Typography,
   Container,
   TextField,
   Paper,
   useTheme,
-  useMediaQuery
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import InputAdornment from '@mui/material/InputAdornment';
+  useMediaQuery,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import InputAdornment from "@mui/material/InputAdornment";
 
-import useStore from '../../zustand/store';
-import PipelineStatus from '../PipelineStatus/PipelineStatus';
-import PipelineForm from '../PipelineForm/PipelineForm';
-import AddUserToPipeline from './AddUserToPipeline';
-import { useQuery } from '@tanstack/react-query';
-import pipelineApi from '../../api/pipelines';
-import pipelineStatusApi from '../../api/pipelineStatuses';
-import KanbanBoard from '../Kanban/KanbanBoard';
-export const DRAG_TYPE = 'user-status';
+import useStore from "../../zustand/store";
+import PipelineStatus from "../PipelineStatus/PipelineStatus";
+import PipelineForm from "../PipelineForm/PipelineForm";
+import AddUserToPipeline from "./AddUserToPipeline";
+import { useQuery } from "@tanstack/react-query";
+import pipelineApi from "../../api/pipelines";
+import pipelineStatusApi from "../../api/pipelineStatuses";
+import KanbanBoard from "../Kanban/KanbanBoard";
+export const DRAG_TYPE = "user-status";
 
 export default function Pipeline() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { pipelineId: urlPipelineId } = useParams();
-  const [globalSearchTerm, setGlobalSearchTerm] = useState('');
-  
-  const { data: pipeline, isLoading, error } = useQuery({
-    queryKey: ['pipeline'],
-    queryFn: () => pipelineApi.get(urlPipelineId, null)
+  const [globalSearchTerm, setGlobalSearchTerm] = useState("");
+
+  const {
+    data: pipeline,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["pipeline"],
+    queryFn: () => pipelineApi.get(urlPipelineId, null),
   });
-  
-  const { data: pipelineStatuses, isLoading: pipelineStatusesLoading, error: pipelineStatusesError } = useQuery({
-    queryKey: ['pipelineStatuses'],
-    queryFn: () => pipelineStatusApi.getAll({ filter: `pipeline_id = ${urlPipelineId}` })
+
+  const {
+    data: pipelineStatuses,
+    isLoading: pipelineStatusesLoading,
+    error: pipelineStatusesError,
+  } = useQuery({
+    queryKey: ["pipelineStatuses"],
+    queryFn: () =>
+      pipelineStatusApi.getAll({ filter: `pipeline_id = ${urlPipelineId}` }),
   });
-  
+
   const addBotContext = useStore((state) => state.addBotContext);
   const removeBotContext = useStore((state) => state.removeBotContext);
 
@@ -63,10 +72,11 @@ export default function Pipeline() {
   const filterUsersBySearch = (users) => {
     if (!globalSearchTerm) return users;
 
-    return users.filter(user => 
-      user.first_name?.toLowerCase().includes(globalSearchTerm) ||
-      user.last_name?.toLowerCase().includes(globalSearchTerm) ||
-      user.email?.toLowerCase().includes(globalSearchTerm)
+    return users.filter(
+      (user) =>
+        user.first_name?.toLowerCase().includes(globalSearchTerm) ||
+        user.last_name?.toLowerCase().includes(globalSearchTerm) ||
+        user.email?.toLowerCase().includes(globalSearchTerm)
     );
   };
 
@@ -74,9 +84,9 @@ export default function Pipeline() {
     <KanbanBoard />
     // <Container maxWidth={false} sx={{ width: '100vw', height: '100vh', pb: 0, px: { xs: 1, sm: 2 } }}>
     //   <Box sx={{ textAlign: 'center', mb: 4 }}>
-    //     <Typography 
-    //       variant="h4" 
-    //       sx={{ 
+    //     <Typography
+    //       variant="h4"
+    //       sx={{
     //         color: '#4b0082',
     //         fontSize: { xs: '1.5rem', sm: '2.125rem' }
     //       }}
@@ -91,7 +101,7 @@ export default function Pipeline() {
     //       size="small"
     //       placeholder="Search users..."
     //       onChange={(e) => handleSearchChange(e.target.value)}
-    //       sx={{ 
+    //       sx={{
     //         mb: 2,
     //         '& .MuiInputBase-root': {
     //           fontSize: { xs: '0.875rem', sm: '1rem' }
@@ -149,9 +159,9 @@ export default function Pipeline() {
     //       >
     //         {pipeline && pipelineStatuses?.data?.length > 0 ? (
     //           pipelineStatuses.data.map((status) => (
-    //             <Box 
-    //               key={status.id} 
-    //               sx={{ 
+    //             <Box
+    //               key={status.id}
+    //               sx={{
     //                 minWidth: { xs: '85vw', sm: '350px' },
     //                 maxWidth: { xs: '85vw', sm: '350px' },
     //                 backgroundColor: theme.palette.background.paper,
@@ -160,9 +170,9 @@ export default function Pipeline() {
     //                 p: 2,
     //               }}
     //             >
-    //               <Typography 
-    //                 variant="h6" 
-    //                 sx={{ 
+    //               <Typography
+    //                 variant="h6"
+    //                 sx={{
     //                   color: '#4b0082',
     //                   borderBottom: '2px solid #20c997',
     //                   pb: 1,
@@ -175,11 +185,11 @@ export default function Pipeline() {
     //               >
     //                 {status.name}
     //               </Typography>
-    //               <PipelineStatus 
+    //               <PipelineStatus
     //                 status={{
     //                   ...status,
     //                   user_collection: filterUsersBySearch(status.user_collection || [])
-    //                 }} 
+    //                 }}
     //                 pipelineId={pipeline.id}
     //               />
     //             </Box>

@@ -41,7 +41,6 @@ export class UserApi extends BaseApi {
   async getByRoleId(roleId) {
     return super.get(null, `devii_roleid = "${roleId}"`);
   }
-
 }
 
 // Create a singleton instance

@@ -17,21 +17,23 @@ import { setContext } from "@apollo/client/link/context";
 class BaseApi {
   constructor() {
     const authLink = setContext((_, { headers }) => {
-      const token = localStorage.getItem('accessToken');
-      console.log('token:', token);
+      const token = localStorage.getItem("accessToken");
+      console.log("token:", token);
       return {
         headers: {
           ...headers,
           authorization: token ? `Bearer ${token}` : "",
-        }
+        },
       };
     });
 
     this.client = new ApolloClient({
-      link: authLink.concat(new HttpLink({
-        uri: "https://api.devii.io/query",
-        credentials: "same-origin",
-      })),
+      link: authLink.concat(
+        new HttpLink({
+          uri: "https://api.devii.io/query",
+          credentials: "same-origin",
+        })
+      ),
       cache: new InMemoryCache(),
     });
     this.model = "OVERRIDE_ME";
@@ -42,14 +44,14 @@ class BaseApi {
     const buildFieldMap = (fields) => {
       const fieldMap = {};
 
-      fields.forEach(field => {
-        const parts = field.split('.');
+      fields.forEach((field) => {
+        const parts = field.split(".");
         const [parent, ...rest] = parts;
         if (!fieldMap[parent]) {
           fieldMap[parent] = [];
         }
         if (rest.length > 0) {
-          fieldMap[parent].push(rest.join('.'));
+          fieldMap[parent].push(rest.join("."));
         }
       });
 
@@ -57,13 +59,15 @@ class BaseApi {
     };
 
     const formatFieldMap = (fieldMap) => {
-      return Object.entries(fieldMap).map(([parent, children]) => {
-        if (children.length > 0) {
-          const nestedFields = formatFieldMap(buildFieldMap(children));
-          return `${parent} { ${nestedFields} }`;
-        }
-        return parent;
-      }).join('\n');
+      return Object.entries(fieldMap)
+        .map(([parent, children]) => {
+          if (children.length > 0) {
+            const nestedFields = formatFieldMap(buildFieldMap(children));
+            return `${parent} { ${nestedFields} }`;
+          }
+          return parent;
+        })
+        .join("\n");
     };
 
     const fieldMap = buildFieldMap(fields);
@@ -129,12 +133,16 @@ class BaseApi {
     }
   }
 
-  async getAll(pagination = { limit: 10, offset: 0, ordering: "", filter: "" }) {
-    console.log('pagination', pagination);
-    console.log('this.model', this.model);
+  async getAll(
+    pagination = { limit: 10, offset: 0, ordering: "", filter: "" }
+  ) {
+    console.log("pagination", pagination);
+    console.log("this.model", this.model);
     const subquery = `query{ ${this.model} { id } }`;
     const query = gql`
-      query GetAll${this.model}($subquery: String, $filter: String, $limit: Int, $ordering: [String], $offset: Int) {
+      query GetAll${
+        this.model
+      }($subquery: String, $filter: String, $limit: Int, $ordering: [String], $offset: Int) {
         Aggregates {
           count(
             subquery: $subquery,
@@ -151,12 +159,12 @@ class BaseApi {
         }
       }
     `;
-    console.log('query', query);
+    console.log("query", query);
 
     try {
       const response = await this.client.query({
         query,
-        variables: { ...pagination, subquery }
+        variables: { ...pagination, subquery },
       });
       return {
         data: response.data[this.model],

@@ -1,10 +1,15 @@
-'use client'
+"use client";
 
-import { useState } from 'react';
-import { Draggable } from 'react-beautiful-dnd';
-import { Mail, Phone, ChevronDown, ChevronUp } from 'lucide-react';
-import { Button, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useState } from "react";
+import { Draggable } from "react-beautiful-dnd";
+import { Mail, Phone, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Button,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 export default function KanbanCard({ task, index }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,7 +32,11 @@ export default function KanbanCard({ task, index }) {
               <div className="flex justify-between items-center w-full">
                 <h3 className="font-semibold">{task.content}</h3>
                 <Button variant="text" size="small">
-                  {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  {isOpen ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </AccordionSummary>

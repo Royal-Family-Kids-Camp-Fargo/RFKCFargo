@@ -28,7 +28,7 @@
   border-radius: 4px;
 }
 
-.section-manager button[type='submit'] {
+.section-manager button[type="submit"] {
   padding: 10px;
   background-color: #4b0082;
   color: white;
@@ -37,7 +37,7 @@
   cursor: pointer;
 }
 
-.section-manager button[type='submit']:hover {
+.section-manager button[type="submit"]:hover {
   opacity: 0.9;
 }
 

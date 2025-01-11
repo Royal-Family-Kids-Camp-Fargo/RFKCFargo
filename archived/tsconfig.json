@@ -15,4 +15,4 @@
     "types": ["@react-router/dev"]
   },
   "include": ["src"]
-} 
+}

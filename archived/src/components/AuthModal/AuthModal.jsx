@@ -1,32 +1,32 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Modal, Form, Button, Alert, Nav } from 'react-bootstrap';
-import useStore from '../../zustand/store';
-import { sessionApi } from '../../api/sessions';
-import { toast } from 'react-toastify';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Modal, Form, Button, Alert, Nav } from "react-bootstrap";
+import useStore from "../../zustand/store";
+import { sessionApi } from "../../api/sessions";
+import { toast } from "react-toastify";
 
 function AuthModal({ show, onHide }) {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+
   const setRoleId = useStore((state) => state.setRoleId);
   const setClasses = useStore((state) => state.setClasses);
   const navigate = useNavigate();
 
-//   useEffect(() => {
-//     return () => {
-//       setAuthErrorMessage('');
-//     };
-//   }, []);
+  //   useEffect(() => {
+  //     return () => {
+  //       setAuthErrorMessage('');
+  //     };
+  //   }, []);
 
   const resetForm = () => {
-    setEmail('');
-    setPassword('');
-    setFirstName('');
-    setLastName('');
+    setEmail("");
+    setPassword("");
+    setFirstName("");
+    setLastName("");
   };
 
   const handleClose = () => {
@@ -36,50 +36,55 @@ function AuthModal({ show, onHide }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
+
     if (isLogin) {
-      sessionApi.login({
-        login: email,
-        password: password,
-      }).then((data) => {
+      sessionApi
+        .login({
+          login: email,
+          password: password,
+        })
+        .then((data) => {
           console.log("login data", data);
           setRoleId(data.roleId);
           setClasses(data.classes);
-          localStorage.setItem('accessToken', data.accessToken);
-          localStorage.setItem('refreshToken', data.refreshToken);
+          localStorage.setItem("accessToken", data.accessToken);
+          localStorage.setItem("refreshToken", data.refreshToken);
           handleClose();
-          navigate('/');
-      }).catch((error) => {
-        console.log("login error", error);
-        toast.error("Login Error");
-      });
+          navigate("/");
+        })
+        .catch((error) => {
+          console.log("login error", error);
+          toast.error("Login Error");
+        });
     } else {
-      sessionApi.register({
-        login: email,
-        password: password,
-        firstName: firstName,
-        lastName: lastName,
-      }).then((data) => {
-        setRoleId(data.roleId);
-        setClasses(data.classes);
-        localStorage.setItem('accessToken', data.accessToken);
-        localStorage.setItem('refreshToken', data.refreshToken);
-        handleClose();
-        navigate('/');
-      });
+      sessionApi
+        .register({
+          login: email,
+          password: password,
+          firstName: firstName,
+          lastName: lastName,
+        })
+        .then((data) => {
+          setRoleId(data.roleId);
+          setClasses(data.classes);
+          localStorage.setItem("accessToken", data.accessToken);
+          localStorage.setItem("refreshToken", data.refreshToken);
+          handleClose();
+          navigate("/");
+        });
     }
   };
 
   return (
-    <Modal show={show} onHide={handleClose} centered >
+    <Modal show={show} onHide={handleClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title>{isLogin ? 'Login' : 'Register'}</Modal.Title>
+        <Modal.Title>{isLogin ? "Login" : "Register"}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Nav variant="pills" className="mb-3 justify-content-center">
           <Nav.Item>
-            <Nav.Link 
-              active={isLogin} 
+            <Nav.Link
+              active={isLogin}
               onClick={() => {
                 setIsLogin(true);
                 resetForm();
@@ -89,8 +94,8 @@ function AuthModal({ show, onHide }) {
             </Nav.Link>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link 
-              active={!isLogin} 
+            <Nav.Link
+              active={!isLogin}
               onClick={() => {
                 setIsLogin(false);
                 resetForm();
@@ -152,7 +157,7 @@ function AuthModal({ show, onHide }) {
 
           <div className="d-grid gap-2">
             <Button variant="primary" type="submit">
-              {isLogin ? 'Login' : 'Register'}
+              {isLogin ? "Login" : "Register"}
             </Button>
           </div>
         </Form>
@@ -161,4 +166,4 @@ function AuthModal({ show, onHide }) {
   );
 }
 
-export default AuthModal; 
+export default AuthModal;

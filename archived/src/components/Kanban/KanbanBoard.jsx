@@ -1,12 +1,19 @@
-'use client'
+"use client";
 
-import { DragDropContext } from 'react-beautiful-dnd';
-import { useKanbanBoard } from '../../hooks/useKanbanBoard';
-import KanbanColumn from './KanbanColumn';
-import KanbanControls from './KanbanControls';
+import { DragDropContext } from "react-beautiful-dnd";
+import { useKanbanBoard } from "../../hooks/useKanbanBoard";
+import KanbanColumn from "./KanbanColumn";
+import KanbanControls from "./KanbanControls";
 
 export default function KanbanBoard(props) {
-  const { board, onDragEnd, searchTerm, setSearchTerm, filterAssigned, setFilterAssigned } = useKanbanBoard();
+  const {
+    board,
+    onDragEnd,
+    searchTerm,
+    setSearchTerm,
+    filterAssigned,
+    setFilterAssigned,
+  } = useKanbanBoard();
 
   const assignedOptions = Array.from(
     new Set(
@@ -35,4 +42,3 @@ export default function KanbanBoard(props) {
     </div>
   );
 }
-

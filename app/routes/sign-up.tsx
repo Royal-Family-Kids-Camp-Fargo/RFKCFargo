@@ -5,44 +5,44 @@ import {
   Link,
   TextField,
   Typography,
-} from '@mui/material';
-import type { Route } from './+types/home';
-import { Form, redirect, useNavigation } from 'react-router';
-import { Link as RouterLink } from 'react-router';
-import { signup } from '~/api/sessions';
+} from "@mui/material";
+import type { Route } from "./+types/home";
+import { Form, redirect, useNavigation } from "react-router";
+import { Link as RouterLink } from "react-router";
+import { signup } from "~/api/sessions";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'Sign Up' },
-    { name: 'description', content: 'Sign up for an account' },
+    { title: "Sign Up" },
+    { name: "description", content: "Sign up for an account" },
   ];
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();
   const data = {
-    name: formData.get('name'),
-    email: formData.get('email'),
-    password: formData.get('password'),
+    name: formData.get("name"),
+    email: formData.get("email"),
+    password: formData.get("password"),
   };
   console.log(data);
 
   const res = await signup(
-    formData.get('email') as string,
-    formData.get('password') as string,
-    formData.get('name') as string
+    formData.get("email") as string,
+    formData.get("password") as string,
+    formData.get("name") as string
   );
 
   if (res.status !== 200) {
-    return redirect('/sign-up');
+    return redirect("/sign-up");
   }
 
-  return redirect('/dashboard');
+  return redirect("/dashboard");
 }
 
 export default function SignUp() {
   const navigation = useNavigation();
-  const isNavigating = navigation.formAction === '/sign-up';
+  const isNavigating = navigation.formAction === "/sign-up";
   return (
     <Box
       border="1px solid blue"
@@ -92,7 +92,7 @@ export default function SignUp() {
             Sign up
           </Button>
           <Typography variant="body2" color="text.secondary">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link component={RouterLink} to="/sign-in">
               Sign in
             </Link>

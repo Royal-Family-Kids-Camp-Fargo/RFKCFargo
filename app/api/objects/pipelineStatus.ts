@@ -9,24 +9,35 @@ export type PipelineStatus = {
   name: string;
 };
 
-
 class PipelineStatusApi extends BaseApi {
-    protected get model() { return "pipeline_status"; }
-    protected get fields() { 
-        return [
-            "id",
-            "order",
-            "pipeline_id",
-            "name",
-            ...inheritFields(new UserApi(), "user_collection")
-        ];
-    }
-    protected get path() { return "/query"; }
+  protected get model() {
+    return "pipeline_status";
+  }
+  protected get fields() {
+    return [
+      "id",
+      "order",
+      "pipeline_id",
+      "name",
+      ...inheritFields(new UserApi(), "user_collection"),
+    ];
+  }
+  protected get path() {
+    return "/query";
+  }
 
-    async updateUserStatus({userId, fromStatusId, toStatusId}: {userId: string, fromStatusId: string, toStatusId: string}) {
-        console.log("updateUserStatus", userId, fromStatusId, toStatusId);
-        return "ok";
-    }
+  async updateUserStatus({
+    userId,
+    fromStatusId,
+    toStatusId,
+  }: {
+    userId: string;
+    fromStatusId: string;
+    toStatusId: string;
+  }) {
+    console.log("updateUserStatus", userId, fromStatusId, toStatusId);
+    return "ok";
+  }
 }
 
 const pipelineStatusApi = new PipelineStatusApi();

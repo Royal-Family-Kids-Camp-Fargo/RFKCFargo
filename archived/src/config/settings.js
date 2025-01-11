@@ -1,5 +1,3 @@
-
-
 const settings = {
   tenantId: 10250,
   nobodyRoleId: 21077,

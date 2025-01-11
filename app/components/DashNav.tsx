@@ -6,24 +6,24 @@ import {
   ListItemText,
   Box,
   Button,
-} from '@mui/material';
-import type { BoxProps } from '@mui/material';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import DescriptionIcon from '@mui/icons-material/Description';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import { Link, useLocation, useNavigate, useLoaderData } from 'react-router';
-import { useState } from 'react';
-import pipelineApi, { type Pipeline } from '~/api/objects/pipeline';
-import formApi, { type Form } from '~/api/objects/form';
+} from "@mui/material";
+import type { BoxProps } from "@mui/material";
+import AccountTreeIcon from "@mui/icons-material/AccountTree";
+import DescriptionIcon from "@mui/icons-material/Description";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import { Link, useLocation, useNavigate, useLoaderData } from "react-router";
+import { useState } from "react";
+import pipelineApi, { type Pipeline } from "~/api/objects/pipeline";
+import formApi, { type Form } from "~/api/objects/form";
 
 // Loader function to fetch both pipelines and forms
 export async function loader() {
   const [pipelines, forms] = await Promise.all([
     pipelineApi.getAll({ limit: 100, offset: 0, ordering: "", filter: "" }),
-    formApi.getAll({ limit: 100, offset: 0, ordering: "", filter: "" })
+    formApi.getAll({ limit: 100, offset: 0, ordering: "", filter: "" }),
   ]);
-  
+
   return { pipelines: pipelines.data, forms: forms.data };
 }
 
@@ -45,7 +45,7 @@ export default function DashNav({ pipelines, forms, ...props }: DashNavProps) {
 
   const handleClick = async () => {
     // await logout();
-    navigate('/sign-in');
+    navigate("/sign-in");
   };
 
   return (
@@ -68,7 +68,9 @@ export default function DashNav({ pipelines, forms, ...props }: DashNavProps) {
                 sx={{ pl: 4 }}
                 component={Link}
                 to={`/dashboard/pipelines/${pipeline.id}`}
-                selected={location.pathname === `/dashboard/pipelines/${pipeline.id}`}
+                selected={
+                  location.pathname === `/dashboard/pipelines/${pipeline.id}`
+                }
               >
                 <ListItemText primary={pipeline.name} />
               </ListItemButton>

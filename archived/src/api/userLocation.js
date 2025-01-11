@@ -10,7 +10,7 @@ export class UserLocationApi extends BaseApi {
       "location_id",
       "role",
       "created_at",
-      "updated_at"
+      "updated_at",
     ];
   }
 }

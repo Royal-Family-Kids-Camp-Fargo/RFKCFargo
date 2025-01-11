@@ -1,30 +1,29 @@
-import { useEffect, useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { Container, Navbar, Row, Col } from 'react-bootstrap';
+import { useEffect, useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { Container, Navbar, Row, Col } from "react-bootstrap";
 
 // Import our custom Sass that includes Bootstrap with overrides
 // import './index.scss';
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
-import useStore from './zustand/store';
-import Navigation from './components/Nav/Nav';
-import HomePage from './components/HomePage/HomePage';
-import AuthModal from './components/AuthModal/AuthModal';
-import Pipeline from './components/Pipeline/Pipeline';
-import FormPage from './components/FormPage/FormPage';
-import SubmissionPage from './components/FormPage/SubmissionPage';
-import FormEditor from './components/FormEditPage/FormEditPage';
-import FormAdmin from './components/FormAdmin/FormAdmin';
-import QuestionManager from './components/QuestionManager/QuestionManager';
-import SubmissionView from './components/SubmissionView/SubmissionView';
-import Footer from './components/Footer/Footer';
-import favicon from './assets/favicon.png';
-import { sessionApi } from './api/sessions';
-import { ToastContainer } from 'react-toastify';
-import ChatBubble from './components/ChatBubble';
-import settings from './config/settings';
-import useInvalidateQueriesOnStoreChange from './hooks/useInvalidateQueriesOnStoreChange';
-
+import useStore from "./zustand/store";
+import Navigation from "./components/Nav/Nav";
+import HomePage from "./components/HomePage/HomePage";
+import AuthModal from "./components/AuthModal/AuthModal";
+import Pipeline from "./components/Pipeline/Pipeline";
+import FormPage from "./components/FormPage/FormPage";
+import SubmissionPage from "./components/FormPage/SubmissionPage";
+import FormEditor from "./components/FormEditPage/FormEditPage";
+import FormAdmin from "./components/FormAdmin/FormAdmin";
+import QuestionManager from "./components/QuestionManager/QuestionManager";
+import SubmissionView from "./components/SubmissionView/SubmissionView";
+import Footer from "./components/Footer/Footer";
+import favicon from "./assets/favicon.png";
+import { sessionApi } from "./api/sessions";
+import { ToastContainer } from "react-toastify";
+import ChatBubble from "./components/ChatBubble";
+import settings from "./config/settings";
+import useInvalidateQueriesOnStoreChange from "./hooks/useInvalidateQueriesOnStoreChange";
 
 function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -38,7 +37,7 @@ function App() {
 
   useEffect(() => {
     async function authenticate() {
-      if (!localStorage.getItem('accessToken')) {
+      if (!localStorage.getItem("accessToken")) {
         const { roleId } = await sessionApi.anonymousAuthenticate();
         setRoleId(roleId);
       } else {
@@ -47,8 +46,12 @@ function App() {
           setRoleId(role.roleid);
           setClasses(role.classes);
           setLocationId(role.location_id);
-          addBotContext(`The logged in user's location_id is ${role.location_id}`);
-          addBotContext(`The logged in user's devii_roleid is ${role.roleid}. Use this to find the user's id with users (filter: 'devii_roleid = ${role.roleid}') if needed.`);
+          addBotContext(
+            `The logged in user's location_id is ${role.location_id}`
+          );
+          addBotContext(
+            `The logged in user's devii_roleid is ${role.roleid}. Use this to find the user's id with users (filter: 'devii_roleid = ${role.roleid}') if needed.`
+          );
         });
       }
     }
@@ -57,7 +60,7 @@ function App() {
 
   return (
     <>
-      <Navbar bg='light' expand='lg' className='mb-4'>
+      <Navbar bg="light" expand="lg" className="mb-4">
         <Container>
           <Navbar.Brand>
             <img
@@ -81,27 +84,32 @@ function App() {
       <Container>
         <main>
           <Routes>
+            <Route exact path="/" Component={HomePage} />
+            <Route exact path="/pipeline" Component={Pipeline} />
+            <Route exact path="/pipeline/:pipelineId" Component={Pipeline} />
             <Route
-              exact
-              path='/'
-              Component={HomePage}
-            />
-            <Route exact path='/pipeline' Component={Pipeline} />
-            <Route exact path='/pipeline/:pipelineId' Component={Pipeline} />
-            <Route
-              path='/submission/:submissionId/:sectionIndex?'
-              element={roleId ? <SubmissionView /> : <Navigate to='/' replace />}
+              path="/submission/:submissionId/:sectionIndex?"
+              element={
+                roleId ? <SubmissionView /> : <Navigate to="/" replace />
+              }
             />
             <Route
               exact
-              path='/form/:formId/:sectionIndex'
-              element={roleId ? <FormPage /> : <Navigate to='/' replace />}
+              path="/form/:formId/:sectionIndex"
+              element={roleId ? <FormPage /> : <Navigate to="/" replace />}
             />
-            <Route exact path='/finish' element={<SubmissionPage />} />
-            <Route exact path='/formEdit/:formId' element={<FormEditor />} />
-            <Route exact path='/admin/forms' element={roleId ? <FormAdmin /> : <Navigate to='/' replace />} />
-            <Route path='/admin/forms/:formId/section/:sectionId' element={<QuestionManager />} />
-            <Route path='*' element={<h2>404 Page</h2>} />
+            <Route exact path="/finish" element={<SubmissionPage />} />
+            <Route exact path="/formEdit/:formId" element={<FormEditor />} />
+            <Route
+              exact
+              path="/admin/forms"
+              element={roleId ? <FormAdmin /> : <Navigate to="/" replace />}
+            />
+            <Route
+              path="/admin/forms/:formId/section/:sectionId"
+              element={<QuestionManager />}
+            />
+            <Route path="*" element={<h2>404 Page</h2>} />
           </Routes>
         </main>
       </Container>

@@ -1,18 +1,18 @@
-import axios from 'axios';
+import axios from "axios";
 
 const createPipelineSlice = (set, get) => ({
   pipelines: [],
   selectedPipeline: {},
   foundUsers: [],
-  selectedUserId: '',
+  selectedUserId: "",
   fetchPipeline: async () => {
     //  Retrieves the pipelines data from the /api/pipeline endpoint.
     try {
-      const { data } = await axios.get('/api/pipeline');
-      console.log('data from store', data);
+      const { data } = await axios.get("/api/pipeline");
+      console.log("data from store", data);
       set({ pipelines: data });
     } catch (err) {
-      console.log('fetchPipeline error:', err);
+      console.log("fetchPipeline error:", err);
       set({ pipelines: [] });
     }
   },
@@ -20,15 +20,15 @@ const createPipelineSlice = (set, get) => ({
   searchingApplicant: async (searchString) => {
     //  Retrieves the users data from the /api/pipeline/search?term= endpoint.
     // build up search endpoint
-    const baseUrl = '/api/pipeline/search';
+    const baseUrl = "/api/pipeline/search";
     const params = { term: searchString };
 
     try {
       const { data } = await axios.get(baseUrl, { params });
-      console.log('search data', data);
+      console.log("search data", data);
       set({ foundUsers: data });
     } catch (err) {
-      console.log('error finding user:', err);
+      console.log("error finding user:", err);
       set({ foundUsers: [] });
     }
   },
@@ -46,25 +46,25 @@ const createPipelineSlice = (set, get) => ({
 
   addUserStatus: async (userStatus) => {
     try {
-      await axios.post('/api/pipeline/user_status', userStatus);
+      await axios.post("/api/pipeline/user_status", userStatus);
       get().fetchPipelineById(userStatus.pipeline_id);
-      console.log('data refreshed');
+      console.log("data refreshed");
     } catch (err) {
-      alert('Server error: possible duplicate record');
+      alert("Server error: possible duplicate record");
     }
   },
 
   addPipeline: async (newPipeline) => {
     //  Post the pipeline data from the /api/pipeline endpoint.
     try {
-      const { data } = await axios.post('/api/pipeline', newPipeline);
+      const { data } = await axios.post("/api/pipeline", newPipeline);
       //refresh the data in dropdown selections
       get().fetchPipeline();
-      console.log('data refreshed');
-      console.log('new pipeline id', data.data);
+      console.log("data refreshed");
+      console.log("new pipeline id", data.data);
       get().fetchPipelineById(data.data);
     } catch (err) {
-      console.log('error creating new pipeline', err);
+      console.log("error creating new pipeline", err);
     }
   },
 
@@ -73,35 +73,36 @@ const createPipelineSlice = (set, get) => ({
     // going to need a pipeline id as a payload from Pipeline component
     try {
       const { data } = await axios.get(`/api/pipeline/${pipelineId}`);
-      console.log('data from store', data);
+      console.log("data from store", data);
       set({ selectedPipeline: data });
     } catch (err) {
-      console.log('fetch PipelineById error:', err);
+      console.log("fetch PipelineById error:", err);
       set({ selectedPipeline: {} });
     }
   },
 
   moveUserOnPipeline: async (moveObject) => {
     try {
-      await axios.put('/api/pipeline/user_status', moveObject);
-      console.log('user has been moved on the pipeline');
+      await axios.put("/api/pipeline/user_status", moveObject);
+      console.log("user has been moved on the pipeline");
       get().fetchPipelineById(moveObject.pipeline_id);
     } catch (err) {
-      console.error('error moving user through pipeline');
+      console.error("error moving user through pipeline");
     }
   },
 
   deleteUserFromPipeline: async (removeObject) => {
     // use a removeObject looks like this: {userId}
     try {
-      await axios.delete(`api/pipeline/user_status/${removeObject.user_id}/${removeObject.pipeline_status_id}`);
-      console.log('user deleted from the pipeline');
+      await axios.delete(
+        `api/pipeline/user_status/${removeObject.user_id}/${removeObject.pipeline_status_id}`
+      );
+      console.log("user deleted from the pipeline");
       get().fetchPipelineById(removeObject.pipeline_id);
     } catch (err) {
-      console.error('Error deleting user from pipeline:', err);
-      alert('Failed to delete user from pipeline.');
+      console.error("Error deleting user from pipeline:", err);
+      alert("Failed to delete user from pipeline.");
     }
   },
-
 });
 export default createPipelineSlice;

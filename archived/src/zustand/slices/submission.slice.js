@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 const createSubmissionSlice = (set, get) => ({
   currentSubmission: null,
@@ -9,16 +9,16 @@ const createSubmissionSlice = (set, get) => ({
       console.log(`Submission fetched at id ${submissionId}: `, data);
       set({ currentSubmission: data });
     } catch (error) {
-      console.log('Error fetching submission by id.', error);
+      console.log("Error fetching submission by id.", error);
     }
   },
   // note: call this first to get or create the current submission for a given form id
   createOrGetSubmissionByFormId: async (formId) => {
     try {
-      const { data } = await axios.post('/api/submission', { form_id: formId });
+      const { data } = await axios.post("/api/submission", { form_id: formId });
       get().fetchSubmissionById(data.id);
     } catch (error) {
-      console.log('Error posting/finding submission.', error);
+      console.log("Error posting/finding submission.", error);
     }
   },
   saveSubmissionProgress: async (submissionId, answers) => {
@@ -39,15 +39,15 @@ const createSubmissionSlice = (set, get) => ({
       // fetchSubmissionById(submissionId);
       // to do: set current submission to empty when finished
     } catch (error) {
-      console.log('Error completing submission.', error);
+      console.log("Error completing submission.", error);
     }
   },
   deleteSubmission: async (submissionId) => {
     try {
       await axios.delete(`/api/${submissionId}`);
-      console.log('Submissiion successfully deleted.');
+      console.log("Submissiion successfully deleted.");
     } catch (error) {
-      console.log('Error deleting submission', error);
+      console.log("Error deleting submission", error);
     }
   },
 

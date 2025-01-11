@@ -1,5 +1,5 @@
 .home-banner {
-  background-image: url('/2025-banner.jpg');
+  background-image: url("/2025-banner.jpg");
   background-color: #ffffff;
   background-size: contain;
   background-position: center;
@@ -12,7 +12,7 @@
 }
 
 .home-banner::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;

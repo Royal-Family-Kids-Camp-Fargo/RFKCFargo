@@ -1,4 +1,3 @@
-
 const createBotSlice = (set) => ({
   context: [],
   addBotContext: (newContext) => {

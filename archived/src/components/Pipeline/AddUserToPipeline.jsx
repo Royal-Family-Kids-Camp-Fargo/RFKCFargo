@@ -1,8 +1,18 @@
-import { useState } from 'react';
-import { Button, Modal, Form, InputGroup, ListGroup, Card } from 'react-bootstrap';
-import useStore from '../../zustand/store';
+import { useState } from "react";
+import {
+  Button,
+  Modal,
+  Form,
+  InputGroup,
+  ListGroup,
+  Card,
+} from "react-bootstrap";
+import useStore from "../../zustand/store";
 
-export default function AddUserToPipeline({ pipelineId, initialPipelineStatusId }) {
+export default function AddUserToPipeline({
+  pipelineId,
+  initialPipelineStatusId,
+}) {
   const selectedPipelineWithData = useStore((state) => state.selectedPipeline);
   const foundUsers = useStore((state) => state.foundUsers);
   const searchingApplicant = useStore((state) => state.searchingApplicant);
@@ -10,12 +20,12 @@ export default function AddUserToPipeline({ pipelineId, initialPipelineStatusId 
   const addUserStatus = useStore((state) => state.addUserStatus);
   const clearFoundUsers = useStore((state) => state.clearFoundUsers);
   const [showModal, setShowModal] = useState(false);
-  const [searchString, setSearchString] = useState('');
+  const [searchString, setSearchString] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
 
   const closeModal = () => {
     setShowModal(false);
-    setSearchString('');
+    setSearchString("");
     setSelectedUser(null);
     clearFoundUsers();
   };
@@ -31,13 +41,16 @@ export default function AddUserToPipeline({ pipelineId, initialPipelineStatusId 
 
   const addUserToPipeline = (e) => {
     e.preventDefault();
-    if (!selectedPipelineWithData || Object.keys(selectedPipelineWithData).length === 0) {
-      alert('Please select a pipeline');
+    if (
+      !selectedPipelineWithData ||
+      Object.keys(selectedPipelineWithData).length === 0
+    ) {
+      alert("Please select a pipeline");
       return;
     }
 
     if (!selectedUser) {
-      alert('Please select a user');
+      alert("Please select a user");
       return;
     }
 
@@ -47,7 +60,7 @@ export default function AddUserToPipeline({ pipelineId, initialPipelineStatusId 
       pipeline_status_id: initialPipelineStatusId,
     };
     addUserStatus(newUserStatus);
-    setSearchString('');
+    setSearchString("");
     setSelectedUser(null);
     clearFoundUsers();
     setShowModal(false);
@@ -59,50 +72,54 @@ export default function AddUserToPipeline({ pipelineId, initialPipelineStatusId 
       .map((status) => status.applicants)
       .flat()
       .filter((user) => user);
-    console.log('unfilteredUsers', unfilteredUsers);
-    console.log('foundUsers', foundUsers);
-    usersAvailableToAdd = foundUsers.filter((user) => !unfilteredUsers.some((u) => u.id === user.id));
+    console.log("unfilteredUsers", unfilteredUsers);
+    console.log("foundUsers", foundUsers);
+    usersAvailableToAdd = foundUsers.filter(
+      (user) => !unfilteredUsers.some((u) => u.id === user.id)
+    );
   }
 
   return (
     <>
-      <div className='text-center'>
+      <div className="text-center">
         <Button
           onClick={openModal}
-          className='px-5'
+          className="px-5"
           style={{
-            backgroundColor: '#4b0082',
-            borderColor: '#20c997',
-            borderWidth: '1px',
-            color: 'white',
-            minWidth: '200px',
-            boxShadow: '0 0 3px 1px #20c997',
+            backgroundColor: "#4b0082",
+            borderColor: "#20c997",
+            borderWidth: "1px",
+            color: "white",
+            minWidth: "200px",
+            boxShadow: "0 0 3px 1px #20c997",
           }}
         >
           Add User
         </Button>
       </div>
 
-      <Modal show={showModal} onHide={closeModal} size='lg'>
+      <Modal show={showModal} onHide={closeModal} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title style={{ color: '#4b0082' }}>Add User to Pipeline</Modal.Title>
+          <Modal.Title style={{ color: "#4b0082" }}>
+            Add User to Pipeline
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={searchQuery}>
-            <InputGroup className='mb-3'>
+            <InputGroup className="mb-3">
               <Form.Control
-                type='text'
-                placeholder='Search for user'
+                type="text"
+                placeholder="Search for user"
                 value={searchString}
                 onChange={(e) => setSearchString(e.target.value)}
               />
               <Button
-                variant='outline-secondary'
+                variant="outline-secondary"
                 onClick={searchQuery}
-                className='px-4'
+                className="px-4"
                 style={{
-                  borderColor: '#4b0082',
-                  color: '#4b0082',
+                  borderColor: "#4b0082",
+                  color: "#4b0082",
                 }}
               >
                 Search
@@ -118,7 +135,7 @@ export default function AddUserToPipeline({ pipelineId, initialPipelineStatusId 
                   action
                   active={selectedUser?.id === user.id}
                   onClick={() => setSelectedUser(user)}
-                  className='d-flex justify-content-between align-items-center'
+                  className="d-flex justify-content-between align-items-center"
                 >
                   <div>
                     <strong>
@@ -128,7 +145,11 @@ export default function AddUserToPipeline({ pipelineId, initialPipelineStatusId 
                     <small>{user.email}</small>
                   </div>
                   <div>
-                    <Button variant='link' size='sm' onClick={() => setSelectedUser(user)}>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      onClick={() => setSelectedUser(user)}
+                    >
                       Select
                     </Button>
                   </div>
@@ -136,9 +157,11 @@ export default function AddUserToPipeline({ pipelineId, initialPipelineStatusId 
               ))}
             </ListGroup>
           ) : (
-            <Card className='text-center'>
+            <Card className="text-center">
               <Card.Body>
-                <Card.Text>No users found. Try a different search term.</Card.Text>
+                <Card.Text>
+                  No users found. Try a different search term.
+                </Card.Text>
               </Card.Body>
             </Card>
           )}
@@ -147,9 +170,9 @@ export default function AddUserToPipeline({ pipelineId, initialPipelineStatusId 
           <Button
             onClick={addUserToPipeline}
             style={{
-              backgroundColor: '#4b0082',
-              borderColor: '#4b0082',
-              color: 'white',
+              backgroundColor: "#4b0082",
+              borderColor: "#4b0082",
+              color: "white",
             }}
           >
             Add User

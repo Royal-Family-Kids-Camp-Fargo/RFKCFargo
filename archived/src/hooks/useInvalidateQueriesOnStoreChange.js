@@ -1,14 +1,14 @@
-import { useEffect, useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import useStore from '../zustand/store';
-import { queryRefetchConfig } from '../config/queryRefetchConfig';
+import { useEffect, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import useStore from "../zustand/store";
+import { queryRefetchConfig } from "../config/queryRefetchConfig";
 
 const useInvalidateQueriesOnStoreChange = () => {
   const queryClient = useQueryClient();
   const latestEndpoints = useStore((state) => state.latestEndpoints);
 
   const invalidateQueries = useCallback(() => {
-    console.log('latestEndpoints from callback', latestEndpoints);
+    console.log("latestEndpoints from callback", latestEndpoints);
     if (!latestEndpoints || !Array.isArray(latestEndpoints)) {
       return;
     }
@@ -21,7 +21,10 @@ const useInvalidateQueriesOnStoreChange = () => {
             if (!endpoint || !endpoint.path || !endpoint.method) return false;
 
             return path.some((pattern) => {
-              const endpointMethods = endpoint.method.replace(/[\[\]']/g, '').split(',').map(method => method.trim());
+              const endpointMethods = endpoint.method
+                .replace(/[\[\]']/g, "")
+                .split(",")
+                .map((method) => method.trim());
               return (
                 endpoint.path === pattern &&
                 endpointMethods.some((method) => methods.includes(method))

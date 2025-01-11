@@ -1,10 +1,10 @@
-import { Nav, NavDropdown } from 'react-bootstrap';
-import { Link, useLocation } from 'react-router-dom';
-import useStore from '../../zustand/store';
-import { sessionApi } from '../../api/sessions';
-import './Nav.css';
-import settings from '../../config/settings';
-import NavPipeline from './NavPipeline';
+import { Nav, NavDropdown } from "react-bootstrap";
+import { Link, useLocation } from "react-router-dom";
+import useStore from "../../zustand/store";
+import { sessionApi } from "../../api/sessions";
+import "./Nav.css";
+import settings from "../../config/settings";
+import NavPipeline from "./NavPipeline";
 
 function Navigation({ onAuthClick }) {
   const location = useLocation();
@@ -18,7 +18,7 @@ function Navigation({ onAuthClick }) {
       console.log("logging out client");
       setRoleId(settings.nobodyRoleId);
       removeBotContext(`User's location_id is ${role.location_id}`);
-      window.location.href = '/';
+      window.location.href = "/";
     });
   };
 
@@ -26,41 +26,44 @@ function Navigation({ onAuthClick }) {
   const isAdmin = classes && classes.includes(String(settings.adminClassId));
 
   return (
-    <Nav className='w-100 d-flex bg-light'>
+    <Nav className="w-100 d-flex bg-light">
       {isAdmin ? (
         <>
-          <div className='d-lg-flex'>
-            <Nav.Link as={Link} to='/' active={location.pathname === '/'}>
+          <div className="d-lg-flex">
+            <Nav.Link as={Link} to="/" active={location.pathname === "/"}>
               Home
             </Nav.Link>
             <NavPipeline />
-            <Nav.Link as={Link} to='/admin/forms' active={location.pathname === '/admin/forms'}>
+            <Nav.Link
+              as={Link}
+              to="/admin/forms"
+              active={location.pathname === "/admin/forms"}
+            >
               Manage Forms
             </Nav.Link>
           </div>
-          <div className='ms-lg-auto'>
-            <Nav.Link onClick={handleLogout} role='button'>
+          <div className="ms-lg-auto">
+            <Nav.Link onClick={handleLogout} role="button">
               Log Out
             </Nav.Link>
           </div>
         </>
-      ) :
-        isLoggedIn ? (
-          <>
-            <div className='d-lg-flex'>
-              <Nav.Link as={Link} to='/' active={location.pathname === '/'}>
-                Home
-              </Nav.Link>
-            </div>
-            <div className='ms-lg-auto'>
-              <Nav.Link onClick={handleLogout} role='button'>
-                Log Out
-              </Nav.Link>
-            </div>
-          </>
+      ) : isLoggedIn ? (
+        <>
+          <div className="d-lg-flex">
+            <Nav.Link as={Link} to="/" active={location.pathname === "/"}>
+              Home
+            </Nav.Link>
+          </div>
+          <div className="ms-lg-auto">
+            <Nav.Link onClick={handleLogout} role="button">
+              Log Out
+            </Nav.Link>
+          </div>
+        </>
       ) : (
-        <div className='ms-lg-auto'>
-          <Nav.Link onClick={onAuthClick} role='button'>
+        <div className="ms-lg-auto">
+          <Nav.Link onClick={onAuthClick} role="button">
             Login
           </Nav.Link>
         </div>

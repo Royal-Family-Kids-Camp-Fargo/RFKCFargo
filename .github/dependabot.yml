@@ -18,5 +18,4 @@ updates:
       # By default, it would check everything, even in the lock
       - "react*"
       - "redux*"
-      - 
-    
+      -

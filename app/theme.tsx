@@ -1,12 +1,12 @@
-import { createTheme } from '@mui/material/styles';
-import { red } from '@mui/material/colors';
+import { createTheme } from "@mui/material/styles";
+import { red } from "@mui/material/colors";
 
 // A custom theme for this app
 const theme = createTheme({
   cssVariables: true,
   typography: {
     button: {
-      textTransform: 'none',
+      textTransform: "none",
     },
   },
   components: {
@@ -20,10 +20,10 @@ const theme = createTheme({
   },
   palette: {
     primary: {
-      main: '#9268F8',
+      main: "#9268F8",
     },
     secondary: {
-      main: '#19857b',
+      main: "#19857b",
     },
     error: {
       main: red.A400,

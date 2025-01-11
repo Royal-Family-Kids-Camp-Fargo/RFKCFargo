@@ -1,18 +1,18 @@
-import axios from 'axios';
-import settings from '../config/settings';
-import { ApolloClient, InMemoryCache, HttpLink, gql } from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
-import { userApi } from './user';
-import useUserStore from '../zustand/slices/user.slice';
+import axios from "axios";
+import settings from "../config/settings";
+import { ApolloClient, InMemoryCache, HttpLink, gql } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
+import { userApi } from "./user";
+import useUserStore from "../zustand/slices/user.slice";
 
 class SessionApi {
   constructor() {
     this.baseUrl = "https://api.devii.io";
     this.anonymousRoleId = "anonymous"; // Set your anonymous role ID here
-    
+
     const authLink = setContext((_, { headers }) => {
       const token = localStorage.getItem("accessToken");
-      console.log('token:', token);
+      console.log("token:", token);
       return {
         headers: {
           ...headers,
@@ -35,7 +35,7 @@ class SessionApi {
   hasStoredCredentials() {
     const token = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
-    return token && refreshToken
+    return token && refreshToken;
   }
 
   async validateAndRefreshSession() {
@@ -50,7 +50,7 @@ class SessionApi {
       //     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       //   },
       // });
-      
+
       // if (response.status === 200) {
       //   const roleId = this._getRole(response.data.roleid);
       //   return response.data.roleid;
@@ -72,7 +72,11 @@ class SessionApi {
         },
       });
       console.log("refresh session response", response);
-      const { access_token: accessToken, refresh_token: refreshToken, roleid: roleId } = response.data;
+      const {
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        roleid: roleId,
+      } = response.data;
 
       this._setTokens({ accessToken, refreshToken, roleId });
       const role = await this._getRole(roleId);
@@ -90,9 +94,9 @@ class SessionApi {
       await this._createRole(userCredentials, settings.userClassId);
       const tokens = await this.login({
         login: userCredentials.login,
-        password: userCredentials.password, 
+        password: userCredentials.password,
       });
-      
+
       try {
         await userApi.create({
           email: userCredentials.login,
@@ -105,7 +109,6 @@ class SessionApi {
         this._deleteRole(tokens.roleId);
         throw new Error("User not created", error);
       }
-      
 
       return tokens;
     } catch (error) {
@@ -139,13 +142,12 @@ class SessionApi {
         tenantid: settings.tenantId,
       });
       const role = await this._getRole(tokens.roleId);
-  
+
       return { ...tokens, ...role };
     } catch (error) {
       console.error("Login Error:", error);
       throw error;
     }
-
   }
 
   async _getRole(roleId) {
@@ -172,7 +174,11 @@ class SessionApi {
     try {
       const response = await axios.post(`${this.baseUrl}/${url}`, vars);
 
-      const { access_token: accessToken, refresh_token: refreshToken, roleid: roleId } = response.data;
+      const {
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        roleid: roleId,
+      } = response.data;
 
       this._setTokens({ accessToken, refreshToken });
 
@@ -240,7 +246,7 @@ class SessionApi {
         mutation,
         variables,
       });
-      return response.data
+      return response.data;
     } catch (error) {
       console.error("Role Deletion Error:", error);
       throw error;

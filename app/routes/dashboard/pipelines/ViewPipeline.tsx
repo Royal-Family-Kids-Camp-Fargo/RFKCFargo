@@ -21,7 +21,12 @@ import type { Route } from "../+types/dashboard";
 import StatusColumn from "~/components/statusColumn";
 
 // Define the loader function
-export const clientLoader = async ({ params }: Route.ClientLoaderArgs): Promise<{pipeline: Pipeline, pipelineStatuses: PipelineStatus[]}> => {
+export const clientLoader = async ({
+  params,
+}: Route.ClientLoaderArgs): Promise<{
+  pipeline: Pipeline;
+  pipelineStatuses: PipelineStatus[];
+}> => {
   const { pipelineId } = params;
   if (!pipelineId) {
     throw new Error("Pipeline ID is required");
@@ -37,13 +42,13 @@ export const clientLoader = async ({ params }: Route.ClientLoaderArgs): Promise<
     }),
   ]);
 
-  return { 
-    pipeline: pipelineRes.data, 
-    pipelineStatuses: pipelineStatusesRes.data 
+  return {
+    pipeline: pipelineRes.data,
+    pipelineStatuses: pipelineStatusesRes.data,
   };
 };
 
-export default function ViewPipeline({loaderData}: {loaderData: any}) {
+export default function ViewPipeline({ loaderData }: { loaderData: any }) {
   const { pipeline, pipelineStatuses } = loaderData as {
     pipeline: Pipeline;
     pipelineStatuses: PipelineStatus[];
@@ -55,7 +60,7 @@ export default function ViewPipeline({loaderData}: {loaderData: any}) {
   const { pipelineId } = useParams();
   const [globalSearchTerm, setGlobalSearchTerm] = useState("");
   const queryClient = useQueryClient();
-  
+
   // For adding more context to your AI store
   const addBotContext = botContextStore.addContext;
   const removeBotContext = botContextStore.removeContext;
@@ -69,7 +74,10 @@ export default function ViewPipeline({loaderData}: {loaderData: any}) {
       queryClient.setQueryData(["pipeline", pipelineId], pipeline);
     }
     if (pipelineStatuses) {
-      queryClient.setQueryData(["pipelineStatuses", pipelineId], pipelineStatuses);
+      queryClient.setQueryData(
+        ["pipelineStatuses", pipelineId],
+        pipelineStatuses
+      );
     }
   }, [pipeline, pipelineStatuses, pipelineId, queryClient]);
 
@@ -139,7 +147,9 @@ export default function ViewPipeline({loaderData}: {loaderData: any}) {
   if (pipelineError || statusesError) {
     return (
       <Container>
-        <Typography color="error">Error loading pipeline or statuses.</Typography>
+        <Typography color="error">
+          Error loading pipeline or statuses.
+        </Typography>
       </Container>
     );
   }
@@ -174,7 +184,9 @@ export default function ViewPipeline({loaderData}: {loaderData: any}) {
           input: {
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon sx={{ fontSize: { xs: "1.25rem", sm: "1.5rem" } }} />
+                <SearchIcon
+                  sx={{ fontSize: { xs: "1.25rem", sm: "1.5rem" } }}
+                />
               </InputAdornment>
             ),
           },

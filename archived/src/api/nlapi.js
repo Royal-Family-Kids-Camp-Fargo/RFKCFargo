@@ -12,7 +12,7 @@ const sendNlapiRequest = async (
   userInput,
   context,
   threadId,
-  options,
+  options
 ) => {
   const response = await fetch("https://api.nlapi.io/nlapi", {
     method: "POST",

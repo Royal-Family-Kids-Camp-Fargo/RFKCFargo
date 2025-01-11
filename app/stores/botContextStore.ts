@@ -6,7 +6,7 @@ export const botContextStore = {
     context.push(ctx);
   },
   removeContext: (ctx: string) => {
-    context = context.filter(c => c !== ctx);
+    context = context.filter((c) => c !== ctx);
   },
   clearContext: () => {
     context = [];

@@ -8,15 +8,14 @@ export type Pipeline = {
 };
 
 class PipelineApi extends BaseApi {
-  protected get model() { return "pipeline"; }
-  protected get path() { return "/query"; }
-  protected get fields() { 
-    return [
-      "id",
-      "name",
-      "type",
-      "location_id"
-    ];
+  protected get model() {
+    return "pipeline";
+  }
+  protected get path() {
+    return "/query";
+  }
+  protected get fields() {
+    return ["id", "name", "type", "location_id"];
   }
 }
 

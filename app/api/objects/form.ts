@@ -10,18 +10,22 @@ export type Form = {
 };
 
 class FormApi extends BaseApi {
-  protected get model() { return "forms"; }
-  protected get path() { return "/query"; }
-  protected get fields() { 
+  protected get model() {
+    return "forms";
+  }
+  protected get path() {
+    return "/query";
+  }
+  protected get fields() {
     return [
-        "id",
-        "name",
-        "location_id",
-        "archived",
-        "locationId",
-        "pipelineId",
-        ];
-    }
+      "id",
+      "name",
+      "location_id",
+      "archived",
+      "locationId",
+      "pipelineId",
+    ];
+  }
 }
 
 const formApi = new FormApi();
