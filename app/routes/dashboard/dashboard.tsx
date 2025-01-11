@@ -42,26 +42,16 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   return { user, pipelines: pipelines.data, forms: forms.data };
 }
 
-export const DashboardContext = createContext<{
-  isNavOpen: boolean;
-  setIsNavOpen: (open: boolean) => void;
-}>({
-  isNavOpen: true,
-  setIsNavOpen: () => {},
-});
-
-export const useDashboard = () => useContext(DashboardContext);
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [isNavOpen, setIsNavOpen] = useState(!isMobile);
-
+  const [isNavOpen, setIsNavOpen] = useState(false);
   if ('user' in loaderData) {
     const { user, pipelines, forms } = loaderData as LoaderData;
 
     return (
-      <DashboardContext.Provider value={{ isNavOpen, setIsNavOpen }}>
+      <>
         <TopNav user={user}>
           {isMobile && (
             <IconButton
@@ -78,12 +68,18 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         <Box sx={{ display: 'flex', border: '1px solid green' }} flexGrow={1}>
           <Box
             sx={{
-              display: isNavOpen ? 'block' : 'none',
               position: { xs: 'absolute', md: 'static' },
               height: { xs: 'calc(100vh - 64px)', md: 'auto' },
               backgroundColor: 'background.paper',
               zIndex: { xs: 1200, md: 'auto' },
               boxShadow: { xs: 4, md: 0 },
+              right: { xs: 0, md: 'auto' },
+              transition: 'transform 0.3s ease-in-out',
+              transform: {
+                xs: isNavOpen ? 'translateX(0)' : 'translateX(100%)',
+                md: 'none'
+              },
+              width: { xs: '240px', md: 'auto' },
             }}
           >
             <DashNav pipelines={pipelines} forms={forms} />
@@ -93,7 +89,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
             <Outlet />
           </Box>
         </Box>
-      </DashboardContext.Provider>
+      </>
     );
   }
   return <div>Loading...</div>;

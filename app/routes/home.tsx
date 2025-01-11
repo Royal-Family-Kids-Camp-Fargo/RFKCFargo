@@ -1,5 +1,8 @@
 import type { Route } from './+types/home';
 import { Box, Container, Typography, Grid2, Card, CardContent, Button } from '@mui/material';
+import { TopNav } from '../components/TopNav';
+import { authStore } from '../stores/authStore';
+import { NavLink } from 'react-router';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,7 +12,15 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
+  const user = authStore.getUser();
+  
   return (
+    <>
+      <TopNav user={user} >
+        <NavLink to="/sign-in">
+          Sign In
+        </NavLink>
+      </TopNav>
     <Container maxWidth={false}>
       <Box
         sx={{
@@ -144,8 +155,9 @@ export default function Home() {
               </Button>
             </CardContent>
           </Card>
+          </Grid2>
         </Grid2>
-      </Grid2>
-    </Container>
+      </Container>
+    </>
   );
 }

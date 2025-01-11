@@ -13,29 +13,42 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import pipelineApi from "~/api/objects/pipeline";
+import type { Pipeline } from "~/api/objects/pipeline";
 import pipelineStatusApi from "~/api/objects/pipelineStatus";
+import type { PipelineStatus } from "~/api/objects/pipelineStatus";
 import { botContextStore } from "~/stores/botContextStore";
 import type { Route } from "../+types/dashboard";
 import StatusColumn from "~/components/statusColumn";
 
 // Define the loader function
-export const clientLoader = async ({ params }: Route.ClientLoaderArgs) => {
+export const clientLoader = async ({ params }: Route.ClientLoaderArgs): Promise<{pipeline: Pipeline, pipelineStatuses: PipelineStatus[]}> => {
   const { pipelineId } = params;
   if (!pipelineId) {
     throw new Error("Pipeline ID is required");
   }
 
-  const pipelineStatuses = await pipelineStatusApi.getAll({
-    filter: `pipeline_id = ${pipelineId}`,
-    limit: 25,
-    offset: 0,
-    ordering: "created_at",
-  });
+  const [pipelineRes, pipelineStatusesRes] = await Promise.all([
+    pipelineApi.get(pipelineId as string, null),
+    pipelineStatusApi.getAll({
+      filter: `pipeline_id = ${pipelineId}`,
+      limit: 25,
+      offset: 0,
+      ordering: "created_at",
+    }),
+  ]);
 
-  return { pipelineStatuses: pipelineStatuses.data };
+  return { 
+    pipeline: pipelineRes.data, 
+    pipelineStatuses: pipelineStatusesRes.data 
+  };
 };
 
-export default function ViewPipeline() {
+export default function ViewPipeline({loaderData}: {loaderData: any}) {
+  const { pipeline, pipelineStatuses } = loaderData as {
+    pipeline: Pipeline;
+    pipelineStatuses: PipelineStatus[];
+  };
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -50,9 +63,19 @@ export default function ViewPipeline() {
   // Track ephemeral board state (e.g., statuses with user arrays).
   const [boardData, setBoardData] = useState<any[]>([]);
 
-  // Fetch pipeline data
+  // Hydrate React Query cache with preloaded data
+  useEffect(() => {
+    if (pipeline) {
+      queryClient.setQueryData(["pipeline", pipelineId], pipeline);
+    }
+    if (pipelineStatuses) {
+      queryClient.setQueryData(["pipelineStatuses", pipelineId], pipelineStatuses);
+    }
+  }, [pipeline, pipelineStatuses, pipelineId, queryClient]);
+
+  // Now you can use `useQuery` with `initialData` from the cache
   const {
-    data: pipeline,
+    data: pipelineData,
     isLoading: pipelineLoading,
     error: pipelineError,
   } = useQuery({
@@ -61,9 +84,8 @@ export default function ViewPipeline() {
     enabled: !!pipelineId,
   });
 
-  // Fetch statuses for pipeline
   const {
-    data: pipelineStatuses,
+    data: pipelineStatusesData,
     isLoading: statusesLoading,
     error: statusesError,
     isSuccess: statusesSuccess,
@@ -83,10 +105,10 @@ export default function ViewPipeline() {
 
   // Update boardData when query is successful
   useEffect(() => {
-    if (statusesSuccess && pipelineStatuses) {
-      setBoardData(pipelineStatuses);
+    if (statusesSuccess && pipelineStatusesData) {
+      setBoardData(pipelineStatusesData);
     }
-  }, [statusesSuccess, pipelineStatuses]);
+  }, [statusesSuccess, pipelineStatusesData]);
 
   useEffect(() => {
     if (pipelineId) {
@@ -132,7 +154,7 @@ export default function ViewPipeline() {
             fontSize: { xs: "1.5rem", sm: "2.125rem" },
           }}
         >
-          {pipeline?.name ? `${pipeline.name} Pipeline` : "Pipeline"}
+          {pipelineData?.name ? `${pipelineData.name} Pipeline` : "Pipeline"}
         </Typography>
       </Box>
 
