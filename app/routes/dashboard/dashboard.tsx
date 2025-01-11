@@ -7,6 +7,7 @@ import {
   IconButton,
   useMediaQuery,
   useTheme,
+  Drawer,
 } from "@mui/material";
 import { TopNav } from "~/components/TopNav";
 import DashNav from "~/components/DashNav";
@@ -53,6 +54,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [isNavOpen, setIsNavOpen] = useState(false);
+
   if ("user" in loaderData) {
     const { user, pipelines, forms } = loaderData as LoaderData;
 
@@ -64,36 +66,37 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
               color="inherit"
               edge="start"
               onClick={() => setIsNavOpen(!isNavOpen)}
-              sx={{ mr: 2 }}
             >
               <MenuIcon />
             </IconButton>
           )}
         </TopNav>
         <Divider />
-        <Box sx={{ display: "flex", border: "1px solid green" }} flexGrow={1}>
-          <Box
+
+        {isMobile && (
+          <Drawer
+            anchor="right"
+            open={isNavOpen}
+            onClose={() => setIsNavOpen(false)}
+            variant="temporary"
             sx={{
-              position: { xs: "absolute", md: "static" },
-              height: { xs: "calc(100vh - 64px)", md: "auto" },
-              backgroundColor: "background.paper",
-              zIndex: { xs: 1200, md: "auto" },
-              boxShadow: { xs: 4, md: 0 },
-              right: { xs: 0, md: "auto" },
-              transition: "transform 0.3s ease-in-out",
-              transform: {
-                xs: isNavOpen ? "translateX(0)" : "translateX(100%)",
-                md: "none",
+              "& .MuiDrawer-paper": {
+                width: 240,
               },
-              width: { xs: "240px", md: "auto" },
             }}
           >
             <DashNav pipelines={pipelines} forms={forms} />
+          </Drawer>
+        )}
+
+        {!isMobile && (
+          <Box sx={{ width: 240, flexShrink: 0 }}>
+            <DashNav pipelines={pipelines} forms={forms} />
           </Box>
-          <Divider orientation="vertical" flexItem />
-          <Box component="main" flexGrow={1}>
-            <Outlet />
-          </Box>
+        )}
+
+        <Box flexGrow={1}>
+          <Outlet />
         </Box>
       </>
     );

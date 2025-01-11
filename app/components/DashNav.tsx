@@ -16,6 +16,7 @@ import { Link, useLocation, useNavigate, useLoaderData } from "react-router";
 import { useState } from "react";
 import pipelineApi, { type Pipeline } from "~/api/objects/pipeline";
 import formApi, { type Form } from "~/api/objects/form";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 // Loader function to fetch both pipelines and forms
 export async function loader() {
@@ -51,6 +52,14 @@ export default function DashNav({ pipelines, forms, ...props }: DashNavProps) {
   return (
     <Box {...props}>
       <List>
+        <ListItem>
+          <ListItemButton onClick={() => navigate("/dashboard")}>
+            <ListItemIcon>
+              {/* <ArrowForwardIcon /> */}
+            </ListItemIcon>
+            <ListItemText primary="" />
+          </ListItemButton>
+        </ListItem>
         <ListItem>
           <ListItemButton onClick={() => setOpenPipelines(!openPipelines)}>
             <ListItemIcon>
