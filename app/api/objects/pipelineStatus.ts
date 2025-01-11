@@ -1,12 +1,14 @@
 import { BaseApi } from "./base.js";
 import { inheritFields } from "~/utils/objects.js";
-import { UserApi } from "./user.js";
+import { UserPipelineStatusApi } from "./userPipelineStatus.js";
+import type { UserPipelineStatus } from "./userPipelineStatus.js";
 
 export type PipelineStatus = {
   id: string;
   order: number;
   pipeline_id: string;
   name: string;
+  user_pipeline_status_collection: UserPipelineStatus[];
 };
 
 class PipelineStatusApi extends BaseApi {
@@ -19,7 +21,10 @@ class PipelineStatusApi extends BaseApi {
       "order",
       "pipeline_id",
       "name",
-      ...inheritFields(new UserApi(), "user_collection"),
+      ...inheritFields(
+        new UserPipelineStatusApi(),
+        "user_pipeline_status_collection"
+      ),
     ];
   }
   protected get path() {

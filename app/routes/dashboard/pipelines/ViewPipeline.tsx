@@ -18,7 +18,18 @@ import pipelineStatusApi from "~/api/objects/pipelineStatus";
 import type { PipelineStatus } from "~/api/objects/pipelineStatus";
 import { botContextStore } from "~/stores/botContextStore";
 import type { Route } from "../+types/dashboard";
-import StatusColumn from "~/components/statusColumn";
+import StatusColumn from "~/components/pipeline/statusColumn";
+import type { StatusIds } from "~/components/pipeline/userCard";
+
+const getPipelineStatuses = async (pipelineId: string) => {
+  const res = await pipelineStatusApi.getAll({
+    filter: `pipeline_id = ${pipelineId}`,
+    limit: 25,
+    offset: 0,
+    ordering: "order asc",
+  });
+  return res || { data: [] };
+};
 
 // Define the loader function
 export const clientLoader = async ({
@@ -34,12 +45,7 @@ export const clientLoader = async ({
 
   const [pipelineRes, pipelineStatusesRes] = await Promise.all([
     pipelineApi.get(pipelineId as string, null),
-    pipelineStatusApi.getAll({
-      filter: `pipeline_id = ${pipelineId}`,
-      limit: 25,
-      offset: 0,
-      ordering: "created_at",
-    }),
+    getPipelineStatuses(pipelineId as string),
   ]);
 
   return {
@@ -54,12 +60,11 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
     pipelineStatuses: PipelineStatus[];
   };
 
+
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { pipelineId } = useParams();
   const [globalSearchTerm, setGlobalSearchTerm] = useState("");
-  const queryClient = useQueryClient();
 
   // For adding more context to your AI store
   const addBotContext = botContextStore.addContext;
@@ -67,19 +72,6 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
 
   // Track ephemeral board state (e.g., statuses with user arrays).
   const [boardData, setBoardData] = useState<any[]>([]);
-
-  // Hydrate React Query cache with preloaded data
-  useEffect(() => {
-    if (pipeline) {
-      queryClient.setQueryData(["pipeline", pipelineId], pipeline);
-    }
-    if (pipelineStatuses) {
-      queryClient.setQueryData(
-        ["pipelineStatuses", pipelineId],
-        pipelineStatuses
-      );
-    }
-  }, [pipeline, pipelineStatuses, pipelineId, queryClient]);
 
   // Now you can use `useQuery` with `initialData` from the cache
   const {
@@ -90,6 +82,7 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
     queryKey: ["pipeline", pipelineId],
     queryFn: () => pipelineApi.get(pipelineId as string, null),
     enabled: !!pipelineId,
+    initialData: pipeline,
   });
 
   const {
@@ -98,23 +91,17 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
     error: statusesError,
     isSuccess: statusesSuccess,
   } = useQuery({
-    queryKey: ["pipelineStatuses", pipelineId],
-    queryFn: async () => {
-      const res = await pipelineStatusApi.getAll({
-        filter: `pipeline_id = ${pipelineId}`,
-        limit: 25,
-        offset: 0,
-        ordering: "created_at",
-      });
-      return res.data || [];
-    },
+    queryKey: ["pipelineStatuses"],
+    queryFn: () => getPipelineStatuses(pipelineId as string),
     enabled: !!pipelineId,
+    initialData: pipelineStatuses,
   });
 
   // Update boardData when query is successful
   useEffect(() => {
     if (statusesSuccess && pipelineStatusesData) {
-      setBoardData(pipelineStatusesData);
+      setBoardData(pipelineStatusesData.data);
+      console.log("boardData", pipelineStatusesData.data);
     }
   }, [statusesSuccess, pipelineStatusesData]);
 
@@ -131,10 +118,20 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
     setGlobalSearchTerm(value.toLowerCase());
   };
 
-  let initialPipelineStatusId = null;
-  if (boardData.length > 0) {
-    initialPipelineStatusId = boardData[0].id;
-  }
+  const getAdjacentStatusIds = (currentStatusId: string): StatusIds => {
+    const currentIndex = boardData.findIndex(
+      (status) => status.id === currentStatusId
+    );
+    return {
+      previousStatusId:
+        currentIndex > 0 ? boardData[currentIndex - 1].id : null,
+      currentStatusId: currentStatusId,
+      nextStatusId:
+        currentIndex < boardData.length - 1
+          ? boardData[currentIndex + 1].id
+          : null,
+    };
+  };
 
   if (pipelineLoading || statusesLoading) {
     return (
@@ -233,6 +230,8 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
               key={status.id}
               status={status}
               globalSearchTerm={globalSearchTerm}
+              statusIds={getAdjacentStatusIds(status.id)}
+              pipelineId={pipelineData.id as string}
             />
           ))
         ) : (

@@ -209,21 +209,40 @@ export abstract class BaseApi {
    * @param {Partial<T>} input - The fields to update
    * @returns {Promise<T & BaseModelFields>} The updated record
    */
-  async update(id: string, input: any) {
-    const mutation = gql`
-            mutation Update${this.model}($id: ID!, $input: ${
-      this.model
-    }Input!) {
-                update_${this.model}(id: $id, input: $input) {
-                    ${this.formatFields(this.fields)}
-                }
-            }
-        `;
-
+  async update(id: string | Record<string, string>, input: any) {
+    console.log("id", id);
+    let id_string = "";
+    let id_vars = "";
+    let id_values: any = {};
+    if (typeof id === "string") {
+      id_string = `$id: ID!`;
+      id_vars = `id: $id`;
+      id_values = { id };
+    } else {
+      id_string = Object.entries(id)
+        .map(([key, value]) => `$${key}: ID!`)
+        .join(", ");
+      id_vars = Object.entries(id)
+        .map(([key, value]) => `${key}: $${key}`)
+        .join(", ");
+      id_values = id;
+    }
+    console.log("id_values", id_values);
     try {
+      const mutation = gql`
+        mutation Update${this.model}(${id_string}, $input: ${
+        this.model
+      }Input!) {
+          update_${this.model}(${id_vars}, input: $input) {
+            ${this.formatFields(this.fields)}
+          }
+        }
+      `;
+      console.log("mutation", mutation);
+      console.log("id_values", mutation, id_values, input);
       const response = await this.client.mutate({
         mutation,
-        variables: { id, input },
+        variables: { ...id_values, input },
       });
       return response.data[`update_${this.model}`];
     } catch (error) {

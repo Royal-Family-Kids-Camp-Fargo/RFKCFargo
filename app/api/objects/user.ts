@@ -1,6 +1,7 @@
 import { BaseApi } from "./base.js";
 import { RoleApi } from "./role.js";
 import type { Role } from "./role.js";
+import type { UserPipelineStatus } from "./userPipelineStatus.js";
 
 export type UserBase = {
   id: string;
@@ -16,6 +17,7 @@ export type User = UserBase & {
   updated_at: string;
   assigned_to?: UserBase;
   role: Role;
+  user_pipeline_status_collection: UserPipelineStatus[];
 };
 
 export class UserApi extends BaseApi {
@@ -39,6 +41,7 @@ export class UserApi extends BaseApi {
       "user.email",
       "user.first_name",
       "user.last_name",
+      "user_pipeline_status_collection.pipeline_status_id",
     ];
   }
   roleApi: RoleApi;
