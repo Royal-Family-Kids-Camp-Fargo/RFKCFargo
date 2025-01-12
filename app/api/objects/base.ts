@@ -7,6 +7,11 @@ import { setContext } from "@apollo/client/link/context";
 import { settings } from "../../config/settings";
 import { authStore } from "../../stores/authStore";
 
+export type ApiError = {
+  message: string;
+  status: number;
+};
+
 /**
  * @typedef {Object} BaseModelFields
  * @property {string} id - The unique identifier
@@ -131,7 +136,10 @@ export abstract class BaseApi {
    * @param {string} id - The ID of the record to fetch
    * @returns {Promise<BaseModelFields>} The fetched record
    */
-  async get(id: string | null = null, filter: string | null = null) {
+  async get(
+    id: string | null = null,
+    filter: string | null = null
+  ): Promise<any | ApiError> {
     if (id !== null) {
       filter = `id = "${id}"`;
     }
@@ -154,7 +162,14 @@ export abstract class BaseApi {
       return response.data[this.model][0];
     } catch (error) {
       console.error(`Error fetching ${this.model}:`, error);
-      throw error;
+      let status = 400;
+      if (String(error).includes("expired")) {
+        status = 401;
+      }
+      return {
+        message: `Error fetching ${this.model}: ${error}`,
+        status: status,
+      };
     }
   }
 

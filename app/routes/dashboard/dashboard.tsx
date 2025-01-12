@@ -18,6 +18,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useState, createContext, useContext } from "react";
 import type { User } from "~/api/objects/user";
 import userApi from "~/api/objects/user";
+import ChatBubble from "~/components/chat/ChatBubble";
 
 type LoaderData = {
   user: User;
@@ -37,7 +38,14 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   }
   if (!user) {
     console.log("Getting user");
-    user = await userApi.get(auth.roleid);
+    const result = await userApi.get(auth.roleid);
+    if ("message" in result) {
+      console.error("Error getting user", result);
+      authStore.logout();
+      return redirect("/sign-in");
+    }
+    user = result;
+    console.log("user", user);
     authStore.setUser(user);
   }
 
@@ -97,6 +105,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
 
         <Box flexGrow={1}>
           <Outlet />
+          <ChatBubble />
         </Box>
       </>
     );

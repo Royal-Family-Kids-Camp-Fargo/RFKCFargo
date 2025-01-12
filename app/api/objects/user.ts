@@ -56,6 +56,9 @@ export class UserApi extends BaseApi {
       super.get(null, `devii_roleid = "${roleId}"`),
       this.roleApi.get(roleId),
     ]);
+    if (result instanceof Error) {
+      return result;
+    }
     return { ...result, role } as User;
   }
 }

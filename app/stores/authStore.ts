@@ -22,10 +22,14 @@ export const authStore = {
   }) => {
     auth = { access_token, roleid };
   },
+  logout: () => {
+    auth = undefined;
+    user = undefined;
+    localStorage.removeItem("auth");
+  },
   getUser: () => user,
   setUser: (dev: User) => {
     user = dev;
-    localStorage.setItem("user", JSON.stringify(dev));
   },
   clear: () => {
     auth = undefined;
