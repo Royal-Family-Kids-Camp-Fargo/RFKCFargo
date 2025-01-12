@@ -4,7 +4,15 @@ let auth: { access_token: string; roleid: string } | undefined = undefined;
 let user: User | undefined = undefined;
 
 export const authStore = {
-  getAuth: () => auth,
+  getAuth: () => {
+    if (!auth) {
+      const storedAuth = localStorage.getItem('auth');
+      if (storedAuth) {
+        auth = JSON.parse(storedAuth);
+      }
+    }
+    return auth;
+  },
   setAuth: ({
     access_token,
     roleid,
