@@ -34,7 +34,10 @@ export abstract class BaseApi {
   private initializeClient() {
     const authLink = setContext((_, { headers }) => {
       const auth = authStore.getAuth();
-      console.log("auth in client base", auth);
+      console.log("Auth object:", auth);
+      if (!auth || !auth.access_token) {
+        console.error("No valid token found");
+      }
       return {
         headers: {
           ...headers,
@@ -156,11 +159,12 @@ export abstract class BaseApi {
   }
 
   async getAll(
-    pagination = { limit: 10, offset: 0, ordering: "", filter: "" }
+    pagination = { limit: 10, offset: 0, ordering: "", filter: "" },
+    field_to_count = "id"
   ) {
     console.log("pagination", pagination);
     console.log("this.model", this.model);
-    const subquery = `query{ ${this.model} { id } }`;
+    const subquery = `query{ ${this.model} { ${field_to_count} } }`;
     const query = gql`
             query GetAll${
               this.model

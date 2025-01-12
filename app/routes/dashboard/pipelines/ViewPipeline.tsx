@@ -20,15 +20,42 @@ import { botContextStore } from "~/stores/botContextStore";
 import type { Route } from "../+types/dashboard";
 import StatusColumn from "~/components/pipeline/statusColumn";
 import type { StatusIds } from "~/components/pipeline/userCard";
+import type { UserPipelineStatus } from "~/api/objects/userPipelineStatus";
+import userPipelineStatusApi from "~/api/objects/userPipelineStatus";
 
-const getPipelineStatuses = async (pipelineId: string) => {
-  const res = await pipelineStatusApi.getAll({
-    filter: `pipeline_id = ${pipelineId}`,
-    limit: 25,
-    offset: 0,
-    ordering: "order asc",
-  });
-  return res || { data: [] };
+// type UserPipelineStatus = {
+//   id: string;
+//   name: string;
+//   email: string;
+//   pipeline_status_id: string;
+//   assigned_to: string;
+// };
+
+type BoardData = Record<string, UserPipelineStatus>;
+
+const getUserPipelineStatuses = async (
+  pipelineId: string
+): Promise<BoardData> => {
+  const res = await userPipelineStatusApi.getAll(
+    {
+      filter: `pipeline_id = ${pipelineId}`,
+      limit: 1000,
+      offset: 0,
+      ordering: "order asc",
+    },
+    "user_id"
+  );
+
+  // Transform the response data to match the BoardData structure
+  const users_hash = res.data.reduce(
+    (acc: Record<string, UserPipelineStatus>, user: UserPipelineStatus) => {
+      acc[user.user.id] = user;
+      return acc;
+    },
+    {}
+  );
+
+  return { ...users_hash };
 };
 
 // Define the loader function
@@ -36,30 +63,31 @@ export const clientLoader = async ({
   params,
 }: Route.ClientLoaderArgs): Promise<{
   pipeline: Pipeline;
-  pipelineStatuses: PipelineStatus[];
+  userPipelineStatuses: BoardData;
 }> => {
   const { pipelineId } = params;
   if (!pipelineId) {
     throw new Error("Pipeline ID is required");
   }
 
-  const [pipelineRes, pipelineStatusesRes] = await Promise.all([
+  const [pipelineRes, userPipelineStatusesRes] = await Promise.all([
     pipelineApi.get(pipelineId as string, null),
-    getPipelineStatuses(pipelineId as string),
+    getUserPipelineStatuses(pipelineId as string),
   ]);
 
+  console.log("clientLoader userPipelineStatusesRes", userPipelineStatusesRes);
+
   return {
-    pipeline: pipelineRes.data,
-    pipelineStatuses: pipelineStatusesRes.data,
+    pipeline: pipelineRes,
+    userPipelineStatuses: userPipelineStatusesRes,
   };
 };
 
 export default function ViewPipeline({ loaderData }: { loaderData: any }) {
-  const { pipeline, pipelineStatuses } = loaderData as {
+  const { pipeline, userPipelineStatuses } = loaderData as {
     pipeline: Pipeline;
-    pipelineStatuses: PipelineStatus[];
+    userPipelineStatuses: BoardData;
   };
-
 
   const theme = useTheme();
 
@@ -71,7 +99,7 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
   const removeBotContext = botContextStore.removeContext;
 
   // Track ephemeral board state (e.g., statuses with user arrays).
-  const [boardData, setBoardData] = useState<any[]>([]);
+  const [boardData, setBoardData] = useState<BoardData>(userPipelineStatuses);
 
   // Now you can use `useQuery` with `initialData` from the cache
   const {
@@ -81,29 +109,35 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
   } = useQuery({
     queryKey: ["pipeline", pipelineId],
     queryFn: () => pipelineApi.get(pipelineId as string, null),
-    enabled: !!pipelineId,
     initialData: pipeline,
   });
 
   const {
-    data: pipelineStatusesData,
+    data: userPipelineStatusesData,
     isLoading: statusesLoading,
     error: statusesError,
     isSuccess: statusesSuccess,
   } = useQuery({
     queryKey: ["pipelineStatuses"],
-    queryFn: () => getPipelineStatuses(pipelineId as string),
-    enabled: !!pipelineId,
-    initialData: pipelineStatuses,
+    queryFn: () => getUserPipelineStatuses(pipelineId as string),
+    initialData: userPipelineStatuses,
   });
+
+  // Function to fetch and cache a single status
+  // const useStatus = (statusId: string) => {
+  //   return useQuery({
+  //     queryKey: ["status", statusId],
+  //     queryFn: () => getStatusById(statusId),
+  //     enabled: !!statusId,
+  //   });
+  // };
 
   // Update boardData when query is successful
   useEffect(() => {
-    if (statusesSuccess && pipelineStatusesData) {
-      setBoardData(pipelineStatusesData.data);
-      console.log("boardData", pipelineStatusesData.data);
+    if (statusesSuccess && userPipelineStatusesData) {
+      setBoardData(userPipelineStatusesData);
     }
-  }, [statusesSuccess, pipelineStatusesData]);
+  }, [statusesSuccess, userPipelineStatusesData]);
 
   useEffect(() => {
     if (pipelineId) {
@@ -119,16 +153,20 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
   };
 
   const getAdjacentStatusIds = (currentStatusId: string): StatusIds => {
-    const currentIndex = boardData.findIndex(
-      (status) => status.id === currentStatusId
+    const pipelineStatuses = [...pipelineData.pipeline_status_collection].sort(
+      (a: PipelineStatus, b: PipelineStatus) => a.order - b.order
     );
+    const currentIndex = pipelineStatuses.findIndex(
+      (status: PipelineStatus) => status.id === currentStatusId
+    );
+
     return {
       previousStatusId:
-        currentIndex > 0 ? boardData[currentIndex - 1].id : null,
+        currentIndex > 0 ? pipelineStatuses[currentIndex - 1].id : null,
       currentStatusId: currentStatusId,
       nextStatusId:
-        currentIndex < boardData.length - 1
-          ? boardData[currentIndex + 1].id
+        currentIndex < pipelineStatuses.length - 1
+          ? pipelineStatuses[currentIndex + 1].id
           : null,
     };
   };
@@ -224,16 +262,22 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
           },
         }}
       >
-        {boardData && boardData.length > 0 ? (
-          boardData.map((status: any) => (
-            <StatusColumn
-              key={status.id}
-              status={status}
-              globalSearchTerm={globalSearchTerm}
-              statusIds={getAdjacentStatusIds(status.id)}
-              pipelineId={pipelineData.id as string}
-            />
-          ))
+        {pipelineData && pipelineData.pipeline_status_collection.length > 0 ? (
+          [...pipelineData.pipeline_status_collection]
+            .sort((a: PipelineStatus, b: PipelineStatus) => a.order - b.order)
+            .map((status: PipelineStatus) => (
+              <StatusColumn
+                key={status.id}
+                status={status}
+                userPipelineStatuses={Object.values(boardData).filter(
+                  (user: UserPipelineStatus) =>
+                    user.pipeline_status_id == status.id
+                )}
+                globalSearchTerm={globalSearchTerm}
+                statusIds={getAdjacentStatusIds(status.id)}
+                pipelineId={pipelineData.id as string}
+              />
+            ))
         ) : (
           <Box sx={{ textAlign: "center", mt: 4, width: "100%" }}>
             <Typography sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>

@@ -6,7 +6,7 @@ let user: User | undefined = undefined;
 export const authStore = {
   getAuth: () => {
     if (!auth) {
-      const storedAuth = localStorage.getItem('auth');
+      const storedAuth = localStorage.getItem("auth");
       if (storedAuth) {
         auth = JSON.parse(storedAuth);
       }

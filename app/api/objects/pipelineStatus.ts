@@ -8,24 +8,14 @@ export type PipelineStatus = {
   order: number;
   pipeline_id: string;
   name: string;
-  user_pipeline_status_collection: UserPipelineStatus[];
 };
 
-class PipelineStatusApi extends BaseApi {
+export class PipelineStatusApi extends BaseApi {
   protected get model() {
     return "pipeline_status";
   }
   protected get fields() {
-    return [
-      "id",
-      "order",
-      "pipeline_id",
-      "name",
-      ...inheritFields(
-        new UserPipelineStatusApi(),
-        "user_pipeline_status_collection"
-      ),
-    ];
+    return ["id", "order", "pipeline_id", "name"];
   }
   protected get path() {
     return "/query";

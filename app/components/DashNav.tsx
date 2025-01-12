@@ -54,9 +54,7 @@ export default function DashNav({ pipelines, forms, ...props }: DashNavProps) {
       <List>
         <ListItem>
           <ListItemButton onClick={() => navigate("/dashboard")}>
-            <ListItemIcon>
-              {/* <ArrowForwardIcon /> */}
-            </ListItemIcon>
+            <ListItemIcon>{/* <ArrowForwardIcon /> */}</ListItemIcon>
             <ListItemText primary="" />
           </ListItemButton>
         </ListItem>

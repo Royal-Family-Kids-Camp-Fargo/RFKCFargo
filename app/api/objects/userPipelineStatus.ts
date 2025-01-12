@@ -3,7 +3,6 @@ import { UserApi } from "./user.js";
 import { inheritFields } from "~/utils/objects.js";
 import type { User } from "./user.js";
 
-
 export type UserPipelineStatus = {
   user_id: string;
   pipeline_status_id: string;

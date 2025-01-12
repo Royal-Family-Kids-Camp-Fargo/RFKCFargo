@@ -14,9 +14,11 @@ export default function StatusColumn({
   globalSearchTerm,
   statusIds,
   pipelineId,
+  userPipelineStatuses,
 }: {
   status: PipelineStatus;
   globalSearchTerm: string;
+  userPipelineStatuses: UserPipelineStatus[];
   statusIds: StatusIds;
   pipelineId: string;
 }) {
@@ -24,16 +26,13 @@ export default function StatusColumn({
 
   // Filter users based on search
   const filteredUsers = React.useMemo(() => {
-    if (
-      !status.user_pipeline_status_collection ||
-      !Array.isArray(status.user_pipeline_status_collection)
-    ) {
+    if (!userPipelineStatuses) {
       return [];
     }
-    if (!globalSearchTerm) return status.user_pipeline_status_collection;
+    if (!globalSearchTerm) return userPipelineStatuses;
 
     const term = globalSearchTerm.toLowerCase();
-    return status.user_pipeline_status_collection.filter(
+    return userPipelineStatuses.filter(
       (user_pipeline_status: UserPipelineStatus) => {
         return (
           user_pipeline_status.user.first_name?.toLowerCase().includes(term) ||
@@ -42,7 +41,7 @@ export default function StatusColumn({
         );
       }
     );
-  }, [status.user_pipeline_status_collection, globalSearchTerm]);
+  }, [userPipelineStatuses, globalSearchTerm]);
 
   return (
     <Box
@@ -73,7 +72,7 @@ export default function StatusColumn({
       >
         <span>{status.name}</span>
         <span style={{ color: "gray", fontSize: "0.9em" }}>
-          {status.user_pipeline_status_collection.length || 0}
+          {userPipelineStatuses.length || 0}
         </span>
       </Typography>
       {filteredUsers.map((user_pipeline_status: UserPipelineStatus) => (

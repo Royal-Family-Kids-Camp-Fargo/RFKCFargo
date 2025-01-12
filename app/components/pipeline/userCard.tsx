@@ -31,7 +31,6 @@ export default function UserCard({
   pipelineId: string;
 }) {
   const queryClient = useQueryClient();
-  console.log("pipelineId", pipelineId);
 
   const { mutate: movePipelineStatusBackward } = useMutation({
     mutationFn: (statusIds: StatusIds) =>
@@ -40,8 +39,20 @@ export default function UserCard({
         pipelineId,
         statusIds.previousStatusId
       ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pipelineStatuses"] });
+    onSuccess: (data: any) => {
+      console.log("onSuccess backward");
+      queryClient.setQueryData(["pipelineStatuses"], (oldData: any) => {
+        try {
+          const newData = {
+            ...oldData,
+            [data.user_id]: data,
+          };
+          return newData;
+        } catch (error) {
+          console.error("Error updating pipeline statuses", error);
+          return oldData;
+        }
+      });
     },
   });
 
@@ -52,8 +63,20 @@ export default function UserCard({
         pipelineId,
         statusIds.nextStatusId
       ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pipelineStatuses"] });
+    onSuccess: (data: any) => {
+      console.log("onSuccess forward", data);
+      queryClient.setQueryData(["pipelineStatuses"], (oldData: any) => {
+        try {
+          const newData = {
+            ...oldData,
+            [data.user_id]: data,
+          };
+          return newData;
+        } catch (error) {
+          console.error("Error updating pipeline statuses", error);
+          return oldData;
+        }
+      });
     },
   });
 
@@ -95,18 +118,22 @@ export default function UserCard({
             marginTop: "1rem",
           }}
         >
-          {statusIds.previousStatusId && (
-            <ArrowBackIcon
-              sx={{ mr: 1, cursor: "pointer" }}
-              onClick={() => movePipelineStatusBackward(statusIds)}
-            />
-          )}
-          {statusIds.nextStatusId && (
-            <ArrowForwardIcon
-              sx={{ ml: 1, cursor: "pointer" }}
-              onClick={() => movePipelineStatusForward(statusIds)}
-            />
-          )}
+          <ArrowBackIcon
+            sx={{
+              mr: 1,
+              cursor: "pointer",
+              display: statusIds.previousStatusId ? "block" : "none",
+            }}
+            onClick={() => movePipelineStatusBackward(statusIds)}
+          />
+          <ArrowForwardIcon
+            sx={{
+              ml: 1,
+              cursor: "pointer",
+              display: statusIds.nextStatusId ? "block" : "none",
+            }}
+            onClick={() => movePipelineStatusForward(statusIds)}
+          />
         </Box>
       </AccordionDetails>
     </Accordion>
