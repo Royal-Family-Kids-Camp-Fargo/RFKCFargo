@@ -22,6 +22,7 @@ import { getNavigationSuggestions } from "~/config/navigationConfig";
 import useStore from "~/zustand/store";
 import sendNlapiRequest from "~/api/nlapi";
 import ChatHeader from "./ChatHeader";
+import { shallow } from "zustand/shallow";
 
 const ChatContainer = styled(Paper)(({ theme }) => ({
   position: "fixed",
@@ -98,16 +99,13 @@ const SuggestionButton = styled(Button)(({ theme }) => ({
 
 export default function ChatBubble() {
   const navigate = useNavigation();
-  const { latestEndpoints, setEndpoints } = useStore((state) => ({
-    latestEndpoints: state.latestEndpoints,
-    setEndpoints: state.setEndpoints,
-  }));
-  const { context: botContext } = useStore((state) => ({
-    context: state.context,
-  }));
+  const latestActions = useStore((state) => state.getActions());
+  const setActions = useStore((state) => state.setActions);
+  const botContext = useStore((state) => state.context);
+
   const suggestions = useMemo(
-    () => getNavigationSuggestions(latestEndpoints),
-    [latestEndpoints]
+    () => getNavigationSuggestions(latestActions),
+    [latestActions]
   );
   const [isExpanded, setIsExpanded] = useState(false);
   const [message, setMessage] = useState("");
@@ -115,13 +113,24 @@ export default function ChatBubble() {
   const [statusMessage, setStatusMessage] = useState("");
   const [threadId, setThreadId] = useState(null);
   const [isStreaming, setIsStreaming] = useState(false);
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (messages.length > 0 || statusMessage != "") {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    console.log("useEffect triggered: messages or statusMessage changed");
+    console.log("Current messages:", messages);
+    console.log("Current statusMessage:", statusMessage);
+
+    if (messages.length > 0 || statusMessage !== "") {
+      console.log("Scrolling into view...");
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      console.log("No messages or statusMessage to scroll");
     }
   }, [messages, statusMessage]);
+
+  // useEffect(() => {
+  //   console.log("latestActions changed:", latestActions);
+  // }, [latestActions]);
 
   const resetChat = () => {
     setMessages([]);
@@ -131,11 +140,16 @@ export default function ChatBubble() {
   const handleSubmit = useCallback(
     (e) => {
       e.preventDefault();
+      console.log("Form submitted with message:", message);
+
       const newMessage = {
         content: message,
         speaker: "human",
       };
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setMessages((prevMessages) => {
+        console.log("Updating messages state with new message:", newMessage);
+        return [...prevMessages, newMessage];
+      });
       setMessage("");
 
       const sendMessage = async () => {
@@ -147,35 +161,37 @@ export default function ChatBubble() {
             stream: isStreaming,
           },
         };
+        console.log("Sending message with body:", body);
+
         try {
           const response = await handleSendingMessage(body);
+          console.log("Response received:", response);
 
           let thread_id;
-          let latestEndpoints;
+          let latestActions;
           if (isStreaming) {
             const reader = response.body
               ?.pipeThrough(new TextDecoderStream())
               ?.pipeThrough(new EventSourceParserStream());
-            [thread_id, latestEndpoints] = await handleStreamingEvents(reader);
+            [thread_id, latestActions] = await handleStreamingEvents(reader);
           } else {
             const data = await response.json();
             console.log("Non-Streaming Response from NLAPI:", data);
             setMessages(data.messages.reverse());
             thread_id = data.thread_id;
-            const endpoints_called = data.endpoints_called;
-            if (endpoints_called) {
-              latestEndpoints = endpoints_called.map((endpoint) => ({
-                path: endpoint["path"],
-                method: endpoint["method"],
-                response: endpoint["response"],
+            const actions_called = data.actions_called;
+            if (actions_called) {
+              latestActions = actions_called.map((action) => ({
+                path: action["path"],
+                method: action["method"],
+                response: action["response"],
               }));
             }
           }
-          // Set the thread id to the thread id from the response regardless of streaming or not
           setThreadId(thread_id);
-          if (latestEndpoints) {
-            console.log("latestEndpoints", latestEndpoints);
-            setEndpoints(latestEndpoints);
+          if (latestActions) {
+            console.log("latestActions", latestActions);
+            setActions(latestActions);
           }
         } catch (error) {
           console.error("Error sending message to NLAPI:", error);
@@ -184,10 +200,11 @@ export default function ChatBubble() {
 
       sendMessage();
     },
-    [message, isStreaming, threadId, setEndpoints, botContext]
+    [message, isStreaming, threadId, setActions, botContext]
   );
 
   const handleSendingMessage = async (body) => {
+    console.log("handleSendingMessage called with body:", body);
     const authToken = localStorage.getItem("accessToken");
     const response = await sendNlapiRequest(
       authToken,
@@ -204,11 +221,13 @@ export default function ChatBubble() {
   };
 
   const handleStreamingEvents = async (reader) => {
+    console.log("handleStreamingEvents called");
     let lastMessage = "";
     let lastChunkEvent = "start";
     let threadId;
 
     const updateMessages = (content, isNewMessage) => {
+      console.log("updateMessages called with content:", content);
       setMessages((prevMessages) => {
         const updatedMessages = isNewMessage
           ? [...prevMessages, { content, speaker: "assistant" }]
@@ -217,7 +236,7 @@ export default function ChatBubble() {
       });
     };
 
-    let latestEndpoints;
+    let latestActions;
     for await (const chunk of reader) {
       const { event, data } = chunk;
       const chunkEventData = JSON.parse(data);
@@ -234,12 +253,12 @@ export default function ChatBubble() {
         updateMessages(lastMessage, lastChunkEvent !== "message_chunk");
       } else if (event === "close") {
         threadId = chunkEventData.thread_id;
-        const endpoints_called = chunkEventData.endpoints_called;
-        if (endpoints_called) {
-          latestEndpoints = endpoints_called.map((endpoint) => ({
-            path: endpoint["path"],
-            method: endpoint["method"],
-            response: endpoint["response"],
+        const actions_called = chunkEventData.actions_called;
+        if (actions_called) {
+          latestActions = actions_called.map((action) => ({
+            path: action["path"],
+            method: action["method"],
+            response: action["response"],
           }));
         }
       } else if (event === "error") {
@@ -249,7 +268,7 @@ export default function ChatBubble() {
       lastChunkEvent = event;
     }
 
-    return [threadId, latestEndpoints];
+    return [threadId, latestActions];
   };
 
   return (

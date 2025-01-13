@@ -1,4 +1,4 @@
-const createBotSlice = (set: any, get: any) => ({
+const createBotSlice = (set: any) => ({
   context: [],
   addBotContext: (newContext: any) => {
     console.log("Adding context:", newContext);

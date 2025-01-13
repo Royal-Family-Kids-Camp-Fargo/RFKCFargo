@@ -5,7 +5,7 @@ import botSlice from "./slices/bot.slice";
 // Combine all slices in the store:
 const useStore = create((set, get) => ({
   ...actionSlice(set, get),
-  ...botSlice(set, get),
+  ...botSlice(set),
 }));
 
 export default useStore;
