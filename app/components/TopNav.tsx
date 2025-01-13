@@ -23,8 +23,8 @@ export function TopNav({ user, children }: TopNavProps) {
           color: "primary.contrastText",
         }}
       >
-        {user ? user.first_name.charAt(0) : ""}
-        {user ? user.last_name.charAt(0) : ""}
+        {user ? user.first_name?.charAt(0) : ""}
+        {user ? user.last_name?.charAt(0) : ""}
       </Avatar>
       {children}
     </Box>

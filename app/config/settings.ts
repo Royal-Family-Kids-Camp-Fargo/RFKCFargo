@@ -6,4 +6,7 @@ export const settings = {
     adminClassId: "10178",
     superAdminClassId: "10181",
   },
+  nlapi: {
+    apiKey: import.meta.env.VITE_NLAPI_API_KEY,
+  },
 };

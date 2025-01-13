@@ -7,6 +7,8 @@
     "dev": "react-router dev",
     "start": "cross-env NODE_ENV=production react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
+    "setup-nlapi-portal": "node scripts/setup-nlapi-portal.mjs",
+    "dev:ngrok": "ngrok start --config=ngrok.yml nlapi-tunnel",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
@@ -37,6 +39,8 @@
     "@types/react-dom": "^19.0.1",
     "autoprefixer": "^10.4.20",
     "cross-env": "^7.0.3",
+    "dotenv": "^16.4.7",
+    "node-fetch": "^3.3.2",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.16",
     "typescript": "^5.7.2",

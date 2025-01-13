@@ -1,9 +1,9 @@
 const sendNlapiRequest = async (
-  authToken,
-  userInput,
-  context,
-  threadId,
-  options
+  authToken: string,
+  userInput: string,
+  context: any[],
+  threadId: string | null,
+  options: any
 ) => {
   const response = await fetch("https://api.nlapi.io/nlapi", {
     method: "POST",

@@ -17,6 +17,7 @@ import { useState } from "react";
 import pipelineApi, { type Pipeline } from "~/api/objects/pipeline";
 import formApi, { type Form } from "~/api/objects/form";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { authStore } from "~/stores/authStore";
 
 // Loader function to fetch both pipelines and forms
 export async function loader() {
@@ -45,7 +46,7 @@ export default function DashNav({ pipelines, forms, ...props }: DashNavProps) {
   const [openForms, setOpenForms] = useState(false);
 
   const handleClick = async () => {
-    // await logout();
+    await authStore.logout();
     navigate("/sign-in");
   };
 
