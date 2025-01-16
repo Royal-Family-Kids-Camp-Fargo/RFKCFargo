@@ -13,12 +13,13 @@ import NavigationSuggestions from "./NavigationSuggestions";
 import { ChatContainer } from "./styles";
 import type { Message, Action } from "./types";
 import { authStore } from "~/stores/authStore";
+import { botContextStore } from "~/stores/botContextStore";
 
 export default function ChatBubble() {
   const navigate = useNavigation();
   const latestActions = useStore<Action[]>((state: any) => state.getActions());
   const setActions = useStore<(actions: Action[]) => void>((state: any) => state.setActions);
-  const botContext = useStore<any>((state: any) => state.context);
+  const botContext = botContextStore.getContext();
 
   const suggestions = useMemo(
     () => getNavigationSuggestions(latestActions),

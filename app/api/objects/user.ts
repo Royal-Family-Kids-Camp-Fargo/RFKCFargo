@@ -15,7 +15,7 @@ export type User = UserBase & {
   location_id: string;
   created_at: string;
   updated_at: string;
-  assigned_to?: UserBase;
+  user?: UserBase; // This is the user that is assigned to the pipeline status
   role: Role;
   user_pipeline_status_collection: UserPipelineStatus[];
 };

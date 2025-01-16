@@ -140,13 +140,23 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
   }, [statusesSuccess, userPipelineStatusesData]);
 
   useEffect(() => {
-    if (pipelineId) {
-      addBotContext(`User is viewing pipeline with ID ${pipelineId}`);
+    if (pipelineId && pipelineData) {
+      console.log("Adding context to NLAPI");
+      const pipeline_status_collection_string = pipelineData.pipeline_status_collection.map((ps: PipelineStatus) => `${ps.name} with id of ${ps.id}`).join("\n");
+      const context = [
+        `User is looking at pipeline with id: ${pipelineData.id} and name: ${pipelineData.name}.`,
+        ` Pipeline ${pipelineData.name} has the following stages: \n ${pipeline_status_collection_string}`,
+        `If the user asks to move a user to a stage, you'll need to search for the user id. use the ilike operator and users resolvers to search with case insensitive search.`,
+        `To move a user to a stage, you'll need to use the update_user_pipeline_status mutation. like this:mutation { update_user_pipeline_status(user_id: number, pipeline_id: number, input: $input) { id } }`,
+      ];
+      context.forEach((c: string) => addBotContext(c));
+
       return () => {
-        removeBotContext(`User is viewing pipeline with ID ${pipelineId}`);
+        console.log("Removing context from NLAPI");
+        context.forEach((c: string) => removeBotContext(c));
       };
     }
-  }, [pipelineId]);
+  }, [pipelineId, pipelineData]);
 
   const handleSearchChange = (value: string) => {
     setGlobalSearchTerm(value.toLowerCase());

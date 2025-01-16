@@ -15,10 +15,12 @@ import pipelineApi, { type Pipeline } from "~/api/objects/pipeline";
 import formApi, { type Form } from "~/api/objects/form";
 // import { refresh } from '~/lib/auth';
 import MenuIcon from "@mui/icons-material/Menu";
-import { useState, createContext, useContext } from "react";
+import { useState, createContext, useContext, useEffect } from "react";
 import type { User } from "~/api/objects/user";
 import userApi from "~/api/objects/user";
 import ChatBubble from "~/components/chat/ChatBubble";
+import { botContextStore } from "~/stores/botContextStore";
+
 
 type LoaderData = {
   user: User;
@@ -62,6 +64,21 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [isNavOpen, setIsNavOpen] = useState(false);
+  // For adding more context to your AI store
+  const addBotContext = botContextStore.addContext;
+  const removeBotContext = botContextStore.removeContext;
+
+  useEffect(() => {
+    if (loaderData && "user" in loaderData) {
+      const { user } = loaderData as LoaderData;
+      const context = `User is logged in with id: ${user.id}`;
+      addBotContext(context);
+
+      return () => {
+        removeBotContext(context);
+      };
+    }
+  }, [loaderData]);
 
   if ("user" in loaderData) {
     const { user, pipelines, forms } = loaderData as LoaderData;

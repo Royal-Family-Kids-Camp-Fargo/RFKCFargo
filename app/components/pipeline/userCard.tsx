@@ -108,7 +108,7 @@ export default function UserCard({
           {user.phone_number || "No Phone"}
         </Typography>
         <Typography variant="body2">
-          Assigned to: {user.assigned_to?.first_name || "No Assignment"}
+          Assigned to: {user.user?.first_name || "No Assignment"}
         </Typography>
         <Box
           sx={{
