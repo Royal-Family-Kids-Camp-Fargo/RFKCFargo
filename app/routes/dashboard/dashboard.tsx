@@ -36,6 +36,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   console.log("auth", auth);
   if (!auth.access_token) {
     console.log("No auth");
+    authStore.logout();
     return redirect("/sign-in");
   }
   if (!user) {
