@@ -72,10 +72,13 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
     if (loaderData && "user" in loaderData) {
       const { user } = loaderData as LoaderData;
       const context = `User is logged in with id: ${user.id}`;
+      const locationContext = `User's location id is: ${user.location_id}; Any users added by this user will be in this location`;
       addBotContext(context);
+      addBotContext(locationContext);
 
       return () => {
         removeBotContext(context);
+        removeBotContext(locationContext);
       };
     }
   }, [loaderData]);
