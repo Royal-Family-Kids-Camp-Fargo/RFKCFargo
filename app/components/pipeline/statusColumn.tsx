@@ -1,7 +1,6 @@
 import React from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import UserCard from "./userCard";
-import type { User } from "~/api/objects/user";
 import type { StatusIds } from "./userCard";
 
 import type { PipelineStatus } from "~/api/objects/pipelineStatus";
@@ -11,37 +10,16 @@ import type { UserPipelineStatus } from "~/api/objects/userPipelineStatus";
  */
 export default function StatusColumn({
   status,
-  globalSearchTerm,
   statusIds,
   pipelineId,
   userPipelineStatuses,
 }: {
   status: PipelineStatus;
-  globalSearchTerm: string;
   userPipelineStatuses: UserPipelineStatus[];
   statusIds: StatusIds;
   pipelineId: string;
 }) {
   const theme = useTheme();
-
-  // Filter users based on search
-  const filteredUsers = React.useMemo(() => {
-    if (!userPipelineStatuses) {
-      return [];
-    }
-    if (!globalSearchTerm) return userPipelineStatuses;
-
-    const term = globalSearchTerm.toLowerCase();
-    return userPipelineStatuses.filter(
-      (user_pipeline_status: UserPipelineStatus) => {
-        return (
-          user_pipeline_status.user.first_name?.toLowerCase().includes(term) ||
-          user_pipeline_status.user.last_name?.toLowerCase().includes(term) ||
-          user_pipeline_status.user.email?.toLowerCase().includes(term)
-        );
-      }
-    );
-  }, [userPipelineStatuses, globalSearchTerm]);
 
   return (
     <Box
@@ -75,7 +53,7 @@ export default function StatusColumn({
           {userPipelineStatuses.length || 0}
         </span>
       </Typography>
-      {filteredUsers.map((user_pipeline_status: UserPipelineStatus) => (
+      {userPipelineStatuses.map((user_pipeline_status: UserPipelineStatus) => (
         <UserCard
           key={user_pipeline_status.user.id}
           user={user_pipeline_status.user}

@@ -8,8 +8,17 @@ import {
   useTheme,
   useMediaQuery,
   InputAdornment,
+  IconButton,
+  Tooltip,
+  Popover,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemButton,
+  Divider,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import FilterListIcon from "@mui/icons-material/FilterList";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import pipelineApi from "~/api/objects/pipeline";
@@ -17,11 +26,13 @@ import type { Pipeline } from "~/api/objects/pipeline";
 import pipelineStatusApi from "~/api/objects/pipelineStatus";
 import type { PipelineStatus } from "~/api/objects/pipelineStatus";
 import { botContextStore } from "~/stores/botContextStore";
+import { authStore } from "~/stores/authStore";
 import type { Route } from "../+types/dashboard";
 import StatusColumn from "~/components/pipeline/statusColumn";
 import type { StatusIds } from "~/components/pipeline/userCard";
 import type { UserPipelineStatus } from "~/api/objects/userPipelineStatus";
 import userPipelineStatusApi from "~/api/objects/userPipelineStatus";
+import type { User, UserBase } from "~/api/objects/user";
 
 // type UserPipelineStatus = {
 //   id: string;
@@ -75,13 +86,91 @@ export const clientLoader = async ({
     getUserPipelineStatuses(pipelineId as string),
   ]);
 
-  console.log("clientLoader userPipelineStatusesRes", userPipelineStatusesRes);
+  if (pipelineRes instanceof Error) {
+    throw pipelineRes;
+  }
 
+  // Cast to unknown first to avoid type errors
   return {
-    pipeline: pipelineRes,
+    pipeline: pipelineRes as unknown as Pipeline,
     userPipelineStatuses: userPipelineStatusesRes,
   };
 };
+
+// Custom hook for filtering users
+function useUserFiltering(boardData: BoardData, currentUser: User | null) {
+  const [globalSearchTerm, setGlobalSearchTerm] = useState("");
+  const [filterByAssignedTo, setFilterByAssignedTo] = useState(true);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+  const assignedUsers = React.useMemo(() => {
+    const users = new Map<string, UserBase>();
+    Object.values(boardData).forEach((status) => {
+      if (status.user.user) {
+        const { id, first_name, last_name, email } = status.user.user;
+        users.set(id, { id, first_name, last_name, email });
+      }
+    });
+    return Array.from(users.values());
+  }, [boardData]);
+
+  const filterUsers = (users: UserPipelineStatus[], statusId: string) => {
+    return users.filter((user: UserPipelineStatus) => {
+      const matchesStatus = user.pipeline_status_id == statusId;
+      const matchesSearch = !globalSearchTerm || 
+        user.user.first_name?.toLowerCase().includes(globalSearchTerm) ||
+        user.user.last_name?.toLowerCase().includes(globalSearchTerm) ||
+        user.user.email?.toLowerCase().includes(globalSearchTerm);
+      const matchesFilter = !filterByAssignedTo || 
+        (selectedUserId ? user.user.user?.id === selectedUserId : user.user.user?.id === currentUser?.id);
+      return matchesStatus && matchesSearch && matchesFilter;
+    });
+  };
+
+  return {
+    globalSearchTerm,
+    setGlobalSearchTerm,
+    filterByAssignedTo,
+    setFilterByAssignedTo,
+    selectedUserId,
+    setSelectedUserId,
+    anchorEl,
+    setAnchorEl,
+    assignedUsers,
+    filterUsers
+  };
+}
+
+// Custom hook for pipeline status management
+function usePipelineStatus(pipelineData: Pipeline | null) {
+  const getAdjacentStatusIds = (currentStatusId: string): StatusIds => {
+    if (!pipelineData) return {
+      previousStatusId: null,
+      currentStatusId,
+      nextStatusId: null,
+    };
+
+    const pipelineStatuses = [...pipelineData.pipeline_status_collection].sort(
+      (a: PipelineStatus, b: PipelineStatus) => a.order - b.order
+    );
+    const currentIndex = pipelineStatuses.findIndex(
+      (status: PipelineStatus) => status.id === currentStatusId
+    );
+
+    return {
+      previousStatusId:
+        currentIndex > 0 ? pipelineStatuses[currentIndex - 1].id : null,
+      currentStatusId: currentStatusId,
+      nextStatusId:
+        currentIndex < pipelineStatuses.length - 1
+          ? pipelineStatuses[currentIndex + 1].id
+          : null,
+    };
+  };
+
+  return { getAdjacentStatusIds };
+}
 
 export default function ViewPipeline({ loaderData }: { loaderData: any }) {
   const { pipeline, userPipelineStatuses } = loaderData as {
@@ -90,15 +179,8 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
   };
 
   const theme = useTheme();
-
   const { pipelineId } = useParams();
-  const [globalSearchTerm, setGlobalSearchTerm] = useState("");
-
-  // For adding more context to your AI store
-  const addBotContext = botContextStore.addContext;
-  const removeBotContext = botContextStore.removeContext;
-
-  // Track ephemeral board state (e.g., statuses with user arrays).
+  const currentUser = authStore.getUser() || null;
   const [boardData, setBoardData] = useState<BoardData>(userPipelineStatuses);
 
   // Now you can use `useQuery` with `initialData` from the cache
@@ -108,9 +190,36 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
     error: pipelineError,
   } = useQuery({
     queryKey: ["pipeline", pipelineId],
-    queryFn: () => pipelineApi.get(pipelineId as string, null),
+    queryFn: async () => {
+      const res = await pipelineApi.get(pipelineId as string, null);
+      if (res instanceof Error) {
+        throw res;
+      }
+      // Cast to unknown first to avoid type errors
+      return res as unknown as Pipeline;
+    },
     initialData: pipeline,
   });
+
+  // Use custom hooks
+  const {
+    globalSearchTerm,
+    setGlobalSearchTerm,
+    filterByAssignedTo,
+    setFilterByAssignedTo,
+    selectedUserId,
+    setSelectedUserId,
+    anchorEl,
+    setAnchorEl,
+    assignedUsers,
+    filterUsers
+  } = useUserFiltering(boardData, currentUser);
+
+  const { getAdjacentStatusIds } = usePipelineStatus(pipelineData);
+
+  // For adding more context to your AI store
+  const addBotContext = botContextStore.addContext;
+  const removeBotContext = botContextStore.removeContext;
 
   const {
     data: userPipelineStatusesData,
@@ -122,15 +231,6 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
     queryFn: () => getUserPipelineStatuses(pipelineId as string),
     initialData: userPipelineStatuses,
   });
-
-  // Function to fetch and cache a single status
-  // const useStatus = (statusId: string) => {
-  //   return useQuery({
-  //     queryKey: ["status", statusId],
-  //     queryFn: () => getStatusById(statusId),
-  //     enabled: !!statusId,
-  //   });
-  // };
 
   // Update boardData when query is successful
   useEffect(() => {
@@ -162,24 +262,21 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
     setGlobalSearchTerm(value.toLowerCase());
   };
 
-  const getAdjacentStatusIds = (currentStatusId: string): StatusIds => {
-    const pipelineStatuses = [...pipelineData.pipeline_status_collection].sort(
-      (a: PipelineStatus, b: PipelineStatus) => a.order - b.order
-    );
-    const currentIndex = pipelineStatuses.findIndex(
-      (status: PipelineStatus) => status.id === currentStatusId
-    );
-
-    return {
-      previousStatusId:
-        currentIndex > 0 ? pipelineStatuses[currentIndex - 1].id : null,
-      currentStatusId: currentStatusId,
-      nextStatusId:
-        currentIndex < pipelineStatuses.length - 1
-          ? pipelineStatuses[currentIndex + 1].id
-          : null,
-    };
+  const handleFilterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
   };
+
+  const handleFilterClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleFilterSelect = (userId: string | null) => {
+    setSelectedUserId(userId);
+    setFilterByAssignedTo(true);
+    handleFilterClose();
+  };
+
+  const open = Boolean(anchorEl);
 
   if (pipelineLoading || statusesLoading) {
     return (
@@ -189,7 +286,7 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
     );
   }
 
-  if (pipelineError || statusesError) {
+  if (pipelineError || statusesError || !pipelineData) {
     return (
       <Container>
         <Typography color="error">
@@ -209,24 +306,23 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
             fontSize: { xs: "1.5rem", sm: "2.125rem" },
           }}
         >
-          {pipelineData?.name ? `${pipelineData.name} Pipeline` : "Pipeline"}
+          {pipelineData.name ? `${pipelineData.name} Pipeline` : "Pipeline"}
         </Typography>
       </Box>
 
-      {/* Search input */}
-      <TextField
-        fullWidth
-        size="small"
-        placeholder="Search users by name or email..."
-        onChange={(e) => handleSearchChange(e.target.value)}
-        sx={{
-          mb: 2,
-          "& .MuiInputBase-root": {
-            fontSize: { xs: "0.875rem", sm: "1rem" },
-          },
-        }}
-        slotProps={{
-          input: {
+      {/* Search input with filter icon */}
+      <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Search users by name or email..."
+          onChange={(e) => handleSearchChange(e.target.value)}
+          sx={{
+            "& .MuiInputBase-root": {
+              fontSize: { xs: "0.875rem", sm: "1rem" },
+            },
+          }}
+          InputProps={{
             startAdornment: (
               <InputAdornment position="start">
                 <SearchIcon
@@ -234,17 +330,72 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
                 />
               </InputAdornment>
             ),
-          },
-        }}
-      />
-
-      {/* Button for adding new users to the pipeline */}
-      {/* {initialPipelineStatusId && (
-        <AddUserToPipeline
-          pipelineId={pipelineId as string}
-          initialPipelineStatusId={initialPipelineStatusId}
+          }}
         />
-      )} */}
+        <Tooltip title="Filter by assigned user">
+          <IconButton 
+            onClick={handleFilterClick}
+            color={filterByAssignedTo ? "primary" : "default"}
+            sx={{ border: filterByAssignedTo ? 1 : 0 }}
+          >
+            <FilterListIcon />
+          </IconButton>
+        </Tooltip>
+        <Popover
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleFilterClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <List sx={{ width: 250 }}>
+            <ListItem>
+              <ListItemText 
+                primary="Filter by assigned user" 
+                primaryTypographyProps={{
+                  variant: "subtitle2",
+                  color: "text.secondary"
+                }}
+              />
+            </ListItem>
+            <Divider />
+            <ListItemButton 
+              selected={!filterByAssignedTo}
+              onClick={() => {
+                setFilterByAssignedTo(false);
+                handleFilterClose();
+              }}
+            >
+              <ListItemText primary="Show all users" />
+            </ListItemButton>
+            <ListItemButton 
+              selected={filterByAssignedTo && selectedUserId === currentUser?.id}
+              onClick={() => handleFilterSelect(currentUser?.id || null)}
+            >
+              <ListItemText primary="My assigned users" />
+            </ListItemButton>
+            <Divider />
+            {assignedUsers.map((user) => (
+              <ListItemButton
+                key={user.id}
+                selected={filterByAssignedTo && selectedUserId === user.id}
+                onClick={() => handleFilterSelect(user.id)}
+              >
+                <ListItemText 
+                  primary={`${user.first_name} ${user.last_name}`}
+                  secondary={user.email}
+                />
+              </ListItemButton>
+            ))}
+          </List>
+        </Popover>
+      </Box>
 
       {/* The Kanban board */}
       <Box
@@ -272,20 +423,16 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
           },
         }}
       >
-        {pipelineData && pipelineData.pipeline_status_collection.length > 0 ? (
+        {pipelineData.pipeline_status_collection.length > 0 ? (
           [...pipelineData.pipeline_status_collection]
             .sort((a: PipelineStatus, b: PipelineStatus) => a.order - b.order)
             .map((status: PipelineStatus) => (
               <StatusColumn
                 key={status.id}
                 status={status}
-                userPipelineStatuses={Object.values(boardData).filter(
-                  (user: UserPipelineStatus) =>
-                    user.pipeline_status_id == status.id
-                )}
-                globalSearchTerm={globalSearchTerm}
+                userPipelineStatuses={filterUsers(Object.values(boardData), status.id)}
                 statusIds={getAdjacentStatusIds(status.id)}
-                pipelineId={pipelineData.id as string}
+                pipelineId={pipelineData.id}
               />
             ))
         ) : (

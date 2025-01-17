@@ -8,6 +8,7 @@ export type UserPipelineStatus = {
   pipeline_status_id: string;
   pipeline_id: string;
   user: User;
+  assigned_to: string;
 };
 
 export class UserPipelineStatusApi extends BaseApi {

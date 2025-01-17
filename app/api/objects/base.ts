@@ -12,17 +12,12 @@ export type ApiError = {
   status: number;
 };
 
-/**
- * @typedef {Object} BaseModelFields
- * @property {string} id - The unique identifier
- * @property {string} created_at - Creation timestamp
- * @property {string} updated_at - Last update timestamp
- */
+export interface BaseModelFields {
+  id: string;
+  created_at: string;
+  updated_at: string;
+}
 
-/**
- * @typedef {Object} CreateModelResponse
- * @property {string} id - The ID of the created record
- */
 
 export abstract class BaseApi {
   private client!: ApolloClientClass<NormalizedCacheObject>;
@@ -37,7 +32,7 @@ export abstract class BaseApi {
   }
 
   private initializeClient() {
-    const authLink = setContext((_, { headers }) => {
+    const authLink = setContext((_, { headers }: { headers: Record<string, string> }) => {
       const auth = authStore.getAuth();
       console.log("Auth object:", auth);
       if (!auth || !auth.access_token) {
@@ -66,12 +61,12 @@ export abstract class BaseApi {
     });
   }
 
-  getFields() {
+  getFields(): string[] {
     return this.fields;
   }
 
-  formatFields(fields: string[]) {
-    const buildFieldMap = (fields: string[]) => {
+  formatFields(fields: string[]): string {
+    const buildFieldMap = (fields: string[]): Record<string, string[]> => {
       const fieldMap: Record<string, string[]> = {};
 
       fields.forEach((field) => {
@@ -104,13 +99,7 @@ export abstract class BaseApi {
     return formatFieldMap(fieldMap);
   }
 
-  /**
-   * Create a new record
-   * @template T
-   * @param {T} input - The data to create the record with
-   * @returns {Promise<T & BaseModelFields>} The created record
-   */
-  async create(input: any) {
+  async create<T>(input: T): Promise<T & BaseModelFields> {
     const mutation = gql`
             mutation Create${this.model}($input: ${this.model}Input!) {
                 create_${this.model}(input: $input) {
@@ -131,15 +120,7 @@ export abstract class BaseApi {
     }
   }
 
-  /**
-   * Get a record by ID
-   * @param {string} id - The ID of the record to fetch
-   * @returns {Promise<BaseModelFields>} The fetched record
-   */
-  async get(
-    id: string | null = null,
-    filter: string | null = null
-  ): Promise<any | ApiError> {
+  async get(id: string | null = null, filter: string | null = null): Promise<BaseModelFields | ApiError | null> {
     if (id !== null) {
       filter = `id = "${id}"`;
     }
@@ -174,9 +155,9 @@ export abstract class BaseApi {
   }
 
   async getAll(
-    pagination = { limit: 10, offset: 0, ordering: "", filter: "" },
-    field_to_count = "id"
-  ) {
+    pagination: { limit: number; offset: number; ordering: string; filter: string } = { limit: 10, offset: 0, ordering: "", filter: "" },
+    field_to_count: string = "id"
+  ): Promise<{ data: any[]; total: number; limit: number; offset: number; ordering: string; filter: string }> {
     console.log("pagination", pagination);
     console.log("this.model", this.model);
     const subquery = `query{ ${this.model} { ${field_to_count} } }`;
@@ -221,18 +202,11 @@ export abstract class BaseApi {
     }
   }
 
-  /**
-   * Update a record
-   * @template T
-   * @param {string} id - The ID of the record to update
-   * @param {Partial<T>} input - The fields to update
-   * @returns {Promise<T & BaseModelFields>} The updated record
-   */
-  async update(id: string | Record<string, string>, input: any) {
+  async update<T>(id: string | Record<string, string>, input: Partial<T>): Promise<T & BaseModelFields> {
     console.log("id", id);
     let id_string = "";
     let id_vars = "";
-    let id_values: any = {};
+    let id_values: Record<string, string> = {};
     if (typeof id === "string") {
       id_string = `$id: ID!`;
       id_vars = `id: $id`;
@@ -270,12 +244,7 @@ export abstract class BaseApi {
     }
   }
 
-  /**
-   * Delete a record
-   * @param {string} id - The ID of the record to delete
-   * @returns {Promise<{ success: boolean }>} Success status
-   */
-  async delete(id: string) {
+  async delete(id: string): Promise<{ success: boolean }> {
     const mutation = gql`
             mutation Delete${this.model}($id: ID!) {
                 delete_${this.model}(id: $id) {
