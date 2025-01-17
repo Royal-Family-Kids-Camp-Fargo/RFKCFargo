@@ -105,6 +105,7 @@ function useUserFiltering(boardData: BoardData, currentUser: User | null) {
   const [globalSearchTerm, setGlobalSearchTerm] = useState("");
   const [filterByAssignedTo, setFilterByAssignedTo] = useState(true);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedUnassigned, setSelectedUnassigned] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const assignedUsers = React.useMemo(() => {
@@ -118,16 +119,26 @@ function useUserFiltering(boardData: BoardData, currentUser: User | null) {
     return Array.from(users.values());
   }, [boardData]);
 
+  useEffect(() => {
+    console.log("Global Search Term:", globalSearchTerm);
+    console.log("Filter By Assigned To:", filterByAssignedTo);
+    console.log("Selected User ID:", selectedUserId);
+    console.log("Selected Unassigned:", selectedUnassigned);
+    console.log("Anchor Element:", anchorEl);
+    console.log("Assigned Users:", assignedUsers);
+  }, [globalSearchTerm, filterByAssignedTo, selectedUserId, selectedUnassigned, anchorEl, assignedUsers]);
   const filterUsers = (users: UserPipelineStatus[], statusId: string) => {
     return users.filter((user: UserPipelineStatus) => {
-      const matchesStatus = user.pipeline_status_id == statusId;
+      const matchesStatus = user.pipeline_status_id == statusId; // Make sure only users in the current status are shown
       const matchesSearch = !globalSearchTerm || 
         user.user.first_name?.toLowerCase().includes(globalSearchTerm) ||
         user.user.last_name?.toLowerCase().includes(globalSearchTerm) ||
         user.user.email?.toLowerCase().includes(globalSearchTerm);
-      const matchesFilter = !filterByAssignedTo || 
+      const matchesFilter = filterByAssignedTo && 
         (selectedUserId ? user.user.user?.id === selectedUserId : user.user.user?.id === currentUser?.id);
-      return matchesStatus && matchesSearch && matchesFilter;
+      const matchesUnassigned = selectedUnassigned && !user.user.user?.id;
+      const showAllUsers = !filterByAssignedTo && !selectedUnassigned;
+      return matchesStatus && matchesSearch && (matchesFilter || matchesUnassigned || showAllUsers);
     });
   };
 
@@ -141,7 +152,9 @@ function useUserFiltering(boardData: BoardData, currentUser: User | null) {
     anchorEl,
     setAnchorEl,
     assignedUsers,
-    filterUsers
+    filterUsers,
+    selectedUnassigned,
+    setSelectedUnassigned
   };
 }
 
@@ -187,6 +200,7 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
   const [boardData, setBoardData] = useState<BoardData>(userPipelineStatuses);
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
 
+
   // Now you can use `useQuery` with `initialData` from the cache
   const {
     data: pipelineData,
@@ -216,7 +230,9 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
     anchorEl,
     setAnchorEl,
     assignedUsers,
-    filterUsers
+    filterUsers,
+    selectedUnassigned,
+    setSelectedUnassigned
   } = useUserFiltering(boardData, currentUser);
 
   const { getAdjacentStatusIds } = usePipelineStatus(pipelineData);
@@ -277,6 +293,14 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
   const handleFilterSelect = (userId: string | null) => {
     setSelectedUserId(userId);
     setFilterByAssignedTo(true);
+    setSelectedUnassigned(false);
+    handleFilterClose();
+  };
+
+  const handleUnassignedSelect = () => {
+    setSelectedUserId(null);
+    setFilterByAssignedTo(false);
+    setSelectedUnassigned(true);
     handleFilterClose();
   };
 
@@ -382,9 +406,10 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
             </ListItem>
             <Divider />
             <ListItemButton 
-              selected={!filterByAssignedTo}
+              selected={!filterByAssignedTo && !selectedUnassigned}
               onClick={() => {
                 setFilterByAssignedTo(false);
+                setSelectedUnassigned(false);
                 handleFilterClose();
               }}
             >
@@ -395,6 +420,12 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
               onClick={() => handleFilterSelect(currentUser?.id || null)}
             >
               <ListItemText primary="My assigned users" />
+            </ListItemButton>
+            <ListItemButton 
+              selected={selectedUnassigned}
+              onClick={handleUnassignedSelect}
+            >
+              <ListItemText primary="Unassigned users" />
             </ListItemButton>
             <Divider />
             {assignedUsers.map((user) => (
