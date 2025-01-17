@@ -9,6 +9,8 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import SmsIcon from "@mui/icons-material/Sms";
+import CallIcon from "@mui/icons-material/Call";
 import type { User } from "~/api/objects/user";
 import userPipelineStatusApi from "~/api/objects/userPipelineStatus";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -126,6 +128,12 @@ export default function UserCard({
             }}
             onClick={() => movePipelineStatusBackward(statusIds)}
           />
+          <a href={`sms:${user.phone_number}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <SmsIcon sx={{ cursor: "pointer" }} />
+          </a>
+          <a href={`tel:${user.phone_number}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <CallIcon sx={{ cursor: "pointer" }} />
+          </a>
           <ArrowForwardIcon
             sx={{
               ml: 1,
