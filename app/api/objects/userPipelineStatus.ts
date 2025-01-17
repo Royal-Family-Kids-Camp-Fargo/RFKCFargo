@@ -8,7 +8,6 @@ export type UserPipelineStatus = {
   pipeline_status_id: string;
   pipeline_id: string;
   user: User;
-  assigned_to: string;
 };
 
 export class UserPipelineStatusApi extends BaseApi {
@@ -35,13 +34,13 @@ export class UserPipelineStatusApi extends BaseApi {
     newStatusId: string
   ) {
     console.log("Moving pipeline status for user", userId, "to", newStatusId);
-    return await super.update(
-      { user_id: userId, pipeline_id: pipelineId },
+    return await super.create(
       {
         pipeline_status_id: newStatusId,
         user_id: userId,
         pipeline_id: pipelineId,
-      }
+      },
+      "update"
     );
   }
 }

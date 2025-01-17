@@ -99,10 +99,10 @@ export abstract class BaseApi {
     return formatFieldMap(fieldMap);
   }
 
-  async create<T>(input: T): Promise<T & BaseModelFields> {
+  async create<T>(input: T, onconflict: string = "fail"): Promise<T & BaseModelFields> {
     const mutation = gql`
             mutation Create${this.model}($input: ${this.model}Input!) {
-                create_${this.model}(input: $input) {
+                create_${this.model}(input: $input, onconflict: ${onconflict}) {
                     ${this.formatFields(this.fields)}
                 }
             }
@@ -111,7 +111,7 @@ export abstract class BaseApi {
     try {
       const response = await this.client.mutate({
         mutation,
-        variables: { input },
+        variables: { input, onconflict },
       });
       return response.data[`create_${this.model}`];
     } catch (error) {

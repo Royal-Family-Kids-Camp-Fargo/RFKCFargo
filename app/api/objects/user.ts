@@ -3,11 +3,21 @@ import { RoleApi } from "./role.js";
 import type { Role } from "./role.js";
 import type { UserPipelineStatus } from "./userPipelineStatus.js";
 
-export type UserBase = {
-  id: string;
-  email: string;
+type UserDefault = {
   first_name: string;
   last_name: string;
+  email?: string;
+};
+
+export type UserBase = UserDefault & {
+  id: string;
+};
+
+export type UserCreate = UserBase & {
+  phone_number?: string;
+  location_id: string;
+  assigned_to?: string;
+  city?: string;
 };
 
 export type User = UserBase & {

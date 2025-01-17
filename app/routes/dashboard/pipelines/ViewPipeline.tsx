@@ -16,10 +16,12 @@ import {
   ListItemText,
   ListItemButton,
   Divider,
+  Button,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import AddIcon from "@mui/icons-material/Add";
 
 import pipelineApi from "~/api/objects/pipeline";
 import type { Pipeline } from "~/api/objects/pipeline";
@@ -33,6 +35,7 @@ import type { StatusIds } from "~/components/pipeline/userCard";
 import type { UserPipelineStatus } from "~/api/objects/userPipelineStatus";
 import userPipelineStatusApi from "~/api/objects/userPipelineStatus";
 import type { User, UserBase } from "~/api/objects/user";
+import AddUserDialog from "~/components/pipeline/AddUserDialog";
 
 // type UserPipelineStatus = {
 //   id: string;
@@ -182,6 +185,7 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
   const { pipelineId } = useParams();
   const currentUser = authStore.getUser() || null;
   const [boardData, setBoardData] = useState<BoardData>(userPipelineStatuses);
+  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
 
   // Now you can use `useQuery` with `initialData` from the cache
   const {
@@ -304,10 +308,22 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
           sx={{
             color: "#4b0082",
             fontSize: { xs: "1.5rem", sm: "2.125rem" },
+            marginTop: 2,
           }}
         >
           {pipelineData.name ? `${pipelineData.name} Pipeline` : "Pipeline"}
         </Typography>
+      </Box>
+
+      {/* Add user button */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => setIsAddUserDialogOpen(true)}
+        >
+          Add User
+        </Button>
       </Box>
 
       {/* Search input with filter icon */}
@@ -443,6 +459,14 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
           </Box>
         )}
       </Box>
+
+      {/* Add User Dialog */}
+      <AddUserDialog
+        open={isAddUserDialogOpen}
+        onClose={() => setIsAddUserDialogOpen(false)}
+        pipelineId={pipelineId as string}
+        pipelineStatuses={pipelineData.pipeline_status_collection}
+      />
     </Container>
   );
 }
