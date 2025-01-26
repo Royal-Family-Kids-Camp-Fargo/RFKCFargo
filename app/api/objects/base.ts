@@ -158,8 +158,6 @@ export abstract class BaseApi {
     pagination: { limit: number; offset: number; ordering: string; filter: string } = { limit: 10, offset: 0, ordering: "", filter: "" },
     field_to_count: string = "id"
   ): Promise<{ data: any[]; total: number; limit: number; offset: number; ordering: string; filter: string }> {
-    console.log("pagination", pagination);
-    console.log("this.model", this.model);
     const subquery = `query{ ${this.model} { ${field_to_count} } }`;
     const query = gql`
             query GetAll${
@@ -248,7 +246,7 @@ export abstract class BaseApi {
     const mutation = gql`
             mutation Delete${this.model}($id: ID!) {
                 delete_${this.model}(id: $id) {
-                    success
+                    id
                 }
             }
         `;
