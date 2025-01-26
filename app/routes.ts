@@ -10,5 +10,6 @@ export default [
       "routes/dashboard/pipelines/ViewPipeline.tsx"
     ),
     route("forms/:id", "routes/dashboard/forms/ViewForm.tsx"),
+    route("announcements", "routes/dashboard/announcements/announcements.tsx"),
   ]),
 ] satisfies RouteConfig;

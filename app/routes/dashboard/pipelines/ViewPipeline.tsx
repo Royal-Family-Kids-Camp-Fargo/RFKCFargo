@@ -36,6 +36,7 @@ import type { UserPipelineStatus } from "~/api/objects/userPipelineStatus";
 import userPipelineStatusApi from "~/api/objects/userPipelineStatus";
 import type { User, UserBase } from "~/api/objects/user";
 import AddUserDialog from "~/components/pipeline/AddUserDialog";
+import sendNlapiRequest from "~/api/nlapi";
 
 // type UserPipelineStatus = {
 //   id: string;
@@ -265,7 +266,7 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
       const pipeline_status_collection_string = pipelineData.pipeline_status_collection.map((ps: PipelineStatus) => `${ps.name} with id of ${ps.id}`).join("\n");
       const context = [
         `User is looking at pipeline with id: ${pipelineData.id} and name: ${pipelineData.name}.`,
-        ` Pipeline ${pipelineData.name} has the following stages: \n ${pipeline_status_collection_string}`,
+        `Pipeline ${pipelineData.name} has the following stages: \n ${pipeline_status_collection_string}`,
         `If the user asks to move a user to a stage, you'll need to search for the user id. use the ilike operator and users resolvers to search with case insensitive search.`,
         `To move a user to a stage, you'll need to use the update_user_pipeline_status mutation. like this:mutation { update_user_pipeline_status(user_id: number, pipeline_id: number, input: $input) { id } }`,
       ];

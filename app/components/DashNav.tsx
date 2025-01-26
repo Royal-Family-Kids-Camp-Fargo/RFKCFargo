@@ -18,6 +18,7 @@ import pipelineApi, { type Pipeline } from "~/api/objects/pipeline";
 import formApi, { type Form } from "~/api/objects/form";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { authStore } from "~/stores/authStore";
+import CampaignIcon from "@mui/icons-material/Campaign";
 
 // Loader function to fetch both pipelines and forms
 export async function loader() {
@@ -85,8 +86,20 @@ export default function DashNav({ pipelines, forms, ...props }: DashNavProps) {
             ))}
           </List>
         )}
-
         <ListItem>
+          <ListItemButton
+            component={Link}
+            to="/dashboard/announcements"
+            selected={location.pathname === "/dashboard/announcements"}
+          >
+            <ListItemIcon>
+              <CampaignIcon />
+            </ListItemIcon>
+            <ListItemText primary="Announcements" />
+          </ListItemButton>
+        </ListItem>
+
+        {/* <ListItem>
           <ListItemButton onClick={() => setOpenForms(!openForms)}>
             <ListItemIcon>
               <DescriptionIcon />
@@ -109,8 +122,8 @@ export default function DashNav({ pipelines, forms, ...props }: DashNavProps) {
               </ListItemButton>
             ))}
           </List>
-        )}
-      </List>
+        )}*/}
+      </List> 
       <Button onClick={handleClick}>Logout</Button>
     </Box>
   );

@@ -81,9 +81,14 @@ export default function Home() {
                   for children who need it most.
                 </Typography>
                 <Box display="flex" flexDirection="column" gap={2}>
+                  {/* TODO: Make this link dynamic per location, but hardcode Fargo for now */}
                   <Button
                     variant="contained"
                     fullWidth
+                    component="a"
+                    href="https://docs.google.com/forms/d/e/1FAIpQLSdJROfy0S53UwLY449Z6L2zjNvpDVvlrBDyHGGmYOvhbyjhyA/viewform?usp=header"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     sx={{
                       backgroundColor: "#4b0082",
                       borderColor: "#4b0082",
@@ -99,9 +104,14 @@ export default function Home() {
                   >
                     New Volunteer Registration
                   </Button>
+                  {/* TODO: Make this link dynamic per location, but hardcode Fargo for now */}
                   <Button
                     variant="outlined"
                     fullWidth
+                    component="a"
+                    href="https://docs.google.com/forms/d/e/1FAIpQLSeyYwuMEluMzOC8QXoXbzBdhtGY6KKoByFuSg_3cLjsGycQRg/viewform?usp=header"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     sx={{
                       backgroundColor: "#4b0082",
                       borderColor: "#4b0082",
