@@ -219,6 +219,7 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
     },
     initialData: pipeline,
   });
+  
 
   // Use custom hooks
   const {

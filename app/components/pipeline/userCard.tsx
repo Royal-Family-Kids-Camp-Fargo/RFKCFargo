@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
   Typography,
   Paper,
@@ -14,6 +15,7 @@ import CallIcon from "@mui/icons-material/Call";
 import type { User } from "~/api/objects/user";
 import userPipelineStatusApi from "~/api/objects/userPipelineStatus";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import SmsDialog from './SmsDialog';
 
 export type StatusIds = {
   previousStatusId: string | null;
@@ -33,6 +35,7 @@ export default function UserCard({
   pipelineId: string;
 }) {
   const queryClient = useQueryClient();
+  const [isSmsDialogOpen, setIsSmsDialogOpen] = useState(false);
 
   const { mutate: movePipelineStatusBackward } = useMutation({
     mutationFn: (statusIds: StatusIds) =>
@@ -83,67 +86,76 @@ export default function UserCard({
   });
 
   return (
-    <Accordion
-      elevation={1}
-      sx={{
-        mb: 1,
-        p: 1,
-        backgroundColor: "#f8f9fa",
-      }}
-    >
-      <AccordionSummary
-        expandIcon={<ExpandMoreIcon />}
-        aria-controls="panel1a-content"
-        id="panel1a-header"
+    <>
+      <Accordion
+        elevation={1}
+        sx={{
+          mb: 1,
+          p: 1,
+          backgroundColor: "#f8f9fa",
+        }}
       >
-        <Typography variant="body1" sx={{ fontWeight: 600 }}>
-          {user.first_name || user.last_name
-            ? `${user.first_name} ${user.last_name}`
-            : "No Name"}
-        </Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <Typography variant="body2" color="textSecondary">
-          {user.email}
-        </Typography>
-        <Typography variant="body2">
-          {user.phone_number || "No Phone"}
-        </Typography>
-        <Typography variant="body2">
-          Assigned to: {user.user?.first_name || "No Assignment"}
-        </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginTop: "1rem",
-          }}
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
         >
-          <ArrowBackIcon
+          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+            {user.first_name || user.last_name
+              ? `${user.first_name} ${user.last_name}`
+              : "No Name"}
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography variant="body2" color="textSecondary">
+            {user.email}
+          </Typography>
+          <Typography variant="body2">
+            {user.phone_number || "No Phone"}
+          </Typography>
+          <Typography variant="body2">
+            Assigned to: {user.user?.first_name || "No Assignment"}
+          </Typography>
+          <Box
             sx={{
-              mr: 1,
-              cursor: "pointer",
-              display: statusIds.previousStatusId ? "block" : "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: "1rem",
             }}
-            onClick={() => movePipelineStatusBackward(statusIds)}
-          />
-          <a href={`sms:${user.phone_number}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <SmsIcon sx={{ cursor: "pointer" }} />
-          </a>
-          <a href={`tel:${user.phone_number}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <CallIcon sx={{ cursor: "pointer" }} />
-          </a>
-          <ArrowForwardIcon
-            sx={{
-              ml: 1,
-              cursor: "pointer",
-              display: statusIds.nextStatusId ? "block" : "none",
-            }}
-            onClick={() => movePipelineStatusForward(statusIds)}
-          />
-        </Box>
-      </AccordionDetails>
-    </Accordion>
+          >
+            <ArrowBackIcon
+              sx={{
+                mr: 1,
+                cursor: "pointer",
+                display: statusIds.previousStatusId ? "block" : "none",
+              }}
+              onClick={() => movePipelineStatusBackward(statusIds)}
+            />
+            <SmsIcon
+              sx={{ cursor: "pointer" }}
+              onClick={() => setIsSmsDialogOpen(true)}
+            />
+            <a href={`tel:${user.phone_number}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+              <CallIcon sx={{ cursor: "pointer" }} />
+            </a>
+            <ArrowForwardIcon
+              sx={{
+                ml: 1,
+                cursor: "pointer",
+                display: statusIds.nextStatusId ? "block" : "none",
+              }}
+              onClick={() => movePipelineStatusForward(statusIds)}
+            />
+          </Box>
+        </AccordionDetails>
+      </Accordion>
+
+      <SmsDialog
+        open={isSmsDialogOpen}
+        onClose={() => setIsSmsDialogOpen(false)}
+        user={user}
+      />
+    </>
   );
 }
