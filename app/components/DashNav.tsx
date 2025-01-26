@@ -19,6 +19,7 @@ import formApi, { type Form } from "~/api/objects/form";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { authStore } from "~/stores/authStore";
 import CampaignIcon from "@mui/icons-material/Campaign";
+import MessageIcon from '@mui/icons-material/Message';
 
 // Loader function to fetch both pipelines and forms
 export async function loader() {
@@ -96,6 +97,18 @@ export default function DashNav({ pipelines, forms, ...props }: DashNavProps) {
               <CampaignIcon />
             </ListItemIcon>
             <ListItemText primary="Announcements" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton
+            component={Link}
+            to="/dashboard/sms-templates"
+            selected={location.pathname === "/dashboard/sms-templates"}
+          >
+            <ListItemIcon>
+              <MessageIcon />
+            </ListItemIcon>
+            <ListItemText primary="SMS Templates" />
           </ListItemButton>
         </ListItem>
 
