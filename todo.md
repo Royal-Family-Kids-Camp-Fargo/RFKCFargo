@@ -7,6 +7,7 @@ Needs:
 Bugs:
 
 - [ ] Solve SMS shared template issue: Devii Reference number: Your reference is DCS-54
+- [ ] When you switch pipelines you have to refresh to get the users to show up. I think this has to do with the client loader? 
 
 
 Ideas: 
