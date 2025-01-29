@@ -1,5 +1,6 @@
 Needs: 
 - [ ] Password Reset Flow
+- [ ] Users should be unique by location_id and (phone or email)
 
 Bugs:
 
