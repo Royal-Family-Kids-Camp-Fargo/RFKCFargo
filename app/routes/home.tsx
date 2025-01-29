@@ -8,9 +8,9 @@ import {
   CardContent,
   Button,
 } from '@mui/material';
-import { TopNav } from '../components/TopNav';
 import { authStore } from '../stores/authStore';
-import { Link } from 'react-router';
+import { HomeNav } from '~/components/HomeNav';
+import { SnackbarProvider } from 'notistack';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -23,12 +23,8 @@ export default function Home() {
   const user = authStore.getUser();
 
   return (
-    <>
-      <TopNav user={user}>
-        <Button component={Link} to="/sign-in">
-          Sign in
-        </Button>
-      </TopNav>
+    <SnackbarProvider>
+      <HomeNav />
       <Container maxWidth={false}>
         <Box
           sx={{
@@ -156,6 +152,6 @@ export default function Home() {
           </Grid2>
         </Grid2>
       </Container>
-    </>
+    </SnackbarProvider>
   );
 }
