@@ -1,12 +1,25 @@
-import { createTheme } from "@mui/material/styles";
-import { red } from "@mui/material/colors";
+import { createTheme } from '@mui/material/styles';
+import { red } from '@mui/material/colors';
 
 // A custom theme for this app
 const theme = createTheme({
   cssVariables: true,
   typography: {
+    fontFamily: '"Figtree", "Helvetica", "Arial", sans-serif',
     button: {
-      textTransform: "none",
+      textTransform: 'none',
+    },
+    h1: {
+      fontWeight: 600,
+    },
+    h2: {
+      fontWeight: 600,
+    },
+    h3: {
+      fontWeight: 600,
+    },
+    h4: {
+      fontWeight: 600,
     },
   },
   components: {
@@ -19,14 +32,15 @@ const theme = createTheme({
     },
   },
   palette: {
+    mode: 'light',
     primary: {
-      main: "#9268F8",
+      main: '#5f3494',
     },
     secondary: {
-      main: "#19857b",
+      main: '#ce202d',
     },
     error: {
-      main: red.A400,
+      main: '#fd1169',
     },
   },
 });
