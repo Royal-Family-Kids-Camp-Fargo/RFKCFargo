@@ -36,20 +36,20 @@ export default function AddUserDialog({ open, onClose, pipelineId, pipelineStatu
   const queryClient = useQueryClient();
 
   // Mutation for creating a new user
-  const { mutate: createUser, isLoading: isCreatingUser } = useMutation({
+  const { mutate: createUser, isPending: isCreatingUser } = useMutation({
     mutationFn: async (newUser: Partial<UserCreate>) => {
       console.log("Creating user", newUser);
       return await userApi.create(newUser);
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries(['users']);
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       addUserToPipeline(data.id);
       setUserToAdd({} as UserCreate);
     },
   });
 
   // Mutation for adding user to pipeline
-  const { mutate: addUserToPipeline, isLoading: isAdding } = useMutation({
+  const { mutate: addUserToPipeline, isPending: isAdding } = useMutation({
     mutationFn: async (user_id: string) => {
       if (!user_id || !selectedStatus || !currentUser) return;
       
@@ -60,7 +60,7 @@ export default function AddUserDialog({ open, onClose, pipelineId, pipelineStatu
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['pipelineStatuses']);
+      queryClient.invalidateQueries({ queryKey: ['pipelineStatuses'] });
       onClose();
       setSelectedStatus('');
       setSearchTerm('');
@@ -107,10 +107,10 @@ export default function AddUserDialog({ open, onClose, pipelineId, pipelineStatu
             </FormControl>
 
             <FormControl fullWidth>
-              <InputLabel>{userToAdd.phone ? '' : 'Phone'}</InputLabel>
+              <InputLabel>{userToAdd.phone_number ? '' : 'Phone'}</InputLabel>
               <TextField
-                value={userToAdd.phone}
-                onChange={(e) => setUserToAdd({ ...userToAdd, phone: e.target.value })}
+                value={userToAdd.phone_number}
+                onChange={(e) => setUserToAdd({ ...userToAdd, phone_number: e.target.value })}
                 fullWidth
               />
             </FormControl>
