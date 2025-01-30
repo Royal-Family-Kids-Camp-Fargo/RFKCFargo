@@ -5,32 +5,32 @@ import {
   Link,
   TextField,
   Typography,
-} from "@mui/material";
-import type { Route } from "./+types/home";
-import { Form, redirect, useNavigation } from "react-router";
-import { Link as RouterLink } from "react-router";
-import { authStore } from "~/stores/authStore";
-import { login, refresh } from "~/api/sessions";
+} from '@mui/material';
+import type { Route } from './+types/home';
+import { Form, redirect, useNavigation } from 'react-router';
+import { Link as RouterLink } from 'react-router';
+import { authStore } from '~/stores/authStore';
+import { login, refresh } from '~/api/sessions';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Sign In" },
-    { name: "description", content: "Sign in to your account" },
+    { title: 'Sign In' },
+    { name: 'description', content: 'Sign in to your account' },
   ];
 }
 
 export async function clientLoader() {
   let accessToken = authStore.getAuth();
   if (accessToken) {
-    return redirect("/dashboard");
+    return redirect('/dashboard');
   }
 
   await refresh();
 
   accessToken = authStore.getAuth();
-  console.log("accessToken from sign-in", accessToken);
+  console.log('accessToken from sign-in', accessToken);
   if (accessToken) {
-    return redirect("/dashboard");
+    return redirect('/dashboard');
   }
 
   return;
@@ -41,8 +41,8 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 
   try {
     const res = await login(
-      formData.get("email") as string,
-      formData.get("password") as string
+      formData.get('email') as string,
+      formData.get('password') as string
     );
     authStore.setAuth({
       access_token: res.access_token,
@@ -50,16 +50,16 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     });
     authStore.setUser(res.user);
     console.log(authStore.getAuth());
-    return redirect("/dashboard");
+    return redirect('/dashboard');
   } catch (error) {
-    console.error("Login failed:", error);
-    return redirect("/sign-in");
+    console.error('Login failed:', error);
+    return redirect('/sign-in');
   }
 }
 
 export default function SignUp() {
   const navigation = useNavigation();
-  const isNavigating = navigation.formAction === "/sign-in";
+  const isNavigating = navigation.formAction === '/sign-in';
   return (
     <Box
       border="1px solid blue"
@@ -108,9 +108,8 @@ export default function SignUp() {
             Sign in
           </Button>
           <Typography variant="body2" color="text.secondary">
-            Don't have an account?{" "}
             <Link component={RouterLink} to="/sign-up">
-              Sign up
+              Forgot password?
             </Link>
           </Typography>
         </Box>
