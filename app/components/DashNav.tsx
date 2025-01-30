@@ -165,7 +165,9 @@ export default function DashNav({
     </List>
   )}*/}
       </List>
-      <Button onClick={handleClick}>Logout</Button>
+      <Button variant="outlined" onClick={handleClick} sx={{ margin: 2 }}>
+        Logout
+      </Button>
     </>
   );
 
@@ -173,7 +175,12 @@ export default function DashNav({
     <>
       <Drawer
         open={mobileOpen}
-        sx={{ display: { xs: 'block', md: 'none' } }}
+        sx={{
+          display: { xs: 'flex', md: 'none' },
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          gap: 2,
+        }}
         ModalProps={{
           keepMounted: true,
         }}
@@ -182,7 +189,14 @@ export default function DashNav({
       >
         {drawerContent}
       </Drawer>
-      <Box sx={{ display: { xs: 'none', md: 'block', width: 240 } }}>
+      <Box
+        sx={{
+          display: { xs: 'none', md: 'flex', width: 240 },
+          justifyContent: 'space-between',
+          flexDirection: 'column',
+          gap: 2,
+        }}
+      >
         {drawerContent}
       </Box>
     </>
