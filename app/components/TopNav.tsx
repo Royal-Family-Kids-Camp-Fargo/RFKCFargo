@@ -1,25 +1,43 @@
-import { Avatar, Box, Typography, IconButton, Stack } from '@mui/material';
+import {
+  Avatar,
+  Box,
+  Typography,
+  IconButton,
+  Stack,
+  AppBar,
+  Toolbar,
+} from '@mui/material';
 import type { User } from '~/api/objects/user';
+import MenuIcon from '@mui/icons-material/Menu';
 
 type TopNavProps = {
   user?: User;
-  children?: React.ReactNode;
+  mobileOpen: boolean;
+  setMobileOpen: (open: boolean) => void;
 };
 
-export function TopNav({ user, children }: TopNavProps) {
+export function TopNav({ user, mobileOpen, setMobileOpen }: TopNavProps) {
   return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      justifyContent="space-between"
-      sx={{ padding: 2 }}
-      gap={2}
-    >
-      <Typography variant="h6" sx={{ fontWeight: 600 }}>
-        RFK CENTRAL
-      </Typography>
-      <Stack direction="row" alignItems="center" gap={2}>
-        {children}
+    <AppBar position="static" elevation={0} sx={{ backgroundColor: 'white' }}>
+      <Toolbar>
+        <IconButton
+          sx={{
+            mr: 2,
+            display: { xs: 'block', md: 'none' },
+            minWidth: 48,
+            maxWidth: 48,
+          }}
+          onClick={() => setMobileOpen(true)}
+          edge="start"
+        >
+          <MenuIcon />
+        </IconButton>
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 600, flexGrow: 1, color: 'primary.main' }}
+        >
+          RFK CENTRAL
+        </Typography>
         <Avatar
           sx={{
             backgroundColor: 'primary.main',
@@ -29,7 +47,7 @@ export function TopNav({ user, children }: TopNavProps) {
           {user ? user.first_name?.charAt(0) : ''}
           {user ? user.last_name?.charAt(0) : ''}
         </Avatar>
-      </Stack>
-    </Stack>
+      </Toolbar>
+    </AppBar>
   );
 }

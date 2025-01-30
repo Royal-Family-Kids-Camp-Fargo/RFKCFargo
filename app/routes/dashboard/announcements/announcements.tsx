@@ -60,14 +60,14 @@ export default function Announcements() {
 
         {/* Sample Texts Section */}
         <Typography variant="h3" gutterBottom>
-          Sample Texts to send
+          Sample texts to send
         </Typography>
 
         {/* Text for People Who Know About Camp */}
         <Card variant="outlined" sx={{ padding: 1 }}>
           <CardContent>
             <Typography variant="h4" gutterBottom>
-              To People Who know about Camp
+              To people who know about camp...
             </Typography>
             <Typography variant="body1">
               Right now, every donation to Royal Family Kids Fargo is matched
@@ -94,7 +94,7 @@ export default function Announcements() {
         <Card variant="outlined" sx={{ padding: 1 }}>
           <CardContent>
             <Typography variant="h4" gutterBottom>
-              To Past Volunteers
+              To past volunteers...
             </Typography>
             <Typography variant="body1">
               Right now, every donation to Royal Family Kids Camp is matched
@@ -121,7 +121,7 @@ export default function Announcements() {
         <Card variant="outlined" sx={{ padding: 1 }}>
           <CardContent>
             <Typography variant="h4" gutterBottom>
-              To Past Volunteers to share with their friends:
+              To past volunteers to share with their friends...
             </Typography>
             <Typography variant="body1">
               A camp I volunteered at last summer for kids who’ve experienced
@@ -149,7 +149,7 @@ export default function Announcements() {
         <Card variant="outlined" sx={{ padding: 1 }}>
           <CardContent>
             <Typography variant="h4" gutterBottom>
-              To People who don't know about camp:
+              To people who don't know about camp...
             </Typography>
             <Typography variant="body1">
               A camp I help plan every year called Royal Family Kids (a camp for

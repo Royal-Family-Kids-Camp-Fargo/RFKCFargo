@@ -6,26 +6,26 @@ import {
   ListItemText,
   Box,
   Button,
-} from "@mui/material";
-import type { BoxProps } from "@mui/material";
-import AccountTreeIcon from "@mui/icons-material/AccountTree";
-import DescriptionIcon from "@mui/icons-material/Description";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
-import { Link, useLocation, useNavigate, useLoaderData } from "react-router";
-import { useState } from "react";
-import pipelineApi, { type Pipeline } from "~/api/objects/pipeline";
-import formApi, { type Form } from "~/api/objects/form";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { authStore } from "~/stores/authStore";
-import CampaignIcon from "@mui/icons-material/Campaign";
+  Drawer,
+  Divider,
+} from '@mui/material';
+import type { BoxProps } from '@mui/material';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import { Link, useLocation, useNavigate, matchPath } from 'react-router';
+import { useState } from 'react';
+import pipelineApi, { type Pipeline } from '~/api/objects/pipeline';
+import formApi, { type Form } from '~/api/objects/form';
+import { authStore } from '~/stores/authStore';
+import CampaignIcon from '@mui/icons-material/Campaign';
 import MessageIcon from '@mui/icons-material/Message';
-
+import HomeIcon from '@mui/icons-material/Home';
 // Loader function to fetch both pipelines and forms
 export async function loader() {
   const [pipelines, forms] = await Promise.all([
-    pipelineApi.getAll({ limit: 100, offset: 0, ordering: "", filter: "" }),
-    formApi.getAll({ limit: 100, offset: 0, ordering: "", filter: "" }),
+    pipelineApi.getAll({ limit: 100, offset: 0, ordering: '', filter: '' }),
+    formApi.getAll({ limit: 100, offset: 0, ordering: '', filter: '' }),
   ]);
 
   return { pipelines: pipelines.data, forms: forms.data };
@@ -39,26 +39,54 @@ type LoaderData = {
 type DashNavProps = BoxProps & {
   pipelines: Pipeline[];
   forms: Form[];
+  mobileOpen: boolean;
+  setMobileOpen: (open: boolean) => void;
 };
 
-export default function DashNav({ pipelines, forms, ...props }: DashNavProps) {
+export default function DashNav({
+  pipelines,
+  forms,
+  mobileOpen,
+  setMobileOpen,
+  ...props
+}: DashNavProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [openPipelines, setOpenPipelines] = useState(false);
-  const [openForms, setOpenForms] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
   const handleClick = async () => {
     await authStore.logout();
-    navigate("/sign-in");
+    navigate('/sign-in');
   };
 
-  return (
-    <Box {...props}>
+  const handleDrawerClose = () => {
+    setIsClosing(true);
+    setMobileOpen(false);
+  };
+
+  const handleDrawerTransitionEnd = () => {
+    setIsClosing(false);
+  };
+
+  const handleDrawerToggle = () => {
+    if (!isClosing) {
+      setMobileOpen(!mobileOpen);
+    }
+  };
+
+  const drawerContent = (
+    <>
       <List>
         <ListItem>
-          <ListItemButton onClick={() => navigate("/dashboard")}>
-            <ListItemIcon>{/* <ArrowForwardIcon /> */}</ListItemIcon>
-            <ListItemText primary="" />
+          <ListItemButton
+            onClick={() => navigate('/dashboard')}
+            selected={matchPath(location.pathname, '/dashboard') !== null}
+          >
+            <ListItemIcon>
+              <HomeIcon />
+            </ListItemIcon>
+            <ListItemText primary="Home" />
           </ListItemButton>
         </ListItem>
         <ListItem>
@@ -91,7 +119,7 @@ export default function DashNav({ pipelines, forms, ...props }: DashNavProps) {
           <ListItemButton
             component={Link}
             to="/dashboard/announcements"
-            selected={location.pathname === "/dashboard/announcements"}
+            selected={location.pathname === '/dashboard/announcements'}
           >
             <ListItemIcon>
               <CampaignIcon />
@@ -103,7 +131,7 @@ export default function DashNav({ pipelines, forms, ...props }: DashNavProps) {
           <ListItemButton
             component={Link}
             to="/dashboard/sms-templates"
-            selected={location.pathname === "/dashboard/sms-templates"}
+            selected={location.pathname === '/dashboard/sms-templates'}
           >
             <ListItemIcon>
               <MessageIcon />
@@ -113,31 +141,50 @@ export default function DashNav({ pipelines, forms, ...props }: DashNavProps) {
         </ListItem>
 
         {/* <ListItem>
-          <ListItemButton onClick={() => setOpenForms(!openForms)}>
-            <ListItemIcon>
-              <DescriptionIcon />
-            </ListItemIcon>
-            <ListItemText primary="Forms" />
-            {openForms ? <ExpandLess /> : <ExpandMore />}
-          </ListItemButton>
-        </ListItem>
-        {openForms && (
-          <List component="div" disablePadding>
-            {forms.map((form) => (
-              <ListItemButton
-                key={form.id}
-                sx={{ pl: 4 }}
-                component={Link}
-                to={`/dashboard/forms/${form.id}`}
-                selected={location.pathname === `/dashboard/forms/${form.id}`}
-              >
-                <ListItemText primary={form.name} />
-              </ListItemButton>
-            ))}
-          </List>
-        )}*/}
-      </List> 
+    <ListItemButton onClick={() => setOpenForms(!openForms)}>
+      <ListItemIcon>
+        <DescriptionIcon />
+      </ListItemIcon>
+      <ListItemText primary="Forms" />
+      {openForms ? <ExpandLess /> : <ExpandMore />}
+    </ListItemButton>
+  </ListItem>
+  {openForms && (
+    <List component="div" disablePadding>
+      {forms.map((form) => (
+        <ListItemButton
+          key={form.id}
+          sx={{ pl: 4 }}
+          component={Link}
+          to={`/dashboard/forms/${form.id}`}
+          selected={location.pathname === `/dashboard/forms/${form.id}`}
+        >
+          <ListItemText primary={form.name} />
+        </ListItemButton>
+      ))}
+    </List>
+  )}*/}
+      </List>
       <Button onClick={handleClick}>Logout</Button>
-    </Box>
+    </>
+  );
+
+  return (
+    <>
+      <Drawer
+        open={mobileOpen}
+        sx={{ display: { xs: 'block', md: 'none' } }}
+        ModalProps={{
+          keepMounted: true,
+        }}
+        onClose={handleDrawerClose}
+        onTransitionEnd={handleDrawerTransitionEnd}
+      >
+        {drawerContent}
+      </Drawer>
+      <Box sx={{ display: { xs: 'none', md: 'block', width: 240 } }}>
+        {drawerContent}
+      </Box>
+    </>
   );
 }

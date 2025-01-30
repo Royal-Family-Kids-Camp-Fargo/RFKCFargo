@@ -8,6 +8,7 @@ import {
   useMediaQuery,
   useTheme,
   Drawer,
+  Stack,
 } from '@mui/material';
 import { TopNav } from '~/components/TopNav';
 import DashNav from '~/components/DashNav';
@@ -63,11 +64,17 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const theme = useTheme();
+  const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [isNavOpen, setIsNavOpen] = useState(false);
   // For adding more context to your AI store
   const addBotContext = botContextStore.addContext;
   const removeBotContext = botContextStore.removeContext;
+
+  useEffect(() => {
+    if (!isMobile) {
+      setMobileOpen(false);
+    }
+  }, [isMobile]);
 
   useEffect(() => {
     if (loaderData && 'user' in loaderData) {
@@ -89,45 +96,29 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
 
     return (
       <SnackbarProvider>
-        <TopNav user={user}>
-          {isMobile && (
-            <IconButton
-              color="inherit"
-              edge="start"
-              onClick={() => setIsNavOpen(!isNavOpen)}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
-        </TopNav>
+        <TopNav
+          user={user}
+          mobileOpen={mobileOpen}
+          setMobileOpen={setMobileOpen}
+        />
         <Divider />
-
-        {isMobile && (
-          <Drawer
-            anchor="right"
-            open={isNavOpen}
-            onClose={() => setIsNavOpen(false)}
-            variant="temporary"
-            sx={{
-              '& .MuiDrawer-paper': {
-                width: 240,
-              },
-            }}
-          >
-            <DashNav pipelines={pipelines} forms={forms} />
-          </Drawer>
-        )}
-
-        {!isMobile && (
-          <Box sx={{ width: 240, flexShrink: 0 }}>
-            <DashNav pipelines={pipelines} forms={forms} />
+        <Stack direction="row" flexGrow={1}>
+          <DashNav
+            pipelines={pipelines}
+            forms={forms}
+            mobileOpen={mobileOpen}
+            setMobileOpen={setMobileOpen}
+          />
+          <Divider
+            orientation="vertical"
+            flexItem
+            sx={{ display: { xs: 'none', md: 'block' } }}
+          />
+          <Box flexGrow={1}>
+            <Outlet />
+            <ChatBubble />
           </Box>
-        )}
-
-        <Box flexGrow={1}>
-          <Outlet />
-          <ChatBubble />
-        </Box>
+        </Stack>
       </SnackbarProvider>
     );
   }
