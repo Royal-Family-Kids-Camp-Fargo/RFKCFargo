@@ -23,7 +23,7 @@ export default function Home() {
   const user = authStore.getUser();
 
   return (
-    <SnackbarProvider>
+    <>
       <HomeNav />
       <Container maxWidth={false}>
         <Box
@@ -152,6 +152,6 @@ export default function Home() {
           </Grid2>
         </Grid2>
       </Container>
-    </SnackbarProvider>
+    </>
   );
 }
