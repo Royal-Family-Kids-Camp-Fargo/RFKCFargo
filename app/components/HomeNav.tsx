@@ -1,26 +1,13 @@
-import { Stack, Typography, Button } from '@mui/material';
+import { Button } from '~/components/ui/button';
 import { Link } from 'react-router';
 
 export function HomeNav() {
   return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      justifyContent="space-between"
-      sx={{ padding: 2 }}
-      gap={2}
-    >
-      <Typography variant="h6" sx={{ fontWeight: 600 }}>
-        RFKC Fargo
-      </Typography>
-      <Button
-        variant="contained"
-        color="primary"
-        component={Link}
-        to="/sign-in"
-      >
-        RFK Central
+    <div className="flex items-center justify-between py-4 px-8 gap-8">
+      <h2 className="text-xl font-semibold">RFKC Fargo</h2>
+      <Button asChild>
+        <Link to="/sign-in">RFK Central</Link>
       </Button>
-    </Stack>
+    </div>
   );
 }
