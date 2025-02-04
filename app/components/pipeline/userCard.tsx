@@ -1,20 +1,15 @@
 import React, { useState } from 'react';
 import {
-  Typography,
-  Paper,
   Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Box,
-} from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import SmsIcon from "@mui/icons-material/Sms";
-import CallIcon from "@mui/icons-material/Call";
-import type { User } from "~/api/objects/user";
-import userPipelineStatusApi from "~/api/objects/userPipelineStatus";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '~/components/ui/accordion';
+import { Button } from '~/components/ui/button';
+import { ChevronLeft, ChevronRight, MessageSquare, Phone } from 'lucide-react';
+import type { User } from '~/api/objects/user';
+import userPipelineStatusApi from '~/api/objects/userPipelineStatus';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import SmsDialog from './SmsDialog';
 
 export type StatusIds = {
@@ -38,15 +33,18 @@ export default function UserCard({
   const [isSmsDialogOpen, setIsSmsDialogOpen] = useState(false);
 
   const { mutate: movePipelineStatusBackward } = useMutation({
-    mutationFn: (statusIds: StatusIds) =>
-      userPipelineStatusApi.movePipelineStatus(
+    mutationFn: (statusIds: StatusIds) => {
+      if (!statusIds.previousStatusId)
+        return Promise.reject('No previous status');
+      return userPipelineStatusApi.movePipelineStatus(
         user.id,
         pipelineId,
         statusIds.previousStatusId
-      ),
+      );
+    },
     onSuccess: (data: any) => {
-      console.log("onSuccess backward");
-      queryClient.setQueryData(["pipelineStatuses"], (oldData: any) => {
+      console.log('onSuccess backward');
+      queryClient.setQueryData(['pipelineStatuses'], (oldData: any) => {
         try {
           const newData = {
             ...oldData,
@@ -54,7 +52,7 @@ export default function UserCard({
           };
           return newData;
         } catch (error) {
-          console.error("Error updating pipeline statuses", error);
+          console.error('Error updating pipeline statuses', error);
           return oldData;
         }
       });
@@ -62,15 +60,17 @@ export default function UserCard({
   });
 
   const { mutate: movePipelineStatusForward } = useMutation({
-    mutationFn: (statusIds: StatusIds) =>
-      userPipelineStatusApi.movePipelineStatus(
+    mutationFn: (statusIds: StatusIds) => {
+      if (!statusIds.nextStatusId) return Promise.reject('No next status');
+      return userPipelineStatusApi.movePipelineStatus(
         user.id,
         pipelineId,
         statusIds.nextStatusId
-      ),
+      );
+    },
     onSuccess: (data: any) => {
-      console.log("onSuccess forward", data);
-      queryClient.setQueryData(["pipelineStatuses"], (oldData: any) => {
+      console.log('onSuccess forward', data);
+      queryClient.setQueryData(['pipelineStatuses'], (oldData: any) => {
         try {
           const newData = {
             ...oldData,
@@ -78,7 +78,7 @@ export default function UserCard({
           };
           return newData;
         } catch (error) {
-          console.error("Error updating pipeline statuses", error);
+          console.error('Error updating pipeline statuses', error);
           return oldData;
         }
       });
@@ -88,67 +88,62 @@ export default function UserCard({
   return (
     <>
       <Accordion
-        elevation={1}
-        sx={{
-          mb: 1,
-          p: 1,
-          backgroundColor: "#f8f9fa",
-        }}
+        type="single"
+        collapsible
+        className="w-full bg-card rounded-lg border"
       >
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1a-content"
-          id="panel1a-header"
-        >
-          <Typography variant="body1" sx={{ fontWeight: 600 }}>
-            {user.first_name || user.last_name
-              ? `${user.first_name} ${user.last_name}`
-              : "No Name"}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography variant="body2" color="textSecondary">
-            {user.email}
-          </Typography>
-          <Typography variant="body2">
-            {user.phone_number || "No Phone"}
-          </Typography>
-          <Typography variant="body2">
-            Assigned to: {user.user?.first_name || "No Assignment"}
-          </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginTop: "1rem",
-            }}
-          >
-            <ArrowBackIcon
-              sx={{
-                mr: 1,
-                cursor: "pointer",
-                display: statusIds.previousStatusId ? "block" : "none",
-              }}
-              onClick={() => movePipelineStatusBackward(statusIds)}
-            />
-            <SmsIcon
-              sx={{ cursor: "pointer" }}
-              onClick={() => setIsSmsDialogOpen(true)}
-            />
-            <a href={`tel:${user.phone_number}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <CallIcon sx={{ cursor: "pointer" }} />
-            </a>
-            <ArrowForwardIcon
-              sx={{
-                ml: 1,
-                cursor: "pointer",
-                display: statusIds.nextStatusId ? "block" : "none",
-              }}
-              onClick={() => movePipelineStatusForward(statusIds)}
-            />
-          </Box>
-        </AccordionDetails>
+        <AccordionItem value="item-1" className="border-none">
+          <AccordionTrigger className="px-4 hover:no-underline">
+            <span className="font-semibold">
+              {user.first_name || user.last_name
+                ? `${user.first_name} ${user.last_name}`
+                : 'No Name'}
+            </span>
+          </AccordionTrigger>
+          <AccordionContent className="px-4 pb-4">
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <p className="text-sm">{user.phone_number || 'No Phone'}</p>
+              <p className="text-sm">
+                Assigned to: {user.user?.first_name || 'No Assignment'}
+              </p>
+              <div className="flex items-center justify-between mt-4">
+                {statusIds.previousStatusId && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => movePipelineStatusBackward(statusIds)}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsSmsDialogOpen(true)}
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" asChild>
+                    <a href={`tel:${user.phone_number}`}>
+                      <Phone className="h-4 w-4" />
+                    </a>
+                  </Button>
+                </div>
+                {statusIds.nextStatusId && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => movePipelineStatusForward(statusIds)}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
       </Accordion>
 
       <SmsDialog

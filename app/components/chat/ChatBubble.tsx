@@ -1,24 +1,33 @@
-import { useState, useEffect, useRef, useCallback, useMemo, type MutableRefObject } from "react";
-import { Fab, Grow } from "@mui/material";
-import { Chat as ChatIcon } from "@mui/icons-material";
-import { EventSourceParserStream } from "eventsource-parser/stream";
-import { useNavigation } from "react-router";
-import { getNavigationSuggestions } from "~/config/navigationConfig";
-import useStore from "~/zustand/store";
-import sendNlapiRequest from "~/api/nlapi";
-import ChatHeader from "./ChatHeader";
-import ChatMessages from "./ChatMessages";
-import ChatInput from "./ChatInput";
-import NavigationSuggestions from "./NavigationSuggestions";
-import { ChatContainer } from "./styles";
-import type { Message, Action } from "./types";
-import { authStore } from "~/stores/authStore";
-import { botContextStore } from "~/stores/botContextStore";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+  type MutableRefObject,
+} from 'react';
+import { Fab, Grow } from '@mui/material';
+import { Chat as ChatIcon } from '@mui/icons-material';
+import { EventSourceParserStream } from 'eventsource-parser/stream';
+import { useNavigation } from 'react-router';
+import { getNavigationSuggestions } from '~/config/navigationConfig';
+import useStore from '~/zustand/store';
+import sendNlapiRequest from '~/api/nlapi';
+import ChatHeader from './ChatHeader';
+import ChatMessages from './ChatMessages';
+import ChatInput from './ChatInput';
+import NavigationSuggestions from './NavigationSuggestions';
+import { ChatContainer } from './styles';
+import type { Message, Action } from './types';
+import { authStore } from '~/stores/authStore.client';
+import { botContextStore } from '~/stores/botContextStore';
 
 export default function ChatBubble() {
   const navigate = useNavigation();
   const latestActions = useStore<Action[]>((state: any) => state.getActions());
-  const setActions = useStore<(actions: Action[]) => void>((state: any) => state.setActions);
+  const setActions = useStore<(actions: Action[]) => void>(
+    (state: any) => state.setActions
+  );
   const botContext = botContextStore.getContext();
 
   const suggestions = useMemo(
@@ -26,16 +35,18 @@ export default function ChatBubble() {
     [latestActions]
   );
   const [isExpanded, setIsExpanded] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [statusMessage, setStatusMessage] = useState("");
+  const [statusMessage, setStatusMessage] = useState('');
   const [threadId, setThreadId] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null) as MutableRefObject<HTMLDivElement | null>;
+  const messagesEndRef = useRef<HTMLDivElement>(
+    null
+  ) as MutableRefObject<HTMLDivElement | null>;
 
   useEffect(() => {
-    if (messages.length > 0 || statusMessage !== "") {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messages.length > 0 || statusMessage !== '') {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, statusMessage]);
 
@@ -50,10 +61,10 @@ export default function ChatBubble() {
 
       const newMessage: Message = {
         content: message,
-        speaker: "human",
+        speaker: 'human',
       };
       setMessages((prevMessages) => [...prevMessages, newMessage]);
-      setMessage("");
+      setMessage('');
 
       const sendMessage = async () => {
         const body = {
@@ -93,7 +104,7 @@ export default function ChatBubble() {
             setActions(latestActions);
           }
         } catch (error) {
-          console.error("Error sending message to NLAPI:", error);
+          console.error('Error sending message to NLAPI:', error);
         }
       };
 
@@ -112,22 +123,25 @@ export default function ChatBubble() {
       body.options
     );
     if (!response.ok) {
-      console.error("Response from NLAPI:", response);
-      alert("Failed to send message");
+      console.error('Response from NLAPI:', response);
+      alert('Failed to send message');
     }
     return response;
   };
 
   const handleStreamingEvents = async (reader: any) => {
-    let lastMessage = "";
-    let lastChunkEvent = "start";
+    let lastMessage = '';
+    let lastChunkEvent = 'start';
     let threadId;
 
     const updateMessages = (content: string, isNewMessage: boolean) => {
       setMessages((prevMessages) => {
         const updatedMessages = isNewMessage
-          ? [...prevMessages, { content, speaker: "assistant" as const }]
-          : [...prevMessages.slice(0, -1), { content, speaker: "assistant" as const }];
+          ? [...prevMessages, { content, speaker: 'assistant' as const }]
+          : [
+              ...prevMessages.slice(0, -1),
+              { content, speaker: 'assistant' as const },
+            ];
         return updatedMessages;
       });
     };
@@ -137,16 +151,16 @@ export default function ChatBubble() {
       const { event, data } = chunk;
       const chunkEventData = JSON.parse(data);
 
-      if (event === "status_message") {
+      if (event === 'status_message') {
         setStatusMessage(chunkEventData.content);
       } else {
-        setStatusMessage("");
+        setStatusMessage('');
       }
 
-      if (event === "message_chunk") {
+      if (event === 'message_chunk') {
         lastMessage += chunkEventData.content;
-        updateMessages(lastMessage, lastChunkEvent !== "message_chunk");
-      } else if (event === "close") {
+        updateMessages(lastMessage, lastChunkEvent !== 'message_chunk');
+      } else if (event === 'close') {
         threadId = chunkEventData.thread_id;
         const actions_called = chunkEventData.actions_called;
         if (actions_called) {
@@ -156,8 +170,8 @@ export default function ChatBubble() {
             response: action.response,
           }));
         }
-      } else if (event === "error") {
-        console.error("Error from NLAPI:", chunkEventData);
+      } else if (event === 'error') {
+        console.error('Error from NLAPI:', chunkEventData);
       }
 
       lastChunkEvent = event;
@@ -173,7 +187,7 @@ export default function ChatBubble() {
           color="primary"
           aria-label="chat"
           style={{
-            position: "fixed",
+            position: 'fixed',
             bottom: 36,
             right: 36,
             height: 80,
@@ -185,7 +199,7 @@ export default function ChatBubble() {
         </Fab>
       </Grow>
 
-      <Grow in={isExpanded} style={{ transformOrigin: "0 0 0" }}>
+      <Grow in={isExpanded} style={{ transformOrigin: '0 0 0' }}>
         <ChatContainer>
           <ChatHeader
             isStreaming={isStreaming}

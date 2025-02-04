@@ -1,11 +1,11 @@
-import { ApolloClient as ApolloClientClass } from "@apollo/client/core";
-import { InMemoryCache } from "@apollo/client/cache";
-import { HttpLink } from "@apollo/client/link/http";
-import { gql } from "@apollo/client/core";
-import type { NormalizedCacheObject } from "@apollo/client/core";
-import { setContext } from "@apollo/client/link/context";
-import { settings } from "../../config/settings";
-import { authStore } from "../../stores/authStore";
+import { ApolloClient as ApolloClientClass } from '@apollo/client/core';
+import { InMemoryCache } from '@apollo/client/cache';
+import { HttpLink } from '@apollo/client/link/http';
+import { gql } from '@apollo/client/core';
+import type { NormalizedCacheObject } from '@apollo/client/core';
+import { setContext } from '@apollo/client/link/context';
+import { settings } from '../../config/settings';
+import { authStore } from '../../stores/authStore.client';
 
 export type ApiError = {
   message: string;
@@ -17,7 +17,6 @@ export interface BaseModelFields {
   created_at: string;
   updated_at: string;
 }
-
 
 export abstract class BaseApi {
   private client!: ApolloClientClass<NormalizedCacheObject>;
@@ -32,29 +31,31 @@ export abstract class BaseApi {
   }
 
   private initializeClient() {
-    const authLink = setContext((_, { headers }: { headers: Record<string, string> }) => {
-      const auth = authStore.getAuth();
-      console.log("Auth object:", auth);
-      if (!auth || !auth.access_token) {
-        console.error("No valid token found");
+    const authLink = setContext(
+      (_, { headers }: { headers: Record<string, string> }) => {
+        const auth = authStore.getAuth();
+        console.log('Auth object:', auth);
+        if (!auth || !auth.access_token) {
+          console.error('No valid token found');
+        }
+        return {
+          headers: {
+            ...headers,
+            authorization: auth ? `Bearer ${auth.access_token}` : '',
+          },
+        };
       }
-      return {
-        headers: {
-          ...headers,
-          authorization: auth ? `Bearer ${auth.access_token}` : "",
-        },
-      };
-    });
+    );
 
-    const baseUrl = settings.apiUrl.replace(/\/+$/, "");
-    const apiPath = this.path.replace(/^\/+/, "");
+    const baseUrl = settings.apiUrl.replace(/\/+$/, '');
+    const apiPath = this.path.replace(/^\/+/, '');
     const fullUrl = `${baseUrl}/${apiPath}`;
 
     this.client = new ApolloClientClass({
       link: authLink.concat(
         new HttpLink({
           uri: fullUrl,
-          credentials: "same-origin",
+          credentials: 'same-origin',
         })
       ),
       cache: new InMemoryCache(),
@@ -70,13 +71,13 @@ export abstract class BaseApi {
       const fieldMap: Record<string, string[]> = {};
 
       fields.forEach((field) => {
-        const parts = field.split(".");
+        const parts = field.split('.');
         const [parent, ...rest] = parts;
         if (!fieldMap[parent]) {
           fieldMap[parent] = [];
         }
         if (rest.length > 0) {
-          fieldMap[parent].push(rest.join("."));
+          fieldMap[parent].push(rest.join('.'));
         }
       });
 
@@ -92,14 +93,17 @@ export abstract class BaseApi {
           }
           return parent;
         })
-        .join("\n");
+        .join('\n');
     };
 
     const fieldMap = buildFieldMap(fields);
     return formatFieldMap(fieldMap);
   }
 
-  async create<T>(input: T, onconflict: string = "fail"): Promise<T & BaseModelFields> {
+  async create<T>(
+    input: T,
+    onconflict: string = 'fail'
+  ): Promise<T & BaseModelFields> {
     const mutation = gql`
             mutation Create${this.model}($input: ${this.model}Input!) {
                 create_${this.model}(input: $input, onconflict: ${onconflict}) {
@@ -120,7 +124,10 @@ export abstract class BaseApi {
     }
   }
 
-  async get(id: string | null = null, filter: string | null = null): Promise<BaseModelFields | ApiError | null> {
+  async get(
+    id: string | null = null,
+    filter: string | null = null
+  ): Promise<BaseModelFields | ApiError | null> {
     if (id !== null) {
       filter = `id = "${id}"`;
     }
@@ -144,7 +151,7 @@ export abstract class BaseApi {
     } catch (error) {
       console.error(`Error fetching ${this.model}:`, error);
       let status = 400;
-      if (String(error).includes("expired")) {
+      if (String(error).includes('expired')) {
         status = 401;
       }
       return {
@@ -155,9 +162,21 @@ export abstract class BaseApi {
   }
 
   async getAll(
-    pagination: { limit: number; offset: number; ordering: string; filter: string } = { limit: 10, offset: 0, ordering: "", filter: "" },
-    field_to_count: string = "id"
-  ): Promise<{ data: any[]; total: number; limit: number; offset: number; ordering: string; filter: string }> {
+    pagination: {
+      limit: number;
+      offset: number;
+      ordering: string;
+      filter: string;
+    } = { limit: 10, offset: 0, ordering: '', filter: '' },
+    field_to_count: string = 'id'
+  ): Promise<{
+    data: any[];
+    total: number;
+    limit: number;
+    offset: number;
+    ordering: string;
+    filter: string;
+  }> {
     const subquery = `query{ ${this.model} { ${field_to_count} } }`;
     const query = gql`
             query GetAll${
@@ -179,7 +198,7 @@ export abstract class BaseApi {
                 }
             }
         `;
-    console.log("query", query);
+    console.log('query', query);
 
     try {
       const response = await this.client.query({
@@ -200,37 +219,40 @@ export abstract class BaseApi {
     }
   }
 
-  async update<T>(id: string | Record<string, string>, input: Partial<T>): Promise<T & BaseModelFields> {
-    console.log("id", id);
-    let id_string = "";
-    let id_vars = "";
+  async update<T>(
+    id: string | Record<string, string>,
+    input: Partial<T>
+  ): Promise<T & BaseModelFields> {
+    console.log('id', id);
+    let id_string = '';
+    let id_vars = '';
     let id_values: Record<string, string> = {};
-    if (typeof id === "string") {
+    if (typeof id === 'string') {
       id_string = `$id: ID!`;
       id_vars = `id: $id`;
       id_values = { id };
     } else {
       id_string = Object.entries(id)
         .map(([key, value]) => `$${key}: ID!`)
-        .join(", ");
+        .join(', ');
       id_vars = Object.entries(id)
         .map(([key, value]) => `${key}: $${key}`)
-        .join(", ");
+        .join(', ');
       id_values = id;
     }
-    console.log("id_values", id_values);
+    console.log('id_values', id_values);
     try {
       const mutation = gql`
         mutation Update${this.model}(${id_string}, $input: ${
-        this.model
-      }Input!) {
+          this.model
+        }Input!) {
           update_${this.model}(${id_vars}, input: $input) {
             ${this.formatFields(this.fields)}
           }
         }
       `;
-      console.log("mutation", mutation);
-      console.log("id_values", mutation, id_values, input);
+      console.log('mutation', mutation);
+      console.log('id_values', mutation, id_values, input);
       const response = await this.client.mutate({
         mutation,
         variables: { ...id_values, input },

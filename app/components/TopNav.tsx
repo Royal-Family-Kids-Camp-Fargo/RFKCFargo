@@ -1,53 +1,47 @@
+import { Avatar } from '~/components/ui/avatar';
+import { Button } from '~/components/ui/button';
 import {
-  Avatar,
-  Box,
-  Typography,
-  IconButton,
-  Stack,
-  AppBar,
-  Toolbar,
-} from '@mui/material';
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+} from '~/components/ui/breadcrumb';
+import { Menu } from 'lucide-react';
 import type { User } from '~/api/objects/user';
-import MenuIcon from '@mui/icons-material/Menu';
+import { RfkCentralIcon } from './icons/RfkCentralIcon';
 
 type TopNavProps = {
-  user?: User;
-  mobileOpen: boolean;
-  setMobileOpen: (open: boolean) => void;
+  setSideBarOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export function TopNav({ user, mobileOpen, setMobileOpen }: TopNavProps) {
+export function TopNav({ setSideBarOpen }: TopNavProps) {
   return (
-    <AppBar position="static" elevation={0} sx={{ backgroundColor: 'white' }}>
-      <Toolbar>
-        <IconButton
-          sx={{
-            mr: 2,
-            display: { xs: 'block', md: 'none' },
-            minWidth: 48,
-            maxWidth: 48,
-          }}
-          onClick={() => setMobileOpen(true)}
-          edge="start"
-        >
-          <MenuIcon />
-        </IconButton>
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: 600, flexGrow: 1, color: 'primary.main' }}
-        >
-          RFK CENTRAL
-        </Typography>
-        <Avatar
-          sx={{
-            backgroundColor: 'primary.main',
-            color: 'primary.contrastText',
-          }}
-        >
-          {user ? user.first_name?.charAt(0) : ''}
-          {user ? user.last_name?.charAt(0) : ''}
-        </Avatar>
-      </Toolbar>
-    </AppBar>
+    <div className="flex py-2 items-center px-4 gap-2">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() =>
+          setSideBarOpen((prev) => {
+            console.log('prev', prev);
+            return !prev;
+          })
+        }
+      >
+        <Menu />
+      </Button>
+
+      {/* Breadcrumbs */}
+      <div className="flex-1">
+        <Breadcrumb>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="#">Current Page</BreadcrumbLink>
+          </BreadcrumbItem>
+        </Breadcrumb>
+      </div>
+
+      <RfkCentralIcon height={32} width={32} />
+    </div>
   );
 }

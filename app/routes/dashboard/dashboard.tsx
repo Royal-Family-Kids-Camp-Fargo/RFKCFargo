@@ -1,27 +1,21 @@
-import { authStore } from '~/stores/authStore';
-import type { Route } from './+types/index';
+import { authStore } from '~/stores/authStore.client';
+import type { Route } from './+types/dashboard';
 import { Outlet, redirect } from 'react-router';
-import {
-  Box,
-  Divider,
-  IconButton,
-  useMediaQuery,
-  useTheme,
-  Drawer,
-  Stack,
-} from '@mui/material';
+import { Sheet, SheetContent, SheetTrigger } from '~/components/ui/sheet';
+import { Button } from '~/components/ui/button';
+import { Separator } from '~/components/ui/separator';
 import { TopNav } from '~/components/TopNav';
 import DashNav from '~/components/DashNav';
 import pipelineApi, { type Pipeline } from '~/api/objects/pipeline';
 import formApi, { type Form } from '~/api/objects/form';
-// import { refresh } from '~/lib/auth';
-import MenuIcon from '@mui/icons-material/Menu';
+import { Menu } from 'lucide-react';
 import { useState, createContext, useContext, useEffect } from 'react';
 import type { User } from '~/api/objects/user';
 import userApi from '~/api/objects/user';
 import ChatBubble from '~/components/chat/ChatBubble';
 import { botContextStore } from '~/stores/botContextStore';
-import { SnackbarProvider } from 'notistack';
+import { Toaster } from '~/components/ui/sonner';
+import { useMediaQuery } from '~/hooks/use-media-query.tsx';
 
 type LoaderData = {
   user: User;
@@ -52,33 +46,38 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     console.log('user', user);
     authStore.setUser(user);
   }
-
   // Add the pipelines and forms fetch
   const [pipelines, forms] = await Promise.all([
     pipelineApi.getAll({ limit: 100, offset: 0, ordering: '', filter: '' }),
     formApi.getAll({ limit: 100, offset: 0, ordering: '', filter: '' }),
   ]);
-
   return { user, pipelines: pipelines.data, forms: forms.data };
 }
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  const theme = useTheme();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  // For adding more context to your AI store
+  const { user, pipelines, forms } = loaderData;
+  const [sideBarOpen, setSideBarOpen] = useState(true);
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const addBotContext = botContextStore.addContext;
   const removeBotContext = botContextStore.removeContext;
 
   useEffect(() => {
-    if (!isMobile) {
-      setMobileOpen(false);
+    if (isMobile) {
+      setSideBarOpen(false);
     }
+  }, []);
+
+  // Watch for changes in isMobile state
+  useEffect(() => {
+    if (isMobile) {
+      setSideBarOpen(false);
+    }
+    console.log('isMobile', isMobile);
+    console.log('sideBarOpen', sideBarOpen);
   }, [isMobile]);
 
   useEffect(() => {
     if (loaderData && 'user' in loaderData) {
-      const { user } = loaderData as LoaderData;
       const context = `User is logged in with id: ${user.id}`;
       const locationContext = `User's location id is: ${user.location_id}; Any users added by this user will be in this location`;
       addBotContext(context);
@@ -93,34 +92,28 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
 
   if ('user' in loaderData) {
     const { user, pipelines, forms } = loaderData as LoaderData;
-
-    return (
-      <SnackbarProvider>
-        <TopNav
-          user={user}
-          mobileOpen={mobileOpen}
-          setMobileOpen={setMobileOpen}
-        />
-        <Divider />
-        <Stack direction="row" flexGrow={1}>
-          <DashNav
-            pipelines={pipelines}
-            forms={forms}
-            mobileOpen={mobileOpen}
-            setMobileOpen={setMobileOpen}
-          />
-          <Divider
-            orientation="vertical"
-            flexItem
-            sx={{ display: { xs: 'none', md: 'block' } }}
-          />
-          <Box flexGrow={1}>
-            <Outlet />
-            <ChatBubble />
-          </Box>
-        </Stack>
-      </SnackbarProvider>
-    );
   }
-  return <div>Loading...</div>;
+
+  return (
+    <>
+      <div className="flex h-screen flex-1">
+        <DashNav
+          user={user}
+          pipelines={pipelines}
+          forms={forms}
+          sideBarOpen={sideBarOpen}
+          setSideBarOpen={setSideBarOpen}
+          isMobile={isMobile}
+        />
+        <div className="flex h-screen flex-col flex-1">
+          <TopNav setSideBarOpen={setSideBarOpen} />
+          <Separator />
+          <main className="flex-1 overflow-auto p-4">
+            <Outlet />
+          </main>
+        </div>
+      </div>
+      <Toaster />
+    </>
+  );
 }

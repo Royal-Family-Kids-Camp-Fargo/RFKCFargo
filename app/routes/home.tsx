@@ -1,5 +1,5 @@
 import type { Route } from './+types/home';
-import { authStore } from '../stores/authStore';
+import { authStore } from '../stores/authStore.client';
 import { HomeNav } from '~/components/HomeNav';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter } from '~/components/ui/card';
@@ -13,7 +13,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  const user = authStore.getUser();
+  const user = typeof window !== 'undefined' ? authStore.getUser() : null;
 
   return (
     <>
@@ -24,7 +24,7 @@ export default function Home() {
           style={{ backgroundImage: 'url("/2025-banner.jpg")' }}
         />
 
-        <div className="text-center mb-8 max-w-7xl mx-8">
+        <div className="text-center mb-8 max-w-7xl mx-auto px-8">
           <TypographyH1>Welcome to Royal Family Kids Camp</TypographyH1>
           <h2 className="text-xl text-muted-foreground mt-4">
             Join our community of volunteers and supporters making a difference
