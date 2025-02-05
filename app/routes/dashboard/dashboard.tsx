@@ -103,11 +103,11 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
           setSideBarOpen={setSideBarOpen}
           isMobile={isMobile}
         />
-        <div className="flex h-screen flex-col flex-1">
+        <div className="flex h-screen flex-col flex-1 min-w-0">
           <TopNav setSideBarOpen={setSideBarOpen} />
           <LoadingBar />
           <Separator />
-          <main className="flex-1 overflow-auto p-4">
+          <main className="flex-1 overflow-auto p-4 border-1 border-red-500">
             <Outlet />
           </main>
         </div>

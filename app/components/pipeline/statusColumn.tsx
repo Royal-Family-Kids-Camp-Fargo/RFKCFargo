@@ -21,7 +21,7 @@ export default function StatusColumn({
   pipelineId: string;
 }) {
   return (
-    <Card className="min-w-[85vw] sm:min-w-[350px] sm:max-w-[350px] bg-background">
+    <Card className="min-w-[85vw] sm:min-w-[350px] sm:max-w-[350px] bg-background h-fit">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center text-primary pb-1">
           <span className="text-lg sm:text-xl font-bold uppercase tracking-wide">

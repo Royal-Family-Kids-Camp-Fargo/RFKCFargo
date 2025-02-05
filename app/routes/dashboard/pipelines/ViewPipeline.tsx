@@ -344,18 +344,10 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
   }
 
   return (
-    <TooltipProvider>
-      <div className="container mx-auto w-screen h-screen pb-0">
-        {/* Add user button */}
-        <div className="flex justify-end mb-4">
-          <Button onClick={() => setIsAddUserDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add User
-          </Button>
-        </div>
-
+    <div className="h-full flex flex-col gap-2 border-1 border-green-500">
+      <TooltipProvider>
         {/* Search input with filter icon */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -422,10 +414,14 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
               </Command>
             </PopoverContent>
           </Popover>
+          <Button onClick={() => setIsAddUserDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add User
+          </Button>
         </div>
 
         {/* The Kanban board */}
-        <div className="flex overflow-x-auto gap-4 mt-4 pb-4 bg-background touch-pan-x">
+        <div className="flex flex-1 overflow-x-auto gap-4 mt-4 pb-4 bg-background touch-pan-x">
           {pipelineData.pipeline_status_collection.length > 0 ? (
             [...pipelineData.pipeline_status_collection]
               .sort((a: PipelineStatus, b: PipelineStatus) => a.order - b.order)
@@ -457,7 +453,7 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
           pipelineId={pipelineId as string}
           pipelineStatuses={pipelineData.pipeline_status_collection}
         />
-      </div>
-    </TooltipProvider>
+      </TooltipProvider>
+    </div>
   );
 }
