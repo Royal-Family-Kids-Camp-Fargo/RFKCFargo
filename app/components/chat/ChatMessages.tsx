@@ -15,12 +15,12 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
   messagesEndRef,
 }) => {
   return (
-    <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-4 text-lg">
+    <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-4 text-sm">
       {messages.map((msg, index) => (
         <div
           key={index}
           className={cn(
-            'max-w-[70%] rounded-2xl p-3',
+            'max-w-[70%] rounded-lg p-3',
             msg.speaker === 'human'
               ? 'ml-auto bg-primary text-primary-foreground'
               : 'bg-muted text-foreground'

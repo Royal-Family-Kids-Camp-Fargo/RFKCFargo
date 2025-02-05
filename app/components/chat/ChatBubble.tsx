@@ -6,7 +6,7 @@ import useStore from '~/zustand/store';
 import sendNlapiRequest from '~/api/nlapi';
 import { Button } from '~/components/ui/button';
 import { Card } from '~/components/ui/card';
-import { MessageCircle } from 'lucide-react';
+import { BotMessageSquare, MessageCircle } from 'lucide-react';
 import ChatHeader from './ChatHeader';
 import ChatMessages from './ChatMessages';
 import ChatInput from './ChatInput';
@@ -175,10 +175,10 @@ export default function ChatBubble() {
     <>
       {!isExpanded && (
         <Button
-          className="fixed bottom-9 right-9 h-16 w-16 rounded-full p-0"
+          className="fixed bottom-6 right-8 h-16 w-16 rounded-full p-0"
           onClick={() => setIsExpanded(true)}
         >
-          <MessageCircle />
+          <BotMessageSquare className="scale-175" />
         </Button>
       )}
 
