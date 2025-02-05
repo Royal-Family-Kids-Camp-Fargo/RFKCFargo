@@ -1,6 +1,6 @@
-import { TextField, IconButton } from '@mui/material';
-import { Send as SendIcon } from '@mui/icons-material';
-import { ChatInput as StyledChatInput } from './styles';
+import { Input } from '~/components/ui/input';
+import { Button } from '~/components/ui/button';
+import { Send } from 'lucide-react';
 
 interface ChatInputProps {
   message: string;
@@ -8,22 +8,24 @@ interface ChatInputProps {
   onSubmit: (e: React.FormEvent) => void;
 }
 
-const ChatInput: React.FunctionComponent<ChatInputProps> = ({ message, setMessage, onSubmit }) => {
+const ChatInput: React.FC<ChatInputProps> = ({
+  message,
+  setMessage,
+  onSubmit,
+}) => {
   return (
-    <StyledChatInput onSubmit={onSubmit}>
-      <TextField
-        label="Type your message"
-        variant="outlined"
+    <form onSubmit={onSubmit} className="flex gap-2 border-t p-4">
+      <Input
+        placeholder="Type your message"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        fullWidth
-        margin="normal"
+        className="flex-1"
       />
-      <IconButton type="submit" color="primary">
-        <SendIcon />
-      </IconButton>
-    </StyledChatInput>
+      <Button type="submit" size="icon">
+        <Send className="h-5 w-5" />
+      </Button>
+    </form>
   );
 };
 
-export default ChatInput; 
+export default ChatInput;

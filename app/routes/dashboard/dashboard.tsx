@@ -1,21 +1,19 @@
 import { authStore } from '~/stores/authStore.client';
 import type { Route } from './+types/dashboard';
 import { Outlet, redirect } from 'react-router';
-import { Sheet, SheetContent, SheetTrigger } from '~/components/ui/sheet';
-import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
 import { TopNav } from '~/components/TopNav';
 import DashNav from '~/components/DashNav';
 import pipelineApi, { type Pipeline } from '~/api/objects/pipeline';
 import formApi, { type Form } from '~/api/objects/form';
-import { Menu } from 'lucide-react';
-import { useState, createContext, useContext, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { User } from '~/api/objects/user';
 import userApi from '~/api/objects/user';
-import ChatBubble from '~/components/chat/ChatBubble';
 import { botContextStore } from '~/stores/botContextStore';
 import { Toaster } from '~/components/ui/sonner';
 import { useMediaQuery } from '~/hooks/use-media-query.tsx';
+import ChatBubble from '~/components/chat/ChatBubble';
+import { LoadingBar } from '~/components/LoadingBar';
 
 type LoaderData = {
   user: User;
@@ -107,12 +105,14 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
         />
         <div className="flex h-screen flex-col flex-1">
           <TopNav setSideBarOpen={setSideBarOpen} />
+          <LoadingBar />
           <Separator />
           <main className="flex-1 overflow-auto p-4">
             <Outlet />
           </main>
         </div>
       </div>
+      <ChatBubble />
       <Toaster />
     </>
   );

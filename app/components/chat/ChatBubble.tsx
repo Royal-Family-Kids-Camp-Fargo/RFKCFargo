@@ -1,23 +1,16 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo,
-  type MutableRefObject,
-} from 'react';
-import { Fab, Grow } from '@mui/material';
-import { Chat as ChatIcon } from '@mui/icons-material';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { EventSourceParserStream } from 'eventsource-parser/stream';
 import { useNavigation } from 'react-router';
 import { getNavigationSuggestions } from '~/config/navigationConfig';
 import useStore from '~/zustand/store';
 import sendNlapiRequest from '~/api/nlapi';
+import { Button } from '~/components/ui/button';
+import { Card } from '~/components/ui/card';
+import { MessageCircle } from 'lucide-react';
 import ChatHeader from './ChatHeader';
 import ChatMessages from './ChatMessages';
 import ChatInput from './ChatInput';
 import NavigationSuggestions from './NavigationSuggestions';
-import { ChatContainer } from './styles';
 import type { Message, Action } from './types';
 import { authStore } from '~/stores/authStore.client';
 import { botContextStore } from '~/stores/botContextStore';
@@ -40,9 +33,7 @@ export default function ChatBubble() {
   const [statusMessage, setStatusMessage] = useState('');
   const [threadId, setThreadId] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(
-    null
-  ) as MutableRefObject<HTMLDivElement | null>;
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (messages.length > 0 || statusMessage !== '') {
@@ -182,25 +173,17 @@ export default function ChatBubble() {
 
   return (
     <>
-      <Grow in={!isExpanded}>
-        <Fab
-          color="primary"
-          aria-label="chat"
-          style={{
-            position: 'fixed',
-            bottom: 36,
-            right: 36,
-            height: 80,
-            width: 80,
-          }}
+      {!isExpanded && (
+        <Button
+          className="fixed bottom-9 right-9 h-16 w-16 rounded-full p-0"
           onClick={() => setIsExpanded(true)}
         >
-          <ChatIcon />
-        </Fab>
-      </Grow>
+          <MessageCircle />
+        </Button>
+      )}
 
-      <Grow in={isExpanded} style={{ transformOrigin: '0 0 0' }}>
-        <ChatContainer>
+      {isExpanded && (
+        <Card className="fixed bottom-4 right-4 flex h-[60vh] w-[90%] flex-col overflow-hidden">
           <ChatHeader
             isStreaming={isStreaming}
             setIsStreaming={setIsStreaming}
@@ -218,8 +201,8 @@ export default function ChatBubble() {
             onSubmit={handleSubmit}
           />
           <NavigationSuggestions suggestions={suggestions} />
-        </ChatContainer>
-      </Grow>
+        </Card>
+      )}
     </>
   );
 }

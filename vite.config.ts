@@ -5,12 +5,4 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
-  ssr: {
-    noExternal: [
-      '@mui/*', // fix material-ui ES modules imported error.
-    ],
-  },
-  optimizeDeps: {
-    include: ['@mui/*'],
-  },
 });

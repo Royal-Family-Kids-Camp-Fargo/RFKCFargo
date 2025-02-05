@@ -1,8 +1,9 @@
-import React from "react";
-import { Typography, Button, IconButton } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import CloseIcon from "@mui/icons-material/Close";
+import React from 'react';
+import { Button } from '~/components/ui/button';
+import { CardHeader } from '~/components/ui/card';
+import { RefreshCw, X } from 'lucide-react';
+import { Switch } from '~/components/ui/switch';
+import { Label } from '~/components/ui/label';
 
 type ChatHeaderProps = {
   isStreaming: boolean;
@@ -11,15 +12,6 @@ type ChatHeaderProps = {
   setIsExpanded: (isExpanded: boolean) => void;
 };
 
-const ChatHeaderDiv = styled("div")(({ theme }) => ({
-  padding: theme.spacing(2),
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-}));
-
 export default function ChatHeader({
   isStreaming,
   setIsStreaming,
@@ -27,26 +19,37 @@ export default function ChatHeader({
   setIsExpanded,
 }: ChatHeaderProps) {
   return (
-    <ChatHeaderDiv>
-      <Typography variant="h6">Chat</Typography>
-      <Button
-        variant="contained"
-        color={isStreaming ? "success" : "primary"}
-        onClick={() => setIsStreaming(!isStreaming)}
-      >
-        {isStreaming ? "Stream On" : "Stream Off"}
-      </Button>
-      <IconButton
-        color="inherit"
-        onClick={() => {
-          resetChat();
-        }}
-      >
-        <RefreshIcon />
-      </IconButton>
-      <IconButton color="inherit" onClick={() => setIsExpanded(false)}>
-        <CloseIcon />
-      </IconButton>
-    </ChatHeaderDiv>
+    <CardHeader className="flex flex-row items-center justify-between bg-muted p-4 text-muted-foreground">
+      <h2 className="text-lg font-semibold">Chat</h2>
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <Switch
+            id="streaming-mode"
+            checked={isStreaming}
+            onCheckedChange={setIsStreaming}
+            defaultChecked
+          />
+          <Label htmlFor="streaming-mode" className="text-sm">
+            {isStreaming ? 'Stream On' : 'Stream Off'}
+          </Label>
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-muted-foreground hover:text-muted-foreground/90"
+          onClick={resetChat}
+        >
+          <RefreshCw className="h-5 w-5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-muted-foreground hover:text-muted-foreground/90"
+          onClick={() => setIsExpanded(false)}
+        >
+          <X className="h-5 w-5" />
+        </Button>
+      </div>
+    </CardHeader>
   );
 }

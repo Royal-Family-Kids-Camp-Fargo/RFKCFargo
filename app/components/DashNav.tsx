@@ -64,7 +64,7 @@ export default function DashNav({
   const NavContent = () => (
     <div className="flex flex-col flex-1">
       <nav aria-label="Main Navigation">
-        <ul className="flex flex-col space-y-1 p-2" role="list">
+        <ul className="flex flex-col space-y-1 p-4" role="list">
           <li>
             <Button
               variant="ghost"
