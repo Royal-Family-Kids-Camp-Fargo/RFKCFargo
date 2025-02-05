@@ -25,6 +25,7 @@ import {
   CollapsibleTrigger,
 } from '~/components/ui/collapsible';
 import type { User } from '~/api/objects/user';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 // Loader function to fetch both pipelines and forms
 export async function loader() {
@@ -47,6 +48,7 @@ type DashNavProps = {
 
 export default function DashNav({
   pipelines,
+  user,
   forms,
   sideBarOpen,
   setSideBarOpen,
@@ -55,6 +57,7 @@ export default function DashNav({
   const location = useLocation();
   const navigate = useNavigate();
   const [openPipelines, setOpenPipelines] = useState(false);
+  const initials = user.first_name.charAt(0) + user.last_name.charAt(0);
 
   const handleClick = async () => {
     await authStore.logout();
@@ -62,9 +65,24 @@ export default function DashNav({
   };
 
   const NavContent = () => (
-    <div className="flex flex-col flex-1">
+    <div className="flex flex-col flex-1 gap-2 p-4">
+      <div className="w-full justify-start h-16 px-4 flex items-center gap-2">
+        <Avatar>
+          <AvatarFallback className="bg-primary text-primary-foreground">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col items-start">
+          <p className="text-sm font-medium">
+            {user.first_name} {user.last_name}
+          </p>
+          <p className="text-xs text-muted-foreground truncate max-w-[128px]">
+            {user.email}
+          </p>
+        </div>
+      </div>
       <nav aria-label="Main Navigation">
-        <ul className="flex flex-col space-y-1 p-4" role="list">
+        <ul className="flex flex-col space-y-1" role="list">
           <li>
             <Button
               variant="ghost"
