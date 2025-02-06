@@ -183,7 +183,7 @@ export default function ChatBubble() {
       )}
 
       {isExpanded && (
-        <Card className="fixed bottom-4 right-4 flex h-[60vh] w-[90%] max-w-[480px] flex-col overflow-hidden">
+        <Card className="fixed bottom-4 right-4 flex w-[90%] max-w-[480px] flex-col overflow-hidden sm:h-[60vh] h-[80vh]">
           <ChatHeader
             isStreaming={isStreaming}
             setIsStreaming={setIsStreaming}

@@ -43,7 +43,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="flex-1 resize-none min-h-[40px] max-h-[120px]"
+        className="flex-1 resize-none min-h-[40px] max-h-[120px] text-sm"
         rows={lineCount}
       />
       <Button variant="ghost" type="submit" size="icon">

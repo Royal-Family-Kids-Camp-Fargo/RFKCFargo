@@ -24,7 +24,7 @@ export default function ChatHeader({
   setIsExpanded,
 }: ChatHeaderProps) {
   return (
-    <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
+    <CardHeader className="flex flex-row items-center gap2 justify-between p-4 border-b">
       <div className="flex items-center gap-2">
         <Sparkles />
         <h2 className="text-lg font-semibold">RFK Assistant</h2>
