@@ -19,16 +19,13 @@ import {
 import { Separator } from '~/components/ui/separator';
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from '~/components/ui/command';
 
 import pipelineApi from '~/api/objects/pipeline';
 import type { Pipeline } from '~/api/objects/pipeline';
-import pipelineStatusApi from '~/api/objects/pipelineStatus';
 import type { PipelineStatus } from '~/api/objects/pipelineStatus';
 import { botContextStore } from '~/stores/botContextStore';
 import { authStore } from '~/stores/authStore.client';
@@ -39,7 +36,6 @@ import type { UserPipelineStatus } from '~/api/objects/userPipelineStatus';
 import userPipelineStatusApi from '~/api/objects/userPipelineStatus';
 import type { User, UserBase } from '~/api/objects/user';
 import AddUserDialog from '~/components/pipeline/AddUserDialog';
-import sendNlapiRequest from '~/api/nlapi';
 
 // type UserPipelineStatus = {
 //   id: string;
