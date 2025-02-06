@@ -1,6 +1,6 @@
 import { authStore } from '~/stores/authStore.client';
 import type { Route } from './+types/dashboard';
-import { Outlet, redirect } from 'react-router';
+import { Outlet, redirect, useLocation } from 'react-router';
 import { Separator } from '~/components/ui/separator';
 import { TopNav } from '~/components/TopNav';
 import DashNav from '~/components/DashNav';
@@ -53,6 +53,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 }
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
+  const location = useLocation();
   const { user, pipelines, forms } = loaderData;
   const [sideBarOpen, setSideBarOpen] = useState(true);
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -64,6 +65,12 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
       setSideBarOpen(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (isMobile) {
+      setSideBarOpen(false);
+    }
+  }, [location.pathname]);
 
   // Watch for changes in isMobile state
   useEffect(() => {
