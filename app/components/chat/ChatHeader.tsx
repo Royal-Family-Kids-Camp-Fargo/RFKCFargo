@@ -1,9 +1,14 @@
-import React from 'react';
 import { Button } from '~/components/ui/button';
 import { CardHeader } from '~/components/ui/card';
-import { RefreshCw, X } from 'lucide-react';
+import { X, MessageSquarePlus, Sparkles } from 'lucide-react';
 import { Switch } from '~/components/ui/switch';
 import { Label } from '~/components/ui/label';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from '~/components/ui/tooltip';
 
 type ChatHeaderProps = {
   isStreaming: boolean;
@@ -19,35 +24,44 @@ export default function ChatHeader({
   setIsExpanded,
 }: ChatHeaderProps) {
   return (
-    <CardHeader className="flex flex-row items-center justify-between bg-muted p-4 text-muted-foreground">
-      <h2 className="text-lg font-semibold">Chat</h2>
-      <div className="flex items-center gap-4">
+    <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
+      <div className="flex items-center gap-2">
+        <Sparkles />
+        <h2 className="text-lg font-semibold">RFK Assistant</h2>
+      </div>
+      <div className="flex items-center gap-2">
         <div className="flex items-center gap-2">
+          <Label
+            htmlFor="streaming-mode"
+            className="text-sm text-muted-foreground"
+          >
+            {isStreaming ? 'Stream On' : 'Stream Off'}
+          </Label>
           <Switch
             id="streaming-mode"
             checked={isStreaming}
             onCheckedChange={setIsStreaming}
             defaultChecked
           />
-          <Label htmlFor="streaming-mode" className="text-sm">
-            {isStreaming ? 'Stream On' : 'Stream Off'}
-          </Label>
         </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={resetChat}>
+                <MessageSquarePlus />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Start new chat thread</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <Button
           variant="ghost"
           size="icon"
-          className="text-muted-foreground hover:text-muted-foreground/90"
-          onClick={resetChat}
-        >
-          <RefreshCw className="h-5 w-5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-muted-foreground hover:text-muted-foreground/90"
           onClick={() => setIsExpanded(false)}
         >
-          <X className="h-5 w-5" />
+          <X />
         </Button>
       </div>
     </CardHeader>

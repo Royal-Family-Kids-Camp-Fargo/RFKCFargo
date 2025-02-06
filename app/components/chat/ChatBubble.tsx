@@ -6,7 +6,7 @@ import useStore from '~/zustand/store';
 import sendNlapiRequest from '~/api/nlapi';
 import { Button } from '~/components/ui/button';
 import { Card } from '~/components/ui/card';
-import { BotMessageSquare, MessageCircle } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import ChatHeader from './ChatHeader';
 import ChatMessages from './ChatMessages';
 import ChatInput from './ChatInput';
@@ -178,12 +178,12 @@ export default function ChatBubble() {
           className="fixed bottom-6 right-8 h-16 w-16 rounded-full p-0"
           onClick={() => setIsExpanded(true)}
         >
-          <BotMessageSquare className="scale-175" />
+          <Sparkles className="scale-175" />
         </Button>
       )}
 
       {isExpanded && (
-        <Card className="fixed bottom-4 right-4 flex h-[60vh] w-[90%] flex-col overflow-hidden">
+        <Card className="fixed bottom-4 right-4 flex h-[60vh] w-[90%] max-w-[480px] flex-col overflow-hidden">
           <ChatHeader
             isStreaming={isStreaming}
             setIsStreaming={setIsStreaming}
