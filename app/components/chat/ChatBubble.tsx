@@ -175,7 +175,7 @@ export default function ChatBubble() {
     <>
       {!isExpanded && (
         <Button
-          className="fixed bottom-6 right-8 h-16 w-16 rounded-full p-0"
+          className="fixed bottom-6 right-8 h-16 w-16 rounded-full p-0 hover:bg-chat-bubble-hover shadow-lg"
           onClick={() => setIsExpanded(true)}
         >
           <Sparkles className="scale-175" />
@@ -183,7 +183,7 @@ export default function ChatBubble() {
       )}
 
       {isExpanded && (
-        <Card className="fixed bottom-4 right-4 flex w-[90%] max-w-[480px] flex-col overflow-hidden sm:h-[60vh] h-[80vh]">
+        <Card className="fixed bottom-4 right-4 flex w-[90%] max-w-[480px] flex-col overflow-hidden sm:h-[60vh] h-[80vh] shadow-lg">
           <ChatHeader
             isStreaming={isStreaming}
             setIsStreaming={setIsStreaming}
