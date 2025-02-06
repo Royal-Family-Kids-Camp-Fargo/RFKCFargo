@@ -417,29 +417,33 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
         </div>
 
         {/* The Kanban board */}
-        <div className="flex flex-1 overflow-x-auto gap-4 mt-4 pb-4 bg-background touch-pan-x">
-          {pipelineData.pipeline_status_collection.length > 0 ? (
-            [...pipelineData.pipeline_status_collection]
-              .sort((a: PipelineStatus, b: PipelineStatus) => a.order - b.order)
-              .map((status: PipelineStatus) => (
-                <StatusColumn
-                  key={status.id}
-                  status={status}
-                  userPipelineStatuses={filterUsers(
-                    Object.values(boardData),
-                    status.id
-                  )}
-                  statusIds={getAdjacentStatusIds(status.id)}
-                  pipelineId={pipelineData.id}
-                />
-              ))
-          ) : (
-            <div className="text-center mt-8 w-full">
-              <p className="text-sm sm:text-base">
-                No statuses found. Please add statuses to this pipeline.
-              </p>
-            </div>
-          )}
+        <div className="flex flex-col flex-1 min-h-0 bg-muted rounded-lg p-4">
+          <div className="flex flex-1 overflow-x-auto gap-4 mt-4 bg-none touch-pan-x">
+            {pipelineData.pipeline_status_collection.length > 0 ? (
+              [...pipelineData.pipeline_status_collection]
+                .sort(
+                  (a: PipelineStatus, b: PipelineStatus) => a.order - b.order
+                )
+                .map((status: PipelineStatus) => (
+                  <StatusColumn
+                    key={status.id}
+                    status={status}
+                    userPipelineStatuses={filterUsers(
+                      Object.values(boardData),
+                      status.id
+                    )}
+                    statusIds={getAdjacentStatusIds(status.id)}
+                    pipelineId={pipelineData.id}
+                  />
+                ))
+            ) : (
+              <div className="text-center mt-8 w-full">
+                <p className="text-sm sm:text-base">
+                  No statuses found. Please add statuses to this pipeline.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Add User Dialog */}
