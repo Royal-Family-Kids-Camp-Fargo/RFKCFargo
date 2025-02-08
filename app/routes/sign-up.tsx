@@ -28,7 +28,6 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     email: formData.get('email'),
     password: formData.get('password'),
   };
-  console.log(data);
 
   const res = await signup(
     formData.get('email') as string,

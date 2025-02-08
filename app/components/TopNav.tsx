@@ -35,8 +35,6 @@ export function TopNav({ setSideBarOpen }: TopNavProps) {
     });
   }
 
-  console.log(breadcrumbItems);
-
   return (
     <div className="flex py-2 items-center px-4 gap-2">
       <Button
@@ -44,7 +42,6 @@ export function TopNav({ setSideBarOpen }: TopNavProps) {
         size="icon"
         onClick={() =>
           setSideBarOpen((prev) => {
-            console.log('prev', prev);
             return !prev;
           })
         }

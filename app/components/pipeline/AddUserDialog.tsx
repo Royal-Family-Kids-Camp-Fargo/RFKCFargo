@@ -61,7 +61,6 @@ export default function AddUserDialog({
   // Mutation for creating a new user
   const { mutate: createUser, isPending: isCreatingUser } = useMutation({
     mutationFn: async (newUser: Partial<UserCreate>) => {
-      console.log('Creating user', newUser);
       return await userApi.create(newUser);
     },
     onSuccess: (data) => {

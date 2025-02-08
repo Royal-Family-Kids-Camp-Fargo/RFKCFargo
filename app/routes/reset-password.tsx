@@ -29,8 +29,6 @@ export function meta({}: Route.MetaArgs) {
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const url = new URL(request.url);
-  console.log(url);
-  console.log(url.searchParams);
   const token = url.searchParams.get('rst') as string;
   const decodedToken = validateDeviiToken(token);
   if (decodedToken) {

@@ -17,7 +17,6 @@ export default function Announcements() {
     navigator.clipboard.writeText(
       'https://app.givingheartsday.org/#/charity/1870'
     );
-    console.log('Link copied to clipboard');
     toast.success('Link copied to clipboard');
   };
 

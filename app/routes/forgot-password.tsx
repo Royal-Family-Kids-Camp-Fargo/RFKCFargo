@@ -26,7 +26,6 @@ export function meta({}: Route.MetaArgs) {
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();
   const email = formData.get('email') as string;
-  console.log(email);
   const res = await requestPasswordReset(email);
   if (!res) {
     return { error: 'An error occured while requesting your password reset.' };

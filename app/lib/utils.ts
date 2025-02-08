@@ -16,8 +16,6 @@ export function validateDeviiToken(token: string): TokenPayload | undefined {
 
   try {
     decodedToken = jwtDecode(token);
-    console.log(decodedToken);
-    console.log(decodedToken?.sub);
 
     if (!decodedToken) {
       throw new Error('Invalid token');

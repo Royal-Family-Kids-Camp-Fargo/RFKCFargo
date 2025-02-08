@@ -4,10 +4,9 @@ import { Outlet, redirect, useLocation } from 'react-router';
 import { Separator } from '~/components/ui/separator';
 import { TopNav } from '~/components/TopNav';
 import DashNav from '~/components/DashNav';
-import pipelineApi, { type Pipeline } from '~/api/objects/pipeline';
-import formApi, { type Form } from '~/api/objects/form';
+import pipelineApi from '~/api/objects/pipeline';
+import formApi from '~/api/objects/form';
 import { useState, useEffect } from 'react';
-import type { User } from '~/api/objects/user';
 import userApi from '~/api/objects/user';
 import { botContextStore } from '~/stores/botContextStore';
 import { Toaster } from '~/components/ui/sonner';
@@ -20,14 +19,11 @@ export async function clientLoader() {
     authStore.getAuth() || JSON.parse(localStorage.getItem('auth') || '{}');
   authStore.setAuth(auth);
   let user = authStore.getUser();
-  console.log('auth', auth);
   if (!auth.access_token) {
-    console.log('No auth');
     authStore.logout();
     return redirect('/sign-in');
   }
   if (!user) {
-    console.log('Getting user');
     const result = await userApi.get(auth.roleid);
     if ('error' in result) {
       console.error('Error getting user', result);
@@ -35,7 +31,6 @@ export async function clientLoader() {
       return redirect('/sign-in');
     }
     user = result.data;
-    console.log('user', user);
     authStore.setUser(user);
   }
   // Add the pipelines and forms fetch
@@ -50,7 +45,6 @@ export async function clientLoader() {
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const location = useLocation();
   const { user, pipelines, forms } = loaderData;
-  console.log('loaderData', loaderData);
   const [sideBarOpen, setSideBarOpen] = useState(true);
   const isMobile = useMediaQuery('(max-width: 768px)');
   const addBotContext = botContextStore.addContext;
@@ -73,8 +67,6 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
     if (isMobile) {
       setSideBarOpen(false);
     }
-    console.log('isMobile', isMobile);
-    console.log('sideBarOpen', sideBarOpen);
   }, [isMobile]);
 
   useEffect(() => {

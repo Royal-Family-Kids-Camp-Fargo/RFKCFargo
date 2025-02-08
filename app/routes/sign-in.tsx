@@ -29,7 +29,6 @@ export async function clientLoader() {
   const auth = authStore.getAuth();
   const accessToken = auth ? auth.access_token : null;
   const roleid = auth ? auth.roleid : null;
-  console.log('accessToken from sign-in', accessToken);
   if (accessToken && roleid) {
     let user = authStore.getUser();
 
@@ -65,7 +64,6 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       roleid,
     });
     authStore.setUser(user);
-    console.log(authStore.getAuth());
     return redirect('/dashboard');
   } catch (error) {
     console.error('Login failed:', error);

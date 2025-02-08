@@ -16,8 +16,6 @@ async function anonymousLogin() {
 
   const res = await fetch(requestOptions);
 
-  console.log(res);
-
   return res;
 }
 
@@ -48,7 +46,6 @@ export async function requestPasswordReset(email: string): Promise<boolean> {
   });
 
   const json = await res.json();
-  console.log(json);
 
   return res.ok;
 }
@@ -67,8 +64,6 @@ export async function resetPassword(
   }
 
   const role = roleResponse.data;
-
-  console.log(role);
 
   const updatedRole = await roleApi.update(
     roleid.toString(),
@@ -150,7 +145,6 @@ export async function signup(email: string, password: string, name?: string) {
  * @returns A redirect to the sign-in page if refresh fails.
  */
 export async function refresh(refreshToken: string, setAuth: boolean = true) {
-  console.log('refreshing --- > TO implement');
   const res = await fetch(`${baseUrl}/auth`, {
     method: 'GET',
     headers: {
