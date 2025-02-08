@@ -1,5 +1,5 @@
 import type { Route } from './+types/home';
-import { Form, redirect, useNavigation } from 'react-router';
+import { redirect, useFetcher } from 'react-router';
 import { Link as RouterLink } from 'react-router';
 import { authStore } from '~/stores/authStore.client';
 import { login } from '~/api/sessions';
@@ -113,8 +113,12 @@ export default function SignIn() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button className="w-full" type="submit" disabled={isNavigating}>
-              {isNavigating ? (
+            <Button
+              className="w-full"
+              type="submit"
+              disabled={fetcher.state === 'submitting'}
+            >
+              {fetcher.state === 'submitting' ? (
                 <>
                   <Loader2 className="animate-spin" />
                   Signing in...
@@ -132,7 +136,7 @@ export default function SignIn() {
               </RouterLink>
             </p>
           </CardFooter>
-        </Form>
+        </fetcher.Form>
       </Card>
     </div>
   );
