@@ -16,6 +16,7 @@ import { Label } from '~/components/ui/label';
 import { Button } from '~/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { RfkCentralIcon } from '~/components/icons/RfkCentralIcon';
+import { UserApi } from '~/api/objects/user';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -25,16 +26,22 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  let accessToken = authStore.getAuth();
-  if (accessToken) {
-    return redirect('/dashboard');
-  }
-
-  await refresh();
-
-  accessToken = authStore.getAuth();
+  const auth = authStore.getAuth();
+  const accessToken = auth ? auth.access_token : null;
+  const roleid = auth ? auth.roleid : null;
   console.log('accessToken from sign-in', accessToken);
-  if (accessToken) {
+  if (accessToken && roleid) {
+    let user = authStore.getUser();
+
+    if (!user) {
+      const userResponse = await new UserApi(accessToken).get(roleid);
+      if ('error' in userResponse) {
+        return;
+      }
+      user = userResponse.data;
+      authStore.setUser(user);
+    }
+
     return redirect('/dashboard');
   }
 
