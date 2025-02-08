@@ -1,5 +1,5 @@
 import type { Route } from './+types/reset-password';
-import { redirect, useFetcher, useNavigation } from 'react-router';
+import { useFetcher } from 'react-router';
 import { Link as RouterLink } from 'react-router';
 import {
   Card,
@@ -127,8 +127,12 @@ export default function ResetPassword({ loaderData }: Route.ComponentProps) {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button className="w-full" type="submit" disabled={isNavigating}>
-              {isNavigating ? (
+            <Button
+              className="w-full"
+              type="submit"
+              disabled={fetcher.state === 'submitting'}
+            >
+              {fetcher.state === 'submitting' ? (
                 <>
                   <Loader2 className="animate-spin" />
                   Resetting password...
