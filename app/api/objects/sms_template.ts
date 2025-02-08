@@ -1,28 +1,25 @@
-import { BaseApi } from "./base.js";
+import { BaseApi } from './base.js';
 
-export type SmsTemplate = {
-  id: string;
+export interface SmsTemplateInput {
   user_id: string;
   is_shared: boolean;
   title: string;
   template: string;
-};
+}
 
-class SmsTemplateApi extends BaseApi {
+export interface SmsTemplate extends SmsTemplateInput {
+  id: string;
+}
+
+class SmsTemplateApi extends BaseApi<SmsTemplate, SmsTemplateInput> {
   protected get model() {
-    return "sms_template";
+    return 'sms_template';
   }
   protected get path() {
-    return "/query";
+    return '/query';
   }
   protected get fields() {
-    return [
-      "id",
-      "user_id",
-      "is_shared",
-      "title",
-      "template"
-    ];
+    return ['id', 'user_id', 'is_shared', 'title', 'template'];
   }
 }
 

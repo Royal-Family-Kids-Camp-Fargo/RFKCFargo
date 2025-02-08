@@ -6,59 +6,76 @@ import type { NormalizedCacheObject } from '@apollo/client/core';
 import { setContext } from '@apollo/client/link/context';
 import { settings } from '../../config/settings';
 import { authStore } from '../../stores/authStore.client';
+import { onError } from '@apollo/client/link/error';
+import { from } from '@apollo/client/link/core';
 
 export type ApiError = {
-  message: string;
-  status: number;
+  error: {
+    message: string;
+    status: number;
+  };
 };
 
-export interface BaseModelFields {
-  id: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export abstract class BaseApi {
+// Extend BaseApi with generic types
+export abstract class BaseApi<TModel, TInput> {
   private client!: ApolloClientClass<NormalizedCacheObject>;
 
-  // Make these abstract getters instead of properties
   protected abstract get model(): string;
   protected abstract get path(): string;
   protected abstract get fields(): string[];
 
-  constructor() {
-    this.initializeClient();
+  constructor(authToken?: string) {
+    this.initializeClient(authToken);
   }
 
-  private initializeClient() {
-    const authLink = setContext(
-      (_, { headers }: { headers: Record<string, string> }) => {
-        const auth = authStore.getAuth();
-        console.log('Auth object:', auth);
-        if (!auth || !auth.access_token) {
-          console.error('No valid token found');
-        }
-        return {
-          headers: {
-            ...headers,
-            authorization: auth ? `Bearer ${auth.access_token}` : '',
-          },
-        };
+  private initializeClient(authToken?: string) {
+    const errorLink = onError(({ graphQLErrors, networkError }) => {
+      if (graphQLErrors) {
+        graphQLErrors.forEach(({ message }) => {
+          console.error(`[GraphQL error]: ${message}`);
+        });
       }
-    );
+      if (networkError) {
+        console.error(`[Network error]: ${networkError}`);
+      }
+    });
+
+    const authLink = setContext((_, prevContext) => {
+      const auth = authStore.getAuth();
+      const token = authToken || (auth ? auth.access_token : '');
+      return {
+        headers: {
+          ...(prevContext?.headers || {}),
+          authorization: token ? `Bearer ${token}` : '',
+        },
+      };
+    });
 
     const baseUrl = settings.apiUrl.replace(/\/+$/, '');
     const apiPath = this.path.replace(/^\/+/, '');
     const fullUrl = `${baseUrl}/${apiPath}`;
 
     this.client = new ApolloClientClass({
-      link: authLink.concat(
+      link: from([
+        errorLink,
+        authLink,
         new HttpLink({
           uri: fullUrl,
           credentials: 'same-origin',
-        })
-      ),
+        }),
+      ]),
       cache: new InMemoryCache(),
+      defaultOptions: {
+        watchQuery: {
+          errorPolicy: 'ignore',
+        },
+        query: {
+          errorPolicy: 'ignore',
+        },
+        mutate: {
+          errorPolicy: 'ignore',
+        },
+      },
     });
   }
 
@@ -100,10 +117,10 @@ export abstract class BaseApi {
     return formatFieldMap(fieldMap);
   }
 
-  async create<T>(
-    input: T,
+  async create(
+    input: TInput,
     onconflict: string = 'fail'
-  ): Promise<T & BaseModelFields> {
+  ): Promise<{ data: TModel }> {
     const mutation = gql`
             mutation Create${this.model}($input: ${this.model}Input!) {
                 create_${this.model}(input: $input, onconflict: ${onconflict}) {
@@ -117,7 +134,7 @@ export abstract class BaseApi {
         mutation,
         variables: { input, onconflict },
       });
-      return response.data[`create_${this.model}`];
+      return { data: response.data[`create_${this.model}`] };
     } catch (error) {
       console.error(`Error creating ${this.model}:`, error);
       throw error;
@@ -127,7 +144,7 @@ export abstract class BaseApi {
   async get(
     id: string | null = null,
     filter: string | null = null
-  ): Promise<BaseModelFields | ApiError | null> {
+  ): Promise<{ data: TModel | null } | ApiError> {
     if (id !== null) {
       filter = `id = "${id}"`;
     }
@@ -145,9 +162,9 @@ export abstract class BaseApi {
         variables: { filter },
       });
       if (response.data[this.model].length === 0) {
-        return null;
+        return { data: null };
       }
-      return response.data[this.model][0];
+      return { data: response.data[this.model][0] };
     } catch (error) {
       console.error(`Error fetching ${this.model}:`, error);
       let status = 400;
@@ -155,8 +172,10 @@ export abstract class BaseApi {
         status = 401;
       }
       return {
-        message: `Error fetching ${this.model}: ${error}`,
-        status: status,
+        error: {
+          message: `Error fetching ${this.model}: ${error}`,
+          status: status,
+        },
       };
     }
   }
@@ -169,14 +188,17 @@ export abstract class BaseApi {
       filter: string;
     } = { limit: 10, offset: 0, ordering: '', filter: '' },
     field_to_count: string = 'id'
-  ): Promise<{
-    data: any[];
-    total: number;
-    limit: number;
-    offset: number;
-    ordering: string;
-    filter: string;
-  }> {
+  ): Promise<
+    | {
+        data: TModel[];
+        total: number;
+        limit: number;
+        offset: number;
+        ordering: string;
+        filter: string;
+      }
+    | ApiError
+  > {
     const subquery = `query{ ${this.model} { ${field_to_count} } }`;
     const query = gql`
             query GetAll${
@@ -215,22 +237,28 @@ export abstract class BaseApi {
       };
     } catch (error) {
       console.error(`Error fetching ${this.model}:`, error);
-      throw error;
+      return {
+        error: {
+          message: `Error fetching ${this.model}: ${error}`,
+          status: 400,
+        },
+      };
     }
   }
 
-  async update<T>(
+  async update(
     id: string | Record<string, string>,
-    input: Partial<T>
-  ): Promise<T & BaseModelFields> {
+    input: Partial<TInput>,
+    idName: string = 'id'
+  ): Promise<{ data: TModel }> {
     console.log('id', id);
     let id_string = '';
     let id_vars = '';
     let id_values: Record<string, string> = {};
     if (typeof id === 'string') {
-      id_string = `$id: ID!`;
-      id_vars = `id: $id`;
-      id_values = { id };
+      id_string = `$${idName}: ID!`;
+      id_vars = `${idName}: $${idName}`;
+      id_values = { [idName]: id };
     } else {
       id_string = Object.entries(id)
         .map(([key, value]) => `$${key}: ID!`)
@@ -257,14 +285,14 @@ export abstract class BaseApi {
         mutation,
         variables: { ...id_values, input },
       });
-      return response.data[`update_${this.model}`];
+      return { data: response.data[`update_${this.model}`] };
     } catch (error) {
       console.error(`Error updating ${this.model}:`, error);
       throw error;
     }
   }
 
-  async delete(id: string): Promise<{ success: boolean }> {
+  async delete(id: string): Promise<{ success: boolean } | ApiError> {
     const mutation = gql`
             mutation Delete${this.model}($id: ID!) {
                 delete_${this.model}(id: $id) {
@@ -281,7 +309,12 @@ export abstract class BaseApi {
       return response.data[`delete_${this.model}`];
     } catch (error) {
       console.error(`Error deleting ${this.model}:`, error);
-      throw error;
+      return {
+        error: {
+          message: `Error deleting ${this.model}: ${error}`,
+          status: 400,
+        },
+      };
     }
   }
 }

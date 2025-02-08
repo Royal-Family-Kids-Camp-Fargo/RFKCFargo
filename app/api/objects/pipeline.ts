@@ -1,30 +1,33 @@
-import { BaseApi } from "./base.js";
-import type { PipelineStatus } from "./pipelineStatus.js";
-import { inheritFields } from "~/utils/objects.js";
-import { PipelineStatusApi } from "./pipelineStatus.js";
+import { BaseApi } from './base.js';
+import type { PipelineStatus } from './pipelineStatus.js';
+import { inheritFields } from '~/utils/objects.js';
+import { PipelineStatusApi } from './pipelineStatus.js';
 
-export type Pipeline = {
-  id: string;
+export interface PipelineInput {
   name: string;
   type: string;
   location_id: string;
-  pipeline_status_collection: PipelineStatus[];
-};
+}
 
-class PipelineApi extends BaseApi {
+export interface Pipeline extends PipelineInput {
+  id: string;
+  pipeline_status_collection: PipelineStatus[];
+}
+
+class PipelineApi extends BaseApi<Pipeline, PipelineInput> {
   protected get model() {
-    return "pipeline";
+    return 'pipeline';
   }
   protected get path() {
-    return "/query";
+    return '/query';
   }
   protected get fields() {
     return [
-      "id",
-      "name",
-      "type",
-      "location_id",
-      ...inheritFields(new PipelineStatusApi(), "pipeline_status_collection"),
+      'id',
+      'name',
+      'type',
+      'location_id',
+      ...inheritFields(new PipelineStatusApi(), 'pipeline_status_collection'),
     ];
   }
 }

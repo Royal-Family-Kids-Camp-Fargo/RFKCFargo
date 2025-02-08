@@ -1,29 +1,32 @@
-import { BaseApi } from "./base.js";
+import { BaseApi } from './base.js';
 
-export type Form = {
-  id: string;
+export interface FormInput {
   name: string;
   location_id: string;
   archived: boolean;
   locationId: number;
   pipelineId: number;
-};
+}
 
-class FormApi extends BaseApi {
+export interface Form extends FormInput {
+  id: string;
+}
+
+class FormApi extends BaseApi<Form, FormInput> {
   protected get model() {
-    return "forms";
+    return 'forms';
   }
   protected get path() {
-    return "/query";
+    return '/query';
   }
   protected get fields() {
     return [
-      "id",
-      "name",
-      "location_id",
-      "archived",
-      "locationId",
-      "pipelineId",
+      'id',
+      'name',
+      'location_id',
+      'archived',
+      'locationId',
+      'pipelineId',
     ];
   }
 }
