@@ -29,7 +29,7 @@ import type { Pipeline } from '~/api/objects/pipeline';
 import type { PipelineStatus } from '~/api/objects/pipelineStatus';
 import { botContextStore } from '~/stores/botContextStore';
 import { authStore } from '~/stores/authStore.client';
-import type { Route } from '../+types/dashboard';
+import type { Route } from './+types/ViewPipeline';
 import StatusColumn from '~/components/pipeline/statusColumn';
 import type { StatusIds } from '~/components/pipeline/userCard';
 import type { UserPipelineStatus } from '~/api/objects/userPipelineStatus';
@@ -60,6 +60,10 @@ const getUserPipelineStatuses = async (
     'user_id'
   );
 
+  if ('error' in res) {
+    throw res.error;
+  }
+
   // Transform the response data to match the BoardData structure
   const users_hash = res.data.reduce(
     (acc: Record<string, UserPipelineStatus>, user: UserPipelineStatus) => {
@@ -89,13 +93,17 @@ export const clientLoader = async ({
     getUserPipelineStatuses(pipelineId as string),
   ]);
 
-  if (pipelineRes instanceof Error) {
-    throw pipelineRes;
+  if ('error' in pipelineRes) {
+    throw pipelineRes.error;
+  }
+
+  if (!pipelineRes.data) {
+    throw new Error('Pipeline not found');
   }
 
   // Cast to unknown first to avoid type errors
   return {
-    pipeline: pipelineRes as unknown as Pipeline,
+    pipeline: pipelineRes.data,
     userPipelineStatuses: userPipelineStatusesRes,
   };
 };
@@ -111,7 +119,7 @@ function useUserFiltering(boardData: BoardData, currentUser: User | null) {
   const assignedUsers = React.useMemo(() => {
     const users = new Map<string, UserBase>();
     Object.values(boardData).forEach((status) => {
-      if (status.user.user) {
+      if (status?.user?.user) {
         const { id, first_name, last_name, email } = status.user.user;
         users.set(id, { id, first_name, last_name, email });
       }
@@ -136,18 +144,18 @@ function useUserFiltering(boardData: BoardData, currentUser: User | null) {
   ]);
   const filterUsers = (users: UserPipelineStatus[], statusId: string) => {
     return users.filter((user: UserPipelineStatus) => {
-      const matchesStatus = user.pipeline_status_id == statusId; // Make sure only users in the current status are shown
+      const matchesStatus = user.pipeline_status_id == statusId;
       const matchesSearch =
         !globalSearchTerm ||
-        user.user.first_name?.toLowerCase().includes(globalSearchTerm) ||
-        user.user.last_name?.toLowerCase().includes(globalSearchTerm) ||
-        user.user.email?.toLowerCase().includes(globalSearchTerm);
+        user.user?.first_name?.toLowerCase().includes(globalSearchTerm) ||
+        user.user?.last_name?.toLowerCase().includes(globalSearchTerm) ||
+        user.user?.email?.toLowerCase().includes(globalSearchTerm);
       const matchesFilter =
         filterByAssignedTo &&
         (selectedUserId
-          ? user.user.user?.id === selectedUserId
-          : user.user.user?.id === currentUser?.id);
-      const matchesUnassigned = selectedUnassigned && !user.user.user?.id;
+          ? user.user?.user?.id === selectedUserId
+          : user.user?.user?.id === currentUser?.id);
+      const matchesUnassigned = selectedUnassigned && !user.user?.user?.id;
       const showAllUsers = !filterByAssignedTo && !selectedUnassigned;
       return (
         matchesStatus &&
@@ -204,11 +212,8 @@ function usePipelineStatus(pipelineData: Pipeline | null) {
   return { getAdjacentStatusIds };
 }
 
-export default function ViewPipeline({ loaderData }: { loaderData: any }) {
-  const { pipeline, userPipelineStatuses } = loaderData as {
-    pipeline: Pipeline;
-    userPipelineStatuses: BoardData;
-  };
+export default function ViewPipeline({ loaderData }: Route.ComponentProps) {
+  const { pipeline, userPipelineStatuses } = loaderData;
 
   const { pipelineId } = useParams();
   const currentUser = authStore.getUser() || null;
@@ -224,11 +229,11 @@ export default function ViewPipeline({ loaderData }: { loaderData: any }) {
     queryKey: ['pipeline', pipelineId],
     queryFn: async () => {
       const res = await pipelineApi.get(pipelineId as string, null);
-      if (res instanceof Error) {
-        throw res;
+      if ('error' in res) {
+        throw res.error;
       }
       // Cast to unknown first to avoid type errors
-      return res as unknown as Pipeline;
+      return res.data;
     },
     initialData: pipeline,
   });
