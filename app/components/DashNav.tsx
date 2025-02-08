@@ -27,16 +27,6 @@ import {
 import type { User } from '~/api/objects/user';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
-// Loader function to fetch both pipelines and forms
-export async function loader() {
-  const [pipelines, forms] = await Promise.all([
-    pipelineApi.getAll({ limit: 100, offset: 0, ordering: '', filter: '' }),
-    formApi.getAll({ limit: 100, offset: 0, ordering: '', filter: '' }),
-  ]);
-
-  return { pipelines: pipelines.data, forms: forms.data };
-}
-
 type DashNavProps = {
   user: User;
   pipelines: Pipeline[];
