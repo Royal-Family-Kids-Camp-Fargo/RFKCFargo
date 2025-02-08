@@ -1,38 +1,35 @@
-import type { User } from "../api/objects/user";
+import type { User } from '../api/objects/user';
 
-let auth: { access_token: string; roleid: string } | undefined = undefined;
+type Auth = {
+  access_token: string;
+  roleid: string;
+};
+
+// let auth: { access_token: string; roleid: string } | undefined = undefined;
 let user: User | undefined = undefined;
 
 export const authStore = {
   getAuth: () => {
-    if (!auth) {
-      const storedAuth = localStorage.getItem("auth");
-      if (storedAuth) {
-        auth = JSON.parse(storedAuth);
-      }
+    const storedAuth = localStorage.getItem('auth');
+    let auth: Auth | undefined = undefined;
+    if (storedAuth) {
+      auth = JSON.parse(storedAuth);
     }
     return auth;
   },
-  setAuth: ({
-    access_token,
-    roleid,
-  }: {
-    access_token: string;
-    roleid: string;
-  }) => {
-    auth = { access_token, roleid };
+  setAuth: (input: Auth) => {
+    localStorage.setItem('auth', JSON.stringify(input));
   },
   logout: () => {
-    auth = undefined;
+    localStorage.removeItem('auth');
     user = undefined;
-    localStorage.removeItem("auth");
   },
   getUser: () => user,
   setUser: (dev: User) => {
     user = dev;
   },
   clear: () => {
-    auth = undefined;
+    localStorage.removeItem('auth');
     user = undefined;
   },
 };
