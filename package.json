@@ -39,6 +39,7 @@
     "cmdk": "1.0.0",
     "eventsource-parser": "^3.0.0",
     "isbot": "^5.1.22",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.474.0",
     "next-themes": "^0.4.4",
     "react": "^19.0.0",
