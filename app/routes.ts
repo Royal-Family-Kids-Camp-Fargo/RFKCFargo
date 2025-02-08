@@ -4,6 +4,8 @@ export default [
   index('routes/home.tsx'),
   // route("sign-up", "routes/sign-up.tsx"),
   route('sign-in', 'routes/sign-in.tsx'),
+  route('forgot-password', 'routes/forgot-password.tsx'),
+  route('reset-password', 'routes/reset-password.tsx'),
   route('dashboard', 'routes/dashboard/dashboard.tsx', [
     route(
       'pipelines/:pipelineId',

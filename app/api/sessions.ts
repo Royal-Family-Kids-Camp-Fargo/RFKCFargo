@@ -1,14 +1,16 @@
 import { getBaseRequest } from './base-requests';
-import { UserApi } from './objects/user';
+import user, { UserApi } from './objects/user';
 import { authStore } from '~/stores/authStore.client';
-const tenantId = 10250;
+import { baseUrl } from './base-requests';
+import roleApi, { RoleApi } from './objects/role';
 
+const tenantId = 10250;
 async function anonymousLogin() {
   const requestOptions = getBaseRequest({
     path: `/anonauth`,
     method: 'POST',
     body: {
-      tenantid: parseInt(tenantId),
+      tenantid: tenantId,
     },
   });
 
@@ -17,6 +19,80 @@ async function anonymousLogin() {
   console.log(res);
 
   return res;
+}
+
+export async function requestPasswordReset(email: string): Promise<boolean> {
+  const anonymousResponse = await anonymousLogin();
+  const anonymousJson = await anonymousResponse.json();
+  const accessToken = anonymousJson.access_token;
+
+  const res = await fetch(`${baseUrl}/query`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query: `
+        mutation ($input: password_resetInput) {
+          create_password_reset(
+            input: $input, onconflict: update
+          ) {
+            email
+            reset_count
+          }
+        }
+      `,
+      variables: { input: { email, reset_count: 0 } },
+    }),
+  });
+
+  const json = await res.json();
+  console.log(json);
+
+  return res.ok;
+}
+
+export async function resetPassword(
+  refreshToken: string,
+  roleid: number,
+  password: string
+) {
+  const res = await refresh(refreshToken, false);
+  if ('error' in res) {
+    return res;
+  }
+
+  const accessToken = res.access_token;
+
+  const roleApi = new RoleApi(accessToken);
+
+  const roleResponse = await roleApi.get(roleid.toString());
+
+  if ('error' in roleResponse || !roleResponse.data) {
+    return roleResponse;
+  }
+
+  const role = roleResponse.data;
+
+  console.log(role);
+
+  const updatedRole = await roleApi.update(
+    roleid.toString(),
+    {
+      name: role.name,
+      login: role.login,
+      password: password,
+      tenantid: tenantId.toString(),
+    },
+    'roleid'
+  );
+
+  if ('error' in updatedRole) {
+    return updatedRole;
+  }
+
+  return updatedRole;
 }
 
 async function getRoleId() {
@@ -34,7 +110,7 @@ export async function login(email: string, password: string) {
   const data = {
     login: email,
     password: password,
-    tenantid: parseInt(tenantId),
+    tenantid: tenantId,
   };
 
   const requestOptions = getBaseRequest({
@@ -79,18 +155,26 @@ export async function signup(email: string, password: string, name?: string) {
  *
  * @returns A redirect to the sign-in page if refresh fails.
  */
-export async function refresh(): Promise<Response> {
+export async function refresh(refreshToken: string, setAuth: boolean = true) {
   console.log('refreshing --- > TO implement');
-  return new Response('Not implemented');
-  // const requestOptions = getBaseRequest({
-  //   path: `/auth`,
-  //   includeCredentials: true,
-  //   method: 'GET',
-  // });
-
-  // const res = await fetch(requestOptions);
-
-  // return res;
+  const res = await fetch(`${baseUrl}/auth`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${refreshToken}`,
+    },
+  });
+  if (!res.ok) {
+    return { error: 'Refresh token expired' };
+  }
+  const json = await res.json();
+  if (setAuth) {
+    authStore.setAuth({ access_token: json.access_token, roleid: json.roleid });
+    localStorage.setItem(
+      'auth',
+      JSON.stringify({ access_token: json.access_token, roleid: json.roleid })
+    );
+  }
+  return { user: json.user, access_token: json.access_token };
 }
 
 export async function logout() {

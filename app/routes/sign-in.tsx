@@ -112,7 +112,7 @@ export default function SignIn() {
             </Button>
             <p className="text-sm text-muted-foreground text-center">
               <RouterLink
-                to="/sign-up"
+                to="/forgot-password"
                 className="text-primary hover:underline"
               >
                 Forgot password?
