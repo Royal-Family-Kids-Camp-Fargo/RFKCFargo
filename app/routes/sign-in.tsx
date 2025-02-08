@@ -2,7 +2,7 @@ import type { Route } from './+types/home';
 import { Form, redirect, useNavigation } from 'react-router';
 import { Link as RouterLink } from 'react-router';
 import { authStore } from '~/stores/authStore.client';
-import { login, refresh } from '~/api/sessions';
+import { login } from '~/api/sessions';
 import {
   Card,
   CardContent,
@@ -52,26 +52,29 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();
 
   try {
-    const res = await login(
+    const {
+      user: { data: user },
+      access_token,
+      roleid,
+    } = await login(
       formData.get('email') as string,
       formData.get('password') as string
     );
     authStore.setAuth({
-      access_token: res.access_token,
-      roleid: res.user.role.roleid,
+      access_token,
+      roleid,
     });
-    authStore.setUser(res.user);
+    authStore.setUser(user);
     console.log(authStore.getAuth());
     return redirect('/dashboard');
   } catch (error) {
     console.error('Login failed:', error);
-    return redirect('/sign-in');
+    return { error: 'Login failed' };
   }
 }
 
 export default function SignIn() {
-  const navigation = useNavigation();
-  const isNavigating = navigation.formAction === '/sign-in';
+  const fetcher = useFetcher();
 
   return (
     <div className="flex-1 flex items-center justify-center flex-col gap-4">
@@ -83,8 +86,11 @@ export default function SignIn() {
             Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
-        <Form method="post" name="sign-in">
+        <fetcher.Form method="post" name="sign-in">
           <CardContent className="space-y-4">
+            {fetcher.data?.error && (
+              <p className="text-sm text-destructive">{fetcher.data.error}</p>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
