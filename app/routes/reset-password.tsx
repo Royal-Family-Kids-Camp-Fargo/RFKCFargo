@@ -15,7 +15,10 @@ import { Button } from '~/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { RfkCentralIcon } from '~/components/icons/RfkCentralIcon';
 import { validateDeviiToken } from '~/lib/utils';
-import { resetPassword } from '~/api/sessions';
+import { refresh, resetPassword } from '~/api/sessions';
+import { isApolloError } from '@apollo/client/errors';
+import InvalidResetLink from '~/components/auth/InvalidResetLink';
+import PasswordResetSuccess from '~/components/auth/PasswordResetSuccess';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -57,17 +60,27 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 
   try {
     const res = await resetPassword(token, roleid, password);
-    return redirect('/sign-in');
+
+    return { success: true };
   } catch (error) {
-    console.error('Password reset failed:', error);
-    return redirect('/reset-password?error=reset-failed');
+    if (isApolloError(error as Error)) {
+      const apolloError = error as {
+        networkError?: { result?: { error?: string } };
+      };
+      return {
+        error:
+          apolloError.networkError?.result?.error ?? 'Unknown error occurred',
+      };
+    }
+    return {
+      error:
+        'An error occurred while resetting your password. Please try again.',
+    };
   }
 }
 
 export default function ResetPassword({ loaderData }: Route.ComponentProps) {
-  const { accessToken, roleid, tenantid } = loaderData;
-  const navigation = useNavigation();
-  const isNavigating = navigation.formAction === '/reset-password';
+  const { accessToken, roleid, tenantid, error: loaderError } = loaderData;
   const fetcher = useFetcher();
   const error = fetcher.data?.error;
 
