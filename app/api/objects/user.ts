@@ -56,9 +56,9 @@ export class UserApi extends BaseApi<User, UserInput> {
   }
   roleApi: RoleApi;
 
-  constructor() {
-    super();
-    this.roleApi = new RoleApi();
+  constructor(accessToken?: string) {
+    super(accessToken);
+    this.roleApi = new RoleApi(accessToken);
   }
 
   async get(roleId: string) {
