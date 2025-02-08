@@ -15,13 +15,7 @@ import { useMediaQuery } from '~/hooks/use-media-query.tsx';
 import ChatBubble from '~/components/chat/ChatBubble';
 import { LoadingBar } from '~/components/LoadingBar';
 
-type LoaderData = {
-  user: User;
-  pipelines: Pipeline[];
-  forms: Form[];
-};
-
-export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+export async function clientLoader() {
   let auth =
     authStore.getAuth() || JSON.parse(localStorage.getItem('auth') || '{}');
   authStore.setAuth(auth);
@@ -35,12 +29,12 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   if (!user) {
     console.log('Getting user');
     const result = await userApi.get(auth.roleid);
-    if ('message' in result) {
+    if ('error' in result) {
       console.error('Error getting user', result);
       authStore.logout();
       return redirect('/sign-in');
     }
-    user = result;
+    user = result.data;
     console.log('user', user);
     authStore.setUser(user);
   }
@@ -49,12 +43,14 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     pipelineApi.getAll({ limit: 100, offset: 0, ordering: '', filter: '' }),
     formApi.getAll({ limit: 100, offset: 0, ordering: '', filter: '' }),
   ]);
+
   return { user, pipelines: pipelines.data, forms: forms.data };
 }
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
   const location = useLocation();
   const { user, pipelines, forms } = loaderData;
+  console.log('loaderData', loaderData);
   const [sideBarOpen, setSideBarOpen] = useState(true);
   const isMobile = useMediaQuery('(max-width: 768px)');
   const addBotContext = botContextStore.addContext;
@@ -94,10 +90,6 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
       };
     }
   }, [loaderData]);
-
-  if ('user' in loaderData) {
-    const { user, pipelines, forms } = loaderData as LoaderData;
-  }
 
   return (
     <>
