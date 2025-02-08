@@ -2,7 +2,7 @@ import { getBaseRequest } from './base-requests';
 import user, { UserApi } from './objects/user';
 import { authStore } from '~/stores/authStore.client';
 import { baseUrl } from './base-requests';
-import roleApi, { RoleApi } from './objects/role';
+import { RoleApi } from './objects/role';
 
 const tenantId = 10250;
 async function anonymousLogin() {
@@ -54,17 +54,10 @@ export async function requestPasswordReset(email: string): Promise<boolean> {
 }
 
 export async function resetPassword(
-  refreshToken: string,
+  accessToken: string,
   roleid: number,
   password: string
 ) {
-  const res = await refresh(refreshToken, false);
-  if ('error' in res) {
-    return res;
-  }
-
-  const accessToken = res.access_token;
-
   const roleApi = new RoleApi(accessToken);
 
   const roleResponse = await roleApi.get(roleid.toString());
@@ -120,16 +113,17 @@ export async function login(email: string, password: string) {
   });
 
   const res = await fetch(requestOptions);
+  if (!res.ok) {
+    throw new Error('Login failed');
+  }
   const json = await res.json();
-  authStore.setAuth({ access_token: json.access_token, roleid: json.roleid });
-  localStorage.setItem(
-    'auth',
-    JSON.stringify({ access_token: json.access_token, roleid: json.roleid })
-  );
+  const user = await new UserApi(json.access_token).get(json.roleid);
 
-  const user = await new UserApi().get(json.roleid);
+  if ('error' in user) {
+    throw new Error(user.error?.message);
+  }
 
-  return { user, access_token: json.access_token };
+  return { user, access_token: json.access_token, roleid: json.roleid };
 }
 
 export async function signup(email: string, password: string, name?: string) {
@@ -169,10 +163,6 @@ export async function refresh(refreshToken: string, setAuth: boolean = true) {
   const json = await res.json();
   if (setAuth) {
     authStore.setAuth({ access_token: json.access_token, roleid: json.roleid });
-    localStorage.setItem(
-      'auth',
-      JSON.stringify({ access_token: json.access_token, roleid: json.roleid })
-    );
   }
   return { user: json.user, access_token: json.access_token };
 }

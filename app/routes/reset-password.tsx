@@ -36,7 +36,12 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
       JSON.stringify({ access_token: token, roleid: decodedToken.roleid })
     );
   }
-  return { accessToken: token, ...decodedToken };
+
+  const res = await refresh(token, false);
+
+  const accessToken = res.access_token;
+
+  return { accessToken, ...decodedToken, error: res.error };
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
