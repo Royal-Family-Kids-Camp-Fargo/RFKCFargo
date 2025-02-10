@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useParams, useFetchers, useLocation } from 'react-router';
 import { Search, Filter, Plus } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
 
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
@@ -45,7 +44,7 @@ import AddUserDialog from '~/components/pipeline/AddUserDialog';
 //   assigned_to: string;
 // };
 
-type BoardData = Record<string, UserPipelineStatus>;
+export type BoardData = Record<string, UserPipelineStatus>;
 
 const getUserPipelineStatuses = async (
   pipelineId: string
@@ -83,6 +82,7 @@ export const clientLoader = async ({
   pipeline: Pipeline;
   userPipelineStatuses: BoardData;
 }> => {
+  console.log('clientLoader');
   const { pipelineId } = params;
   if (!pipelineId) {
     throw new Error('Pipeline ID is required');
@@ -101,7 +101,6 @@ export const clientLoader = async ({
     throw new Error('Pipeline not found');
   }
 
-  // Cast to unknown first to avoid type errors
   return {
     pipeline: pipelineRes.data,
     userPipelineStatuses: userPipelineStatusesRes,
@@ -181,6 +180,35 @@ function useUserFiltering(boardData: BoardData, currentUser: User | null) {
   };
 }
 
+export async function clientAction({ request }: Route.ClientActionArgs) {
+  const formData = await request.formData();
+  const intent = formData.get('intent');
+
+  if (intent === 'updatePipelineStatus') {
+    const userId = formData.get('userId') as string;
+    const pipelineId = formData.get('pipelineId') as string;
+    const newStatusId = formData.get('newStatusId') as string;
+
+    if (!userId || !pipelineId || !newStatusId) {
+      return { error: 'Missing required fields' };
+    }
+
+    try {
+      const result = await userPipelineStatusApi.movePipelineStatus(
+        userId,
+        pipelineId,
+        newStatusId
+      );
+      return result;
+    } catch (error) {
+      console.error('Error updating pipeline status:', error);
+      return { error: 'Failed to update pipeline status' };
+    }
+  }
+
+  return { error: 'Invalid action' };
+}
+
 // Custom hook for pipeline status management
 function usePipelineStatus(pipelineData: Pipeline | null) {
   const getAdjacentStatusIds = (currentStatusId: string): StatusIds => {
@@ -214,29 +242,42 @@ function usePipelineStatus(pipelineData: Pipeline | null) {
 
 export default function ViewPipeline({ loaderData }: Route.ComponentProps) {
   const { pipeline, userPipelineStatuses } = loaderData;
+  const [boardData, setBoardData] = useState<BoardData>(userPipelineStatuses);
+  const location = useLocation();
+  const allFetchers = useFetchers();
+  const fetchers = useMemo(
+    () =>
+      allFetchers.filter(
+        (f) =>
+          f.formAction === location.pathname && f.formData?.get('newStatusId')
+      ),
+    [allFetchers, location.pathname]
+  );
+  const updates = fetchers.reduce((acc, fetcher) => {
+    if (!fetcher.formData) return acc;
 
+    const newStatusId = fetcher.formData.get('newStatusId') as string;
+    const userId = fetcher.formData.get('userId') as string;
+
+    return {
+      ...acc,
+      [userId]: {
+        ...boardData[userId],
+        pipeline_status_id: newStatusId,
+      },
+    };
+  }, {});
+
+  console.log('updates', updates);
+
+  const optimisticBoardData = { ...boardData, ...updates };
   const { pipelineId } = useParams();
   const currentUser = authStore.getUser() || null;
-  const [boardData, setBoardData] = useState<BoardData>(userPipelineStatuses);
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
 
-  // Now you can use `useQuery` with `initialData` from the cache
-  const {
-    data: pipelineData,
-    isLoading: pipelineLoading,
-    error: pipelineError,
-  } = useQuery({
-    queryKey: ['pipeline', pipelineId],
-    queryFn: async () => {
-      const res = await pipelineApi.get(pipelineId as string, null);
-      if ('error' in res) {
-        throw res.error;
-      }
-      // Cast to unknown first to avoid type errors
-      return res.data;
-    },
-    initialData: pipeline,
-  });
+  useEffect(() => {
+    setBoardData(userPipelineStatuses);
+  }, [userPipelineStatuses]);
 
   // Use custom hooks
   const {
@@ -252,42 +293,24 @@ export default function ViewPipeline({ loaderData }: Route.ComponentProps) {
     filterUsers,
     selectedUnassigned,
     setSelectedUnassigned,
-  } = useUserFiltering(boardData, currentUser);
+  } = useUserFiltering(optimisticBoardData, currentUser);
 
-  const { getAdjacentStatusIds } = usePipelineStatus(pipelineData);
+  const { getAdjacentStatusIds } = usePipelineStatus(pipeline);
 
   // For adding more context to your AI store
   const addBotContext = botContextStore.addContext;
   const removeBotContext = botContextStore.removeContext;
 
-  const {
-    data: userPipelineStatusesData,
-    isLoading: statusesLoading,
-    error: statusesError,
-    isSuccess: statusesSuccess,
-  } = useQuery({
-    queryKey: ['pipelineStatuses'],
-    queryFn: () => getUserPipelineStatuses(pipelineId as string),
-    initialData: userPipelineStatuses,
-  });
-
-  // Update boardData when query is successful
   useEffect(() => {
-    if (statusesSuccess && userPipelineStatusesData) {
-      setBoardData(userPipelineStatusesData);
-    }
-  }, [statusesSuccess, userPipelineStatusesData]);
-
-  useEffect(() => {
-    if (pipelineId && pipelineData) {
+    if (pipelineId && pipeline) {
       console.log('Adding context to NLAPI');
       const pipeline_status_collection_string =
-        pipelineData.pipeline_status_collection
+        pipeline.pipeline_status_collection
           .map((ps: PipelineStatus) => `${ps.name} with id of ${ps.id}`)
           .join('\n');
       const context = [
-        `User is looking at pipeline with id: ${pipelineData.id} and name: ${pipelineData.name}.`,
-        `Pipeline ${pipelineData.name} has the following stages: \n ${pipeline_status_collection_string}`,
+        `User is looking at pipeline with id: ${pipeline.id} and name: ${pipeline.name}.`,
+        `Pipeline ${pipeline.name} has the following stages: \n ${pipeline_status_collection_string}`,
         `If the user asks to move a user to a stage, you'll need to search for the user id. use the ilike operator and users resolvers to search with case insensitive search.`,
         `To move a user to a stage, you'll need to use the update_user_pipeline_status mutation. like this:mutation { update_user_pipeline_status(user_id: number, pipeline_id: number, input: $input) { id } }`,
       ];
@@ -298,14 +321,10 @@ export default function ViewPipeline({ loaderData }: Route.ComponentProps) {
         context.forEach((c: string) => removeBotContext(c));
       };
     }
-  }, [pipelineId, pipelineData]);
+  }, [pipelineId, pipeline]);
 
   const handleSearchChange = (value: string) => {
     setGlobalSearchTerm(value.toLowerCase());
-  };
-
-  const handleFilterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
   };
 
   const handleFilterClose = () => {
@@ -326,23 +345,13 @@ export default function ViewPipeline({ loaderData }: Route.ComponentProps) {
     handleFilterClose();
   };
 
-  const open = Boolean(anchorEl);
-
-  if (pipelineLoading || statusesLoading) {
-    return (
-      <div className="container mx-auto px-4">
-        <p>Loading pipeline data...</p>
-      </div>
-    );
-  }
-
-  if (pipelineError || statusesError || !pipelineData) {
-    return (
-      <div className="container mx-auto px-4">
-        <p className="text-destructive">Error loading pipeline or statuses.</p>
-      </div>
-    );
-  }
+  // if (pipelineError || statusesError || !pipelineData) {
+  //   return (
+  //     <div className="container mx-auto px-4">
+  //       <p className="text-destructive">Error loading pipeline or statuses.</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="h-full flex flex-col gap-2 border-1 border-green-500">
@@ -424,8 +433,8 @@ export default function ViewPipeline({ loaderData }: Route.ComponentProps) {
         {/* The Kanban board */}
         <div className="flex flex-col flex-1 min-h-0 bg-muted rounded-lg p-4">
           <div className="flex flex-1 overflow-x-auto gap-4 mt-4 bg-none touch-pan-x">
-            {pipelineData.pipeline_status_collection.length > 0 ? (
-              [...pipelineData.pipeline_status_collection]
+            {pipeline.pipeline_status_collection.length > 0 ? (
+              [...pipeline.pipeline_status_collection]
                 .sort(
                   (a: PipelineStatus, b: PipelineStatus) => a.order - b.order
                 )
@@ -434,11 +443,11 @@ export default function ViewPipeline({ loaderData }: Route.ComponentProps) {
                     key={status.id}
                     status={status}
                     userPipelineStatuses={filterUsers(
-                      Object.values(boardData),
+                      Object.values(optimisticBoardData),
                       status.id
                     )}
                     statusIds={getAdjacentStatusIds(status.id)}
-                    pipelineId={pipelineData.id}
+                    pipelineId={pipeline.id}
                   />
                 ))
             ) : (
@@ -456,7 +465,7 @@ export default function ViewPipeline({ loaderData }: Route.ComponentProps) {
           open={isAddUserDialogOpen}
           onClose={() => setIsAddUserDialogOpen(false)}
           pipelineId={pipelineId as string}
-          pipelineStatuses={pipelineData.pipeline_status_collection}
+          pipelineStatuses={pipeline.pipeline_status_collection}
         />
       </TooltipProvider>
     </div>

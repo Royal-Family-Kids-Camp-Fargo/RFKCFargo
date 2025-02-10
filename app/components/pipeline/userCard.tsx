@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Accordion,
   AccordionContent,
@@ -8,8 +8,7 @@ import {
 import { Button } from '~/components/ui/button';
 import { ChevronLeft, ChevronRight, MessageSquare, Phone } from 'lucide-react';
 import type { User } from '~/api/objects/user';
-import userPipelineStatusApi from '~/api/objects/userPipelineStatus';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useFetcher } from 'react-router';
 import SmsDialog from './SmsDialog';
 
 export type StatusIds = {
@@ -29,61 +28,34 @@ export default function UserCard({
   statusIds: StatusIds;
   pipelineId: string;
 }) {
-  const queryClient = useQueryClient();
   const [isSmsDialogOpen, setIsSmsDialogOpen] = useState(false);
+  const fetcher = useFetcher();
 
-  const { mutate: movePipelineStatusBackward } = useMutation({
-    mutationFn: (statusIds: StatusIds) => {
-      if (!statusIds.previousStatusId)
-        return Promise.reject('No previous status');
-      return userPipelineStatusApi.movePipelineStatus(
-        user.id,
+  const movePipelineStatusBackward = () => {
+    if (!statusIds.previousStatusId) return;
+    fetcher.submit(
+      {
+        intent: 'updatePipelineStatus',
+        userId: user.id,
         pipelineId,
-        statusIds.previousStatusId
-      );
-    },
-    onSuccess: (data: any) => {
-      console.log('onSuccess backward');
-      queryClient.setQueryData(['pipelineStatuses'], (oldData: any) => {
-        try {
-          const newData = {
-            ...oldData,
-            [data.user_id]: data,
-          };
-          return newData;
-        } catch (error) {
-          console.error('Error updating pipeline statuses', error);
-          return oldData;
-        }
-      });
-    },
-  });
+        newStatusId: statusIds.previousStatusId,
+      },
+      { method: 'post', action: `/dashboard/pipelines/${pipelineId}` }
+    );
+  };
 
-  const { mutate: movePipelineStatusForward } = useMutation({
-    mutationFn: (statusIds: StatusIds) => {
-      if (!statusIds.nextStatusId) return Promise.reject('No next status');
-      return userPipelineStatusApi.movePipelineStatus(
-        user.id,
+  const movePipelineStatusForward = () => {
+    if (!statusIds.nextStatusId) return;
+    fetcher.submit(
+      {
+        intent: 'updatePipelineStatus',
+        userId: user.id,
         pipelineId,
-        statusIds.nextStatusId
-      );
-    },
-    onSuccess: (data: any) => {
-      console.log('onSuccess forward', data);
-      queryClient.setQueryData(['pipelineStatuses'], (oldData: any) => {
-        try {
-          const newData = {
-            ...oldData,
-            [data.user_id]: data,
-          };
-          return newData;
-        } catch (error) {
-          console.error('Error updating pipeline statuses', error);
-          return oldData;
-        }
-      });
-    },
-  });
+        newStatusId: statusIds.nextStatusId,
+      },
+      { method: 'post', action: `/dashboard/pipelines/${pipelineId}` }
+    );
+  };
 
   return (
     <>
@@ -112,7 +84,8 @@ export default function UserCard({
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => movePipelineStatusBackward(statusIds)}
+                    onClick={movePipelineStatusBackward}
+                    disabled={fetcher.state !== 'idle'}
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
@@ -135,7 +108,8 @@ export default function UserCard({
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => movePipelineStatusForward(statusIds)}
+                    onClick={movePipelineStatusForward}
+                    disabled={fetcher.state !== 'idle'}
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Button>

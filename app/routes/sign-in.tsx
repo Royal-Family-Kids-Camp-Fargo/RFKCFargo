@@ -114,9 +114,9 @@ export default function SignIn() {
             <Button
               className="w-full"
               type="submit"
-              disabled={fetcher.state === 'submitting'}
+              disabled={fetcher.state !== 'idle'}
             >
-              {fetcher.state === 'submitting' ? (
+              {fetcher.state !== 'idle' ? (
                 <>
                   <Loader2 className="animate-spin" />
                   Signing in...

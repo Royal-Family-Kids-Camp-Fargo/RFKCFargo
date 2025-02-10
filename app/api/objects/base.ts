@@ -67,12 +67,15 @@ export abstract class BaseApi<TModel, TInput> {
       cache: new InMemoryCache(),
       defaultOptions: {
         watchQuery: {
+          fetchPolicy: 'no-cache',
           errorPolicy: 'ignore',
         },
         query: {
+          fetchPolicy: 'no-cache',
           errorPolicy: 'ignore',
         },
         mutate: {
+          fetchPolicy: 'no-cache',
           errorPolicy: 'ignore',
         },
       },
