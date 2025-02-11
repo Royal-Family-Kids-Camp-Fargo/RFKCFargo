@@ -32,7 +32,6 @@ export default function ChatBubble() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [statusMessage, setStatusMessage] = useState('');
   const [threadId, setThreadId] = useState<string | null>(null);
-  const [isStreaming, setIsStreaming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -63,7 +62,7 @@ export default function ChatBubble() {
           threadId: threadId,
           context: botContext,
           options: {
-            stream: isStreaming,
+            stream: true,
           },
         };
 
@@ -72,24 +71,12 @@ export default function ChatBubble() {
 
           let thread_id;
           let latestActions;
-          if (isStreaming) {
-            const reader = response.body
-              ?.pipeThrough(new TextDecoderStream())
-              ?.pipeThrough(new EventSourceParserStream());
-            [thread_id, latestActions] = await handleStreamingEvents(reader);
-          } else {
-            const data = await response.json();
-            setMessages(data.messages.reverse());
-            thread_id = data.thread_id;
-            const actions_called = data.actions_called;
-            if (actions_called) {
-              latestActions = actions_called.map((action: Action) => ({
-                path: action.path,
-                method: action.method,
-                response: action.response,
-              }));
-            }
-          }
+
+          const reader = response.body
+            ?.pipeThrough(new TextDecoderStream())
+            ?.pipeThrough(new EventSourceParserStream());
+          [thread_id, latestActions] = await handleStreamingEvents(reader);
+
           setThreadId(thread_id);
           if (latestActions) {
             setActions(latestActions);
@@ -101,7 +88,7 @@ export default function ChatBubble() {
 
       sendMessage();
     },
-    [message, isStreaming, threadId, setActions, botContext]
+    [message, threadId, setActions, botContext]
   );
 
   const handleSendingMessage = async (body: any) => {
@@ -183,13 +170,8 @@ export default function ChatBubble() {
       )}
 
       {isExpanded && (
-        <Card className="fixed bottom-4 right-6 flex w-[90%] max-w-[480px] flex-col overflow-hidden sm:h-[60vh] h-[80vh] shadow-lg">
-          <ChatHeader
-            isStreaming={isStreaming}
-            setIsStreaming={setIsStreaming}
-            resetChat={resetChat}
-            setIsExpanded={setIsExpanded}
-          />
+        <Card className="fixed bottom-4 right-4 flex w-[90%] max-w-[480px] flex-col overflow-hidden sm:h-[60vh] h-[80vh] shadow-lg">
+          <ChatHeader resetChat={resetChat} setIsExpanded={setIsExpanded} />
           <ChatMessages
             messages={messages}
             statusMessage={statusMessage}

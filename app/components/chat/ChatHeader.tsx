@@ -1,8 +1,6 @@
 import { Button } from '~/components/ui/button';
 import { CardHeader } from '~/components/ui/card';
-import { X, MessageSquarePlus, Sparkles } from 'lucide-react';
-import { Switch } from '~/components/ui/switch';
-import { Label } from '~/components/ui/label';
+import { Minus, MessageSquarePlus, Sparkles } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -11,15 +9,11 @@ import {
 } from '~/components/ui/tooltip';
 
 type ChatHeaderProps = {
-  isStreaming: boolean;
-  setIsStreaming: (isStreaming: boolean) => void;
   resetChat: () => void;
   setIsExpanded: (isExpanded: boolean) => void;
 };
 
 export default function ChatHeader({
-  isStreaming,
-  setIsStreaming,
   resetChat,
   setIsExpanded,
 }: ChatHeaderProps) {
@@ -30,20 +24,6 @@ export default function ChatHeader({
         <h2 className="text-lg font-semibold">RFK Assistant</h2>
       </div>
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-2">
-          <Label
-            htmlFor="streaming-mode"
-            className="text-sm text-muted-foreground"
-          >
-            {isStreaming ? 'Stream On' : 'Stream Off'}
-          </Label>
-          <Switch
-            id="streaming-mode"
-            checked={isStreaming}
-            onCheckedChange={setIsStreaming}
-            defaultChecked
-          />
-        </div>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -61,7 +41,7 @@ export default function ChatHeader({
           size="icon"
           onClick={() => setIsExpanded(false)}
         >
-          <X />
+          <Minus />
         </Button>
       </div>
     </CardHeader>
