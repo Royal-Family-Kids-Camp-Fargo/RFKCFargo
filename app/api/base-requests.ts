@@ -1,6 +1,6 @@
 import { authStore } from '~/stores/authStore.client';
 
-export const baseUrl = 'https://api.devii.io';
+export const baseUrl = import.meta.env.VITE_DEVII_BASE_URL;
 
 type BaseRequestOptions = {
   path?: string;

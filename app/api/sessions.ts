@@ -1,10 +1,11 @@
 import { getBaseRequest } from './base-requests';
-import user, { UserApi } from './objects/user';
+import { UserApi } from './objects/user';
 import { authStore } from '~/stores/authStore.client';
 import { baseUrl } from './base-requests';
 import { RoleApi } from './objects/role';
 
-const tenantId = 10250;
+const tenantId = import.meta.env.VITE_DEVII_TENANT_ID;
+
 async function anonymousLogin() {
   const requestOptions = getBaseRequest({
     path: `/anonauth`,
