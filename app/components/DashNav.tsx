@@ -191,7 +191,7 @@ export default function DashNav({
             <Sheet open={sideBarOpen} onOpenChange={setSideBarOpen}>
               <SheetContent
                 side="left"
-                className="w-[240px] p-2 h-full border flex flex-col"
+                className="w-[240px] p-2 h-full flex flex-col"
                 role="navigation"
                 aria-label="Mobile navigation"
               >

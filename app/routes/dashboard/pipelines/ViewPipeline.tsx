@@ -354,7 +354,7 @@ export default function ViewPipeline({ loaderData }: Route.ComponentProps) {
   // }
 
   return (
-    <div className="h-full flex flex-col gap-2 border-1 border-green-500">
+    <div className="h-full flex flex-col gap-2">
       <TooltipProvider>
         {/* Search input with filter icon */}
         <div className="flex gap-2">

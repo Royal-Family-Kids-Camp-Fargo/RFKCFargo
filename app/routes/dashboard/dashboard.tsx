@@ -98,7 +98,7 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
           <TopNav setSideBarOpen={setSideBarOpen} />
           <LoadingBar />
           <Separator />
-          <main className="flex-1 overflow-auto p-4 border-1 border-red-500">
+          <main className="flex-1 overflow-auto p-4">
             <Outlet />
           </main>
         </div>
