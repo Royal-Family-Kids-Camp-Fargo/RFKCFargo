@@ -432,7 +432,7 @@ export default function ViewPipeline({ loaderData }: Route.ComponentProps) {
 
         {/* The Kanban board */}
         <div className="flex flex-col flex-1 min-h-0 bg-muted rounded-lg p-4">
-          <div className="flex flex-1 overflow-x-auto gap-4 mt-4 bg-none touch-pan-x">
+          <div className="flex flex-1 overflow-x-auto gap-4 mt-4 bg-none touch-pan-x touch-pan-y">
             {pipeline.pipeline_status_collection.length > 0 ? (
               [...pipeline.pipeline_status_collection]
                 .sort(
