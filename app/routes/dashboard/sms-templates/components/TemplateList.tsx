@@ -1,18 +1,21 @@
 import React from 'react';
 import type { SmsTemplate } from '~/api/objects/sms_template';
-import { 
-  Paper, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
   TableRow,
-  IconButton,
-  Tooltip
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+} from '~/components/ui/table';
+import { Button } from '~/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '~/components/ui/tooltip';
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface TemplateListProps {
   templates: SmsTemplate[];
@@ -20,19 +23,23 @@ interface TemplateListProps {
   onDelete: (id: string) => void;
 }
 
-const TemplateList: React.FC<TemplateListProps> = ({ templates, onEdit, onDelete }) => {
-  console.log("rendering TemplateList", templates);
+const TemplateList: React.FC<TemplateListProps> = ({
+  templates,
+  onEdit,
+  onDelete,
+}) => {
+  console.log('rendering TemplateList', templates);
   return (
-    <TableContainer component={Paper}>
+    <div className="rounded-md border">
       <Table>
-        <TableHead>
+        <TableHeader>
           <TableRow>
-            <TableCell>Title</TableCell>
-            <TableCell>Template</TableCell>
-            <TableCell>Shared</TableCell>
-            <TableCell width={120}>Actions</TableCell>
+            <TableHead>Title</TableHead>
+            <TableHead>Template</TableHead>
+            <TableHead>Shared</TableHead>
+            <TableHead className="w-[100px]">Actions</TableHead>
           </TableRow>
-        </TableHead>
+        </TableHeader>
         <TableBody>
           {templates.map((template) => (
             <TableRow key={template.id}>
@@ -40,37 +47,58 @@ const TemplateList: React.FC<TemplateListProps> = ({ templates, onEdit, onDelete
               <TableCell>{template.template}</TableCell>
               <TableCell>{template.is_shared ? 'Yes' : 'No'}</TableCell>
               <TableCell>
-                <Tooltip title="Edit">
-                  <IconButton
-                    size="small"
-                    onClick={() => onEdit(template)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Delete">
-                  <IconButton
-                    size="small"
-                    onClick={() => onDelete(template.id)}
-                    color="error"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Tooltip>
+                <div className="flex gap-2">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onEdit(template)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Edit template</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onDelete(template.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Delete template</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
               </TableCell>
             </TableRow>
           ))}
           {templates.length === 0 && (
             <TableRow>
-              <TableCell colSpan={4} align="center">
+              <TableCell colSpan={4} className="text-center">
                 No templates found
               </TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
-    </TableContainer>
+    </div>
   );
 };
 
-export default TemplateList; 
+export default TemplateList;

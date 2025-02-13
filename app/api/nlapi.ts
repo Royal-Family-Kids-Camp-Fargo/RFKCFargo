@@ -1,3 +1,6 @@
+const nlapiBaseUrl = import.meta.env.VITE_NLAPI_BASE_URL;
+const nlapiApiKey = import.meta.env.VITE_NLAPI_API_KEY;
+
 const sendNlapiRequest = async (
   authToken: string,
   userInput: string,
@@ -5,12 +8,12 @@ const sendNlapiRequest = async (
   threadId: string | null,
   options: any
 ) => {
-  const response = await fetch("https://api.nlapi.io/nlapi", {
-    method: "POST",
+  const response = await fetch(`${nlapiBaseUrl}/nlapi`, {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${authToken}`, // Pass the user's auth token
-      "nlapi-key": import.meta.env.VITE_NLAPI_API_KEY,
+      'nlapi-key': nlapiApiKey,
     },
     // Transforming the data to snake case for the NLAPI
     body: JSON.stringify({

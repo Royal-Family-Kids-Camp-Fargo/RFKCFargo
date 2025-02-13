@@ -1,25 +1,35 @@
 import React, { useState } from 'react';
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  Button,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/ui/dialog';
+import { Button } from '~/components/ui/button';
+import {
+  Form,
   FormControl,
-  InputLabel,
+  FormField,
+  FormItem,
+  FormLabel,
+} from '~/components/ui/form';
+import {
   Select,
-  MenuItem,
-  TextField,
-  Box,
-  CircularProgress,
-  Typography,
-} from '@mui/material';
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select';
+import { Input } from '~/components/ui/input';
+import { useForm } from 'react-hook-form';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import userApi from '~/api/objects/user';
 import userPipelineStatusApi from '~/api/objects/userPipelineStatus';
 import type { User, UserCreate } from '~/api/objects/user';
 import type { PipelineStatus } from '~/api/objects/pipelineStatus';
-import { authStore } from '~/stores/authStore';
+import { authStore } from '~/stores/authStore.client';
 
 interface AddUserDialogProps {
   open: boolean;
@@ -28,23 +38,35 @@ interface AddUserDialogProps {
   pipelineStatuses: PipelineStatus[];
 }
 
-export default function AddUserDialog({ open, onClose, pipelineId, pipelineStatuses }: AddUserDialogProps) {
+export default function AddUserDialog({
+  open,
+  onClose,
+  pipelineId,
+  pipelineStatuses,
+}: AddUserDialogProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [userToAdd, setUserToAdd] = useState<UserCreate>({} as UserCreate);
   const [selectedStatus, setSelectedStatus] = useState<string>('');
   const currentUser = authStore.getUser();
   const queryClient = useQueryClient();
+  const form = useForm<UserCreate>({
+    defaultValues: {
+      first_name: '',
+      last_name: '',
+      email: '',
+      phone_number: '',
+      city: '',
+    },
+  });
 
   // Mutation for creating a new user
   const { mutate: createUser, isPending: isCreatingUser } = useMutation({
     mutationFn: async (newUser: Partial<UserCreate>) => {
-      console.log("Creating user", newUser);
       return await userApi.create(newUser);
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       addUserToPipeline(data.id);
-      setUserToAdd({} as UserCreate);
+      form.reset();
     },
   });
 
@@ -52,7 +74,7 @@ export default function AddUserDialog({ open, onClose, pipelineId, pipelineStatu
   const { mutate: addUserToPipeline, isPending: isAdding } = useMutation({
     mutationFn: async (user_id: string) => {
       if (!user_id || !selectedStatus || !currentUser) return;
-      
+
       return await userPipelineStatusApi.create({
         user_id: user_id,
         pipeline_id: pipelineId,
@@ -67,91 +89,120 @@ export default function AddUserDialog({ open, onClose, pipelineId, pipelineStatu
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createUser({...userToAdd, location_id: currentUser?.location_id, assigned_to: currentUser?.id});
+  const onSubmit = (data: UserCreate) => {
+    createUser({
+      ...data,
+      location_id: currentUser?.location_id,
+      assigned_to: currentUser?.id,
+    });
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <form onSubmit={handleSubmit}>
-        <DialogTitle>Add User to Pipeline</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-            <FormControl fullWidth>
-              <InputLabel>{userToAdd.first_name ? '' : 'First Name'}</InputLabel>
-              <TextField
-                value={userToAdd.first_name}
-                onChange={(e) => setUserToAdd({ ...userToAdd, first_name: e.target.value })}
-                fullWidth
-                required
-              />
-            </FormControl>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Add User to Pipeline</DialogTitle>
+          <DialogDescription>
+            Fill in the user details below to add them to the pipeline.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="first_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} required />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
-            <FormControl fullWidth>
-              <InputLabel>{userToAdd.last_name ? '' : 'Last Name'}</InputLabel>
-              <TextField
-                value={userToAdd.last_name}
-                onChange={(e) => setUserToAdd({ ...userToAdd, last_name: e.target.value })}
-                fullWidth
-              />
-            </FormControl>
+            <FormField
+              control={form.control}
+              name="last_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
-            <FormControl fullWidth>
-              <InputLabel>{userToAdd.email ? '' : 'Email'}</InputLabel>
-              <TextField
-                value={userToAdd.email}
-                onChange={(e) => setUserToAdd({ ...userToAdd, email: e.target.value })}
-                fullWidth
-              />
-            </FormControl>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="email" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
-            <FormControl fullWidth>
-              <InputLabel>{userToAdd.phone_number ? '' : 'Phone'}</InputLabel>
-              <TextField
-                value={userToAdd.phone_number}
-                onChange={(e) => setUserToAdd({ ...userToAdd, phone_number: e.target.value })}
-                fullWidth
-              />
-            </FormControl>
+            <FormField
+              control={form.control}
+              name="phone_number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="tel" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
-            <FormControl fullWidth>
-              <InputLabel>{userToAdd.city ? '' : 'City'}</InputLabel>
-              <TextField
-                value={userToAdd.city}
-                onChange={(e) => setUserToAdd({ ...userToAdd, city: e.target.value })}
-                fullWidth
-              />
-            </FormControl>
+            <FormField
+              control={form.control}
+              name="city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>City</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
-            <FormControl fullWidth>
-              <InputLabel>{selectedStatus ? '' : 'Pipeline Status'}</InputLabel>
-              <Select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                label="Pipeline Status"
-              >
-                {pipelineStatuses.map((status) => (
-                  <MenuItem key={status.id} value={status.id}>
-                    {status.name}
-                  </MenuItem>
-                ))}
+            <FormItem>
+              <FormLabel>Pipeline Status</FormLabel>
+              <Select onValueChange={setSelectedStatus} value={selectedStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {pipelineStatuses.map((status) => (
+                    <SelectItem key={status.id} value={status.id}>
+                      {status.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
-            </FormControl>
+            </FormItem>
 
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={!userToAdd || !selectedStatus || isAdding || isCreatingUser}
-          >
-            {isAdding || isCreatingUser ? <CircularProgress size={24} /> : 'Add User'}
-          </Button>
-        </DialogActions>
-      </form>
+            <DialogFooter>
+              <Button variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={!selectedStatus || isAdding || isCreatingUser}
+              >
+                {isAdding || isCreatingUser ? 'Adding...' : 'Add User'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
     </Dialog>
   );
-} 
+}

@@ -1,204 +1,213 @@
-import {
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemButton,
-  ListItemText,
-  Box,
-  Button,
-  Drawer,
-  Divider,
-} from '@mui/material';
-import type { BoxProps } from '@mui/material';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
 import { Link, useLocation, useNavigate, matchPath } from 'react-router';
 import { useState } from 'react';
 import pipelineApi, { type Pipeline } from '~/api/objects/pipeline';
 import formApi, { type Form } from '~/api/objects/form';
-import { authStore } from '~/stores/authStore';
-import CampaignIcon from '@mui/icons-material/Campaign';
-import MessageIcon from '@mui/icons-material/Message';
-import HomeIcon from '@mui/icons-material/Home';
-// Loader function to fetch both pipelines and forms
-export async function loader() {
-  const [pipelines, forms] = await Promise.all([
-    pipelineApi.getAll({ limit: 100, offset: 0, ordering: '', filter: '' }),
-    formApi.getAll({ limit: 100, offset: 0, ordering: '', filter: '' }),
-  ]);
+import { authStore } from '~/stores/authStore.client';
+import { Button } from '~/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '~/components/ui/sheet';
+import {
+  Home,
+  Workflow,
+  BellRing,
+  MessageSquareMore,
+  LogOut,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '~/components/ui/collapsible';
+import type { User } from '~/api/objects/user';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
-  return { pipelines: pipelines.data, forms: forms.data };
-}
-
-type LoaderData = {
+type DashNavProps = {
+  user: User;
   pipelines: Pipeline[];
   forms: Form[];
-};
-
-type DashNavProps = BoxProps & {
-  pipelines: Pipeline[];
-  forms: Form[];
-  mobileOpen: boolean;
-  setMobileOpen: (open: boolean) => void;
+  sideBarOpen: boolean;
+  setSideBarOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isMobile: boolean;
 };
 
 export default function DashNav({
   pipelines,
+  user,
   forms,
-  mobileOpen,
-  setMobileOpen,
-  ...props
+  sideBarOpen,
+  setSideBarOpen,
+  isMobile,
 }: DashNavProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [openPipelines, setOpenPipelines] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
+  const initials = user.first_name.charAt(0) + user.last_name.charAt(0);
 
   const handleClick = async () => {
     await authStore.logout();
     navigate('/sign-in');
   };
 
-  const handleDrawerClose = () => {
-    setIsClosing(true);
-    setMobileOpen(false);
-  };
+  const NavContent = () => (
+    <div className="flex flex-col flex-1 gap-2 p-4">
+      <div className="w-full justify-start h-16 px-4 flex items-center gap-2">
+        <Avatar>
+          <AvatarFallback className="bg-primary text-primary-foreground">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col items-start">
+          <p className="text-sm font-medium">
+            {user.first_name} {user.last_name}
+          </p>
+          <p className="text-xs text-muted-foreground truncate max-w-[128px]">
+            {user.email}
+          </p>
+        </div>
+      </div>
+      <nav aria-label="Main Navigation">
+        <ul className="flex flex-col space-y-1" role="list">
+          <li>
+            <Button
+              variant="ghost"
+              className="w-full justify-start aria-[current=page]:bg-accent"
+              asChild
+              aria-current={
+                matchPath(location.pathname, '/dashboard') ? 'page' : undefined
+              }
+            >
+              <Link to="/dashboard">
+                <Home aria-hidden="true" />
+                <span>Home</span>
+              </Link>
+            </Button>
+          </li>
 
-  const handleDrawerTransitionEnd = () => {
-    setIsClosing(false);
-  };
+          <li>
+            <Collapsible open={openPipelines} onOpenChange={setOpenPipelines}>
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  aria-expanded={openPipelines}
+                >
+                  <Workflow aria-hidden="true" />
+                  <span>Pipelines</span>
+                  {openPipelines ? (
+                    <ChevronUp className="ml-auto" aria-hidden="true" />
+                  ) : (
+                    <ChevronDown className="ml-auto" aria-hidden="true" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pl-6">
+                {pipelines.map((pipeline) => (
+                  <Button
+                    key={pipeline.id}
+                    variant="ghost"
+                    className="w-full justify-start aria-[current=page]:bg-accent"
+                    asChild
+                    aria-current={
+                      matchPath(
+                        location.pathname,
+                        `/dashboard/pipelines/${pipeline.id}`
+                      )
+                        ? 'page'
+                        : undefined
+                    }
+                  >
+                    <Link to={`/dashboard/pipelines/${pipeline.id}`}>
+                      {pipeline.name}
+                    </Link>
+                  </Button>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+          </li>
 
-  const handleDrawerToggle = () => {
-    if (!isClosing) {
-      setMobileOpen(!mobileOpen);
-    }
-  };
+          <li>
+            <Button
+              variant="ghost"
+              className="w-full justify-start aria-[current=page]:bg-accent"
+              asChild
+              aria-current={
+                matchPath(location.pathname, '/dashboard/announcements')
+                  ? 'page'
+                  : undefined
+              }
+            >
+              <Link to="/dashboard/announcements">
+                <BellRing aria-hidden="true" />
+                <span>Announcements</span>
+              </Link>
+            </Button>
+          </li>
 
-  const drawerContent = (
-    <>
-      <List>
-        <ListItem>
-          <ListItemButton
-            onClick={() => navigate('/dashboard')}
-            selected={matchPath(location.pathname, '/dashboard') !== null}
-          >
-            <ListItemIcon>
-              <HomeIcon />
-            </ListItemIcon>
-            <ListItemText primary="Home" />
-          </ListItemButton>
-        </ListItem>
-        <ListItem>
-          <ListItemButton onClick={() => setOpenPipelines(!openPipelines)}>
-            <ListItemIcon>
-              <AccountTreeIcon />
-            </ListItemIcon>
-            <ListItemText primary="Pipelines" />
-            {openPipelines ? <ExpandLess /> : <ExpandMore />}
-          </ListItemButton>
-        </ListItem>
-        {openPipelines && (
-          <List component="div" disablePadding>
-            {pipelines.map((pipeline) => (
-              <ListItemButton
-                key={pipeline.id}
-                sx={{ pl: 4 }}
-                component={Link}
-                to={`/dashboard/pipelines/${pipeline.id}`}
-                selected={
-                  location.pathname === `/dashboard/pipelines/${pipeline.id}`
-                }
-              >
-                <ListItemText primary={pipeline.name} />
-              </ListItemButton>
-            ))}
-          </List>
-        )}
-        <ListItem>
-          <ListItemButton
-            component={Link}
-            to="/dashboard/announcements"
-            selected={location.pathname === '/dashboard/announcements'}
-          >
-            <ListItemIcon>
-              <CampaignIcon />
-            </ListItemIcon>
-            <ListItemText primary="Announcements" />
-          </ListItemButton>
-        </ListItem>
-        <ListItem>
-          <ListItemButton
-            component={Link}
-            to="/dashboard/sms-templates"
-            selected={location.pathname === '/dashboard/sms-templates'}
-          >
-            <ListItemIcon>
-              <MessageIcon />
-            </ListItemIcon>
-            <ListItemText primary="SMS Templates" />
-          </ListItemButton>
-        </ListItem>
+          <li>
+            <Button
+              variant="ghost"
+              className="w-full justify-start aria-[current=page]:bg-accent"
+              asChild
+              aria-current={
+                matchPath(location.pathname, '/dashboard/sms-templates')
+                  ? 'page'
+                  : undefined
+              }
+            >
+              <Link to="/dashboard/sms-templates">
+                <MessageSquareMore aria-hidden="true" />
+                <span>SMS Templates</span>
+              </Link>
+            </Button>
+          </li>
+        </ul>
+      </nav>
 
-        {/* <ListItem>
-    <ListItemButton onClick={() => setOpenForms(!openForms)}>
-      <ListItemIcon>
-        <DescriptionIcon />
-      </ListItemIcon>
-      <ListItemText primary="Forms" />
-      {openForms ? <ExpandLess /> : <ExpandMore />}
-    </ListItemButton>
-  </ListItem>
-  {openForms && (
-    <List component="div" disablePadding>
-      {forms.map((form) => (
-        <ListItemButton
-          key={form.id}
-          sx={{ pl: 4 }}
-          component={Link}
-          to={`/dashboard/forms/${form.id}`}
-          selected={location.pathname === `/dashboard/forms/${form.id}`}
+      <div className="mt-auto p-2">
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={handleClick}
+          aria-label="Logout"
         >
-          <ListItemText primary={form.name} />
-        </ListItemButton>
-      ))}
-    </List>
-  )}*/}
-      </List>
-      <Button variant="outlined" onClick={handleClick} sx={{ margin: 2 }}>
-        Logout
-      </Button>
-    </>
+          <LogOut aria-hidden="true" />
+          <span>Logout</span>
+        </Button>
+      </div>
+    </div>
   );
 
   return (
     <>
-      <Drawer
-        open={mobileOpen}
-        sx={{
-          display: { xs: 'flex', md: 'none' },
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          gap: 2,
-        }}
-        ModalProps={{
-          keepMounted: true,
-        }}
-        onClose={handleDrawerClose}
-        onTransitionEnd={handleDrawerTransitionEnd}
-      >
-        {drawerContent}
-      </Drawer>
-      <Box
-        sx={{
-          display: { xs: 'none', md: 'flex', width: 240 },
-          justifyContent: 'space-between',
-          flexDirection: 'column',
-          gap: 2,
-        }}
-      >
-        {drawerContent}
-      </Box>
+      {sideBarOpen && (
+        <>
+          {isMobile && (
+            <Sheet open={sideBarOpen} onOpenChange={setSideBarOpen}>
+              <SheetContent
+                side="left"
+                className="w-[240px] p-2 h-full flex flex-col"
+                role="navigation"
+                aria-label="Mobile navigation"
+              >
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <NavContent />
+              </SheetContent>
+            </Sheet>
+          )}
+
+          <div className="hidden md:flex w-[240px] border-r flex-col">
+            <NavContent />
+          </div>
+        </>
+      )}
     </>
   );
 }

@@ -1,24 +1,29 @@
-import { BaseApi } from "./base.js";
+import { BaseApi } from './base.js';
 
-export type Role = {
+export interface RoleInput {
   roleid: string;
   name: string;
   login: string;
+  password: string;
+  tenantid: string;
+}
+
+export interface Role extends RoleInput {
   classes: {
     classid: string;
     name: string;
   }[];
-};
+}
 
-export class RoleApi extends BaseApi {
+export class RoleApi extends BaseApi<Role, RoleInput> {
   protected get model() {
-    return "role";
+    return 'role';
   }
   protected get fields() {
-    return ["roleid", "name", "login", "classes.classid", "classes.name"];
+    return ['roleid', 'name', 'login', 'classes.classid', 'classes.name'];
   }
   protected get path() {
-    return "/roles_pbac";
+    return '/roles_pbac';
   }
 
   async get(roleId: string) {

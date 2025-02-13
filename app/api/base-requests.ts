@@ -1,10 +1,10 @@
-import { authStore } from "~/stores/authStore";
+import { authStore } from '~/stores/authStore.client';
 
-const baseUrl = "https://api.devii.io";
+export const baseUrl = import.meta.env.VITE_DEVII_BASE_URL;
 
 type BaseRequestOptions = {
   path?: string;
-  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: any;
   withAccessToken?: boolean;
   includeCredentials?: boolean;
@@ -21,7 +21,7 @@ export function getBaseRequest(options: BaseRequestOptions): Request {
 
   let url = baseUrl;
   if (path) {
-    path = path.startsWith("/") ? path : `/${path}`;
+    path = path.startsWith('/') ? path : `/${path}`;
     url = baseUrl + path;
   }
 
@@ -30,9 +30,9 @@ export function getBaseRequest(options: BaseRequestOptions): Request {
   return new Request(url, {
     method: method,
     body: JSON.stringify(body),
-    credentials: includeCredentials ? "include" : undefined,
+    credentials: includeCredentials ? 'include' : undefined,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       ...(withAccessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
     },
   });

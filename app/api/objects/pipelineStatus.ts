@@ -1,24 +1,27 @@
-import { BaseApi } from "./base.js";
-import { inheritFields } from "~/utils/objects.js";
-import { UserPipelineStatusApi } from "./userPipelineStatus.js";
-import type { UserPipelineStatus } from "./userPipelineStatus.js";
+import { BaseApi } from './base.js';
 
-export type PipelineStatus = {
-  id: string;
+export interface PipelineStatusInput {
   order: number;
   pipeline_id: string;
   name: string;
-};
+}
 
-export class PipelineStatusApi extends BaseApi {
+export interface PipelineStatus extends PipelineStatusInput {
+  id: string;
+}
+
+export class PipelineStatusApi extends BaseApi<
+  PipelineStatus,
+  PipelineStatusInput
+> {
   protected get model() {
-    return "pipeline_status";
+    return 'pipeline_status';
   }
   protected get fields() {
-    return ["id", "order", "pipeline_id", "name"];
+    return ['id', 'order', 'pipeline_id', 'name'];
   }
   protected get path() {
-    return "/query";
+    return '/query';
   }
 
   async updateUserStatus({
@@ -30,8 +33,8 @@ export class PipelineStatusApi extends BaseApi {
     fromStatusId: string;
     toStatusId: string;
   }) {
-    console.log("updateUserStatus", userId, fromStatusId, toStatusId);
-    return "ok";
+    console.log('updateUserStatus', userId, fromStatusId, toStatusId);
+    return 'ok';
   }
 }
 

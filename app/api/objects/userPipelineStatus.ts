@@ -1,30 +1,37 @@
-import { BaseApi } from "./base.js";
-import { UserApi } from "./user.js";
-import { inheritFields } from "~/utils/objects.js";
-import type { User } from "./user.js";
+import { BaseApi } from './base.js';
+import { UserApi } from './user.js';
+import { inheritFields } from '~/utils/objects.js';
+import type { User } from './user.js';
 
-export type UserPipelineStatus = {
+type UserPipelineStatusInput = {
   user_id: string;
   pipeline_status_id: string;
   pipeline_id: string;
+};
+
+export type UserPipelineStatus = UserPipelineStatusInput & {
+  id: string;
   user: User;
 };
 
-export class UserPipelineStatusApi extends BaseApi {
+export class UserPipelineStatusApi extends BaseApi<
+  UserPipelineStatus,
+  UserPipelineStatusInput
+> {
   protected get model() {
-    return "user_pipeline_status";
+    return 'user_pipeline_status';
   }
 
   protected get path() {
-    return "/query";
+    return '/query';
   }
 
   protected get fields() {
     return [
-      "user_id",
-      "pipeline_status_id",
-      "pipeline_id",
-      ...inheritFields(new UserApi(), "user"),
+      'user_id',
+      'pipeline_status_id',
+      'pipeline_id',
+      ...inheritFields(new UserApi(), 'user'),
     ];
   }
 
@@ -33,14 +40,14 @@ export class UserPipelineStatusApi extends BaseApi {
     pipelineId: string,
     newStatusId: string
   ) {
-    console.log("Moving pipeline status for user", userId, "to", newStatusId);
+    console.log('Moving pipeline status for user', userId, 'to', newStatusId);
     return await super.create(
       {
         pipeline_status_id: newStatusId,
         user_id: userId,
         pipeline_id: pipelineId,
       },
-      "update"
+      'update'
     );
   }
 }

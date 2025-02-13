@@ -1,23 +1,12 @@
-import { Box, Typography } from "@mui/material";
-
 export default function ViewForm() {
   return (
-    <Box
-      sx={{
-        padding: 2,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-      }}
-    >
-      <Typography variant="h4" component="h1">
+    <div className="flex h-screen flex-col items-center justify-center p-8">
+      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
         View Form
-      </Typography>
-      <Typography variant="body1" color="text.secondary" mt={2}>
+      </h1>
+      <p className="mt-4 text-muted-foreground">
         This is a placeholder for the View Form page.
-      </Typography>
-    </Box>
+      </p>
+    </div>
   );
 }

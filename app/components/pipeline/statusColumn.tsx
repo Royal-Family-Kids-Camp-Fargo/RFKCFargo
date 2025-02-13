@@ -1,10 +1,11 @@
-import React from "react";
-import { Box, Typography, useTheme } from "@mui/material";
-import UserCard from "./userCard";
-import type { StatusIds } from "./userCard";
+import React from 'react';
+import { Card, CardContent, CardHeader } from '~/components/ui/card';
+import UserCard from './userCard';
+import type { StatusIds } from './userCard';
 
-import type { PipelineStatus } from "~/api/objects/pipelineStatus";
-import type { UserPipelineStatus } from "~/api/objects/userPipelineStatus";
+import type { PipelineStatus } from '~/api/objects/pipelineStatus';
+import type { UserPipelineStatus } from '~/api/objects/userPipelineStatus';
+import { Separator } from '../ui/separator';
 /**
  * Each status column.
  */
@@ -19,48 +20,31 @@ export default function StatusColumn({
   statusIds: StatusIds;
   pipelineId: string;
 }) {
-  const theme = useTheme();
-
   return (
-    <Box
-      sx={{
-        minWidth: { xs: "85vw", sm: "350px" },
-        maxWidth: { xs: "85vw", sm: "350px" },
-        backgroundColor: theme.palette.background.paper,
-        border: "1px solid #dee2e6",
-        borderRadius: 2,
-        p: 2,
-      }}
-    >
-      <Typography
-        variant="h6"
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          color: "#4b0082",
-          borderBottom: "2px solid #20c997",
-          pb: 1,
-          mb: 2,
-          fontSize: { xs: "1rem", sm: "1.25rem" },
-          textTransform: "uppercase",
-          letterSpacing: 1,
-          fontWeight: "bold",
-        }}
-      >
-        <span>{status.name}</span>
-        <span style={{ color: "gray", fontSize: "0.9em" }}>
-          {userPipelineStatuses.length || 0}
-        </span>
-      </Typography>
-      {userPipelineStatuses.map((user_pipeline_status: UserPipelineStatus) => (
-        <UserCard
-          key={user_pipeline_status.user.id}
-          user={user_pipeline_status.user}
-          statusIds={statusIds}
-          pipelineId={pipelineId}
-        />
-      ))}
-    </Box>
+    <Card className="min-w-[85vw] sm:min-w-[350px] sm:max-w-[350px] bg-background h-fit">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-center text-primary pb-1">
+          <span className="text-lg sm:text-xl font-bold uppercase tracking-wide">
+            {status.name}
+          </span>
+          <span className="text-muted-foreground text-sm">
+            {userPipelineStatuses.length || 0}
+          </span>
+        </div>
+        <Separator />
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {userPipelineStatuses.map(
+          (user_pipeline_status: UserPipelineStatus) => (
+            <UserCard
+              key={user_pipeline_status.user.id}
+              user={user_pipeline_status.user}
+              statusIds={statusIds}
+              pipelineId={pipelineId}
+            />
+          )
+        )}
+      </CardContent>
+    </Card>
   );
 }

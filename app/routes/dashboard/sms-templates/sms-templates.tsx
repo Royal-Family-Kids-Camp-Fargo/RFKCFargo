@@ -2,20 +2,28 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import smsTemplateApi from '~/api/objects/sms_template';
 import type { SmsTemplate } from '~/api/objects/sms_template';
-import { Button, Dialog, DialogContent, DialogTitle } from '@mui/material';
+import { Button } from '~/components/ui/button';
+import { Dialog, DialogContent, DialogTitle } from '~/components/ui/dialog';
 import TemplateList from './components/TemplateList';
 import TemplateForm from './components/TemplateForm';
-import { authStore } from '~/stores/authStore';
+import { authStore } from '~/stores/authStore.client';
+import { Plus } from 'lucide-react';
 
 const SmsTemplatesPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<SmsTemplate | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<SmsTemplate | null>(
+    null
+  );
 
-  const { data: templates, error, isLoading } = useQuery({
+  const {
+    data: templates,
+    error,
+    isLoading,
+  } = useQuery({
     queryKey: ['smsTemplates'],
     queryFn: async () => {
-      console.log("querying getAll sms templates");
+      console.log('querying getAll sms templates');
       const res = await smsTemplateApi.getAll();
       if (res instanceof Error) {
         throw res;
@@ -40,10 +48,19 @@ const SmsTemplatesPage: React.FC = () => {
   });
 
   const editTemplateMutation = useMutation({
-    mutationFn: ({ id, updatedTemplate }: { id: string; updatedTemplate: Partial<SmsTemplate> }) => {
+    mutationFn: ({
+      id,
+      updatedTemplate,
+    }: {
+      id: string;
+      updatedTemplate: Partial<SmsTemplate>;
+    }) => {
       const user = authStore.getUser();
       if (!user) throw new Error('User not authenticated');
-      return smsTemplateApi.update(id, { ...updatedTemplate, user_id: user.id });
+      return smsTemplateApi.update(id, {
+        ...updatedTemplate,
+        user_id: user.id,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['smsTemplates'] });
@@ -65,11 +82,16 @@ const SmsTemplatesPage: React.FC = () => {
     },
   });
 
-  const handleAddTemplate = (newTemplate: Omit<SmsTemplate, 'id' | 'user_id'>) => {
+  const handleAddTemplate = (
+    newTemplate: Omit<SmsTemplate, 'id' | 'user_id'>
+  ) => {
     addTemplateMutation.mutate(newTemplate);
   };
 
-  const handleEditTemplate = (id: string, updatedTemplate: Partial<SmsTemplate>) => {
+  const handleEditTemplate = (
+    id: string,
+    updatedTemplate: Partial<SmsTemplate>
+  ) => {
     editTemplateMutation.mutate({ id, updatedTemplate });
   };
 
@@ -83,17 +105,17 @@ const SmsTemplatesPage: React.FC = () => {
   };
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-600 p-4">Failed to fetch SMS templates</div>;
+  if (error)
+    return (
+      <div className="text-red-600 p-4">Failed to fetch SMS templates</div>
+    );
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">SMS Templates</h1>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setIsFormOpen(true)}
-        >
+        <Button variant="default" onClick={() => setIsFormOpen(true)}>
+          <Plus />
           Add Template
         </Button>
       </div>
@@ -104,24 +126,17 @@ const SmsTemplatesPage: React.FC = () => {
         onDelete={handleDeleteTemplate}
       />
 
-      <Dialog
-        open={isFormOpen}
-        onClose={() => {
-          setIsFormOpen(false);
-          setEditingTemplate(null);
-        }}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          {editingTemplate ? 'Edit Template' : 'Add New Template'}
-        </DialogTitle>
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent>
+          <DialogTitle>
+            {editingTemplate ? 'Edit Template' : 'Add New Template'}
+          </DialogTitle>
           <TemplateForm
             initialData={editingTemplate}
-            onSubmit={editingTemplate 
-              ? (data) => handleEditTemplate(editingTemplate.id, data)
-              : handleAddTemplate
+            onSubmit={
+              editingTemplate
+                ? (data) => handleEditTemplate(editingTemplate.id, data)
+                : handleAddTemplate
             }
             onCancel={() => {
               setIsFormOpen(false);

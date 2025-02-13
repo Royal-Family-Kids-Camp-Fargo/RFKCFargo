@@ -1,58 +1,38 @@
-import { authStore } from '~/stores/authStore';
-import type { Route } from './+types/index';
-import { Outlet, redirect } from 'react-router';
-import {
-  Box,
-  Divider,
-  IconButton,
-  useMediaQuery,
-  useTheme,
-  Drawer,
-  Stack,
-} from '@mui/material';
+import { authStore } from '~/stores/authStore.client';
+import type { Route } from './+types/dashboard';
+import { Outlet, redirect, useLocation } from 'react-router';
+import { Separator } from '~/components/ui/separator';
 import { TopNav } from '~/components/TopNav';
 import DashNav from '~/components/DashNav';
-import pipelineApi, { type Pipeline } from '~/api/objects/pipeline';
-import formApi, { type Form } from '~/api/objects/form';
-// import { refresh } from '~/lib/auth';
-import MenuIcon from '@mui/icons-material/Menu';
-import { useState, createContext, useContext, useEffect } from 'react';
-import type { User } from '~/api/objects/user';
+import pipelineApi from '~/api/objects/pipeline';
+import formApi from '~/api/objects/form';
+import { useState, useEffect } from 'react';
 import userApi from '~/api/objects/user';
-import ChatBubble from '~/components/chat/ChatBubble';
 import { botContextStore } from '~/stores/botContextStore';
-import { SnackbarProvider } from 'notistack';
+import { Toaster } from '~/components/ui/sonner';
+import { useMediaQuery } from '~/hooks/use-media-query.tsx';
+import ChatBubble from '~/components/chat/ChatBubble';
+import { LoadingBar } from '~/components/LoadingBar';
 
-type LoaderData = {
-  user: User;
-  pipelines: Pipeline[];
-  forms: Form[];
-};
-
-export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+export async function clientLoader() {
   let auth =
     authStore.getAuth() || JSON.parse(localStorage.getItem('auth') || '{}');
   authStore.setAuth(auth);
   let user = authStore.getUser();
-  console.log('auth', auth);
   if (!auth.access_token) {
-    console.log('No auth');
     authStore.logout();
     return redirect('/sign-in');
   }
   if (!user) {
-    console.log('Getting user');
     const result = await userApi.get(auth.roleid);
-    if ('message' in result) {
+    if ('error' in result) {
       console.error('Error getting user', result);
       authStore.logout();
       return redirect('/sign-in');
     }
-    user = result;
-    console.log('user', user);
+    user = result.data;
     authStore.setUser(user);
   }
-
   // Add the pipelines and forms fetch
   const [pipelines, forms] = await Promise.all([
     pipelineApi.getAll({ limit: 100, offset: 0, ordering: '', filter: '' }),
@@ -63,22 +43,34 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 }
 
 export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  const theme = useTheme();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  // For adding more context to your AI store
+  const location = useLocation();
+  const { user, pipelines, forms } = loaderData;
+  const [sideBarOpen, setSideBarOpen] = useState(true);
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const addBotContext = botContextStore.addContext;
   const removeBotContext = botContextStore.removeContext;
 
   useEffect(() => {
-    if (!isMobile) {
-      setMobileOpen(false);
+    if (isMobile) {
+      setSideBarOpen(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) {
+      setSideBarOpen(false);
+    }
+  }, [location.pathname]);
+
+  // Watch for changes in isMobile state
+  useEffect(() => {
+    if (isMobile) {
+      setSideBarOpen(false);
     }
   }, [isMobile]);
 
   useEffect(() => {
     if (loaderData && 'user' in loaderData) {
-      const { user } = loaderData as LoaderData;
       const context = `User is logged in with id: ${user.id}`;
       const locationContext = `User's location id is: ${user.location_id}; Any users added by this user will be in this location`;
       addBotContext(context);
@@ -91,36 +83,28 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
     }
   }, [loaderData]);
 
-  if ('user' in loaderData) {
-    const { user, pipelines, forms } = loaderData as LoaderData;
-
-    return (
-      <SnackbarProvider>
-        <TopNav
+  return (
+    <>
+      <div className="flex h-screen flex-1">
+        <DashNav
           user={user}
-          mobileOpen={mobileOpen}
-          setMobileOpen={setMobileOpen}
+          pipelines={pipelines}
+          forms={forms}
+          sideBarOpen={sideBarOpen}
+          setSideBarOpen={setSideBarOpen}
+          isMobile={isMobile}
         />
-        <Divider />
-        <Stack direction="row" flexGrow={1}>
-          <DashNav
-            pipelines={pipelines}
-            forms={forms}
-            mobileOpen={mobileOpen}
-            setMobileOpen={setMobileOpen}
-          />
-          <Divider
-            orientation="vertical"
-            flexItem
-            sx={{ display: { xs: 'none', md: 'block' } }}
-          />
-          <Box flexGrow={1}>
+        <div className="flex h-screen flex-col flex-1 min-w-0">
+          <TopNav setSideBarOpen={setSideBarOpen} />
+          <LoadingBar />
+          <Separator />
+          <main className="flex-1 overflow-auto p-4">
             <Outlet />
-            <ChatBubble />
-          </Box>
-        </Stack>
-      </SnackbarProvider>
-    );
-  }
-  return <div>Loading...</div>;
+          </main>
+        </div>
+      </div>
+      <ChatBubble />
+      <Toaster />
+    </>
+  );
 }

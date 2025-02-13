@@ -1,13 +1,12 @@
 import React from 'react';
 import type { SmsTemplate } from '~/api/objects/sms_template';
 import { useForm } from 'react-hook-form';
-import { 
-  TextField, 
-  Button, 
-  FormControlLabel, 
-  Checkbox,
-  Stack
-} from '@mui/material';
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
+import { Textarea } from '~/components/ui/textarea';
+import { Label } from '~/components/ui/label';
+import { Checkbox } from '~/components/ui/checkbox';
+import { cn } from '~/lib/utils';
 
 type TemplateFormData = Omit<SmsTemplate, 'id' | 'user_id'>;
 
@@ -17,61 +16,73 @@ interface TemplateFormProps {
   onCancel: () => void;
 }
 
-const TemplateForm: React.FC<TemplateFormProps> = ({ 
-  initialData, 
-  onSubmit, 
-  onCancel 
+const TemplateForm: React.FC<TemplateFormProps> = ({
+  initialData,
+  onSubmit,
+  onCancel,
 }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<TemplateFormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<TemplateFormData>({
     defaultValues: initialData || {
       title: '',
       template: '',
       is_shared: false,
-    }
+    },
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="p-4">
-      <Stack spacing={3}>
-        <TextField
-          label="Title"
-          fullWidth
-          error={!!errors.title}
-          helperText={errors.title?.message}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-4">
+      <div className="space-y-2">
+        <Label htmlFor="title">Title</Label>
+        <Input
+          id="title"
           {...register('title', { required: 'Title is required' })}
+          className={cn(errors.title && 'border-destructive')}
         />
+        {errors.title && (
+          <p className="text-sm text-destructive">{errors.title.message}</p>
+        )}
+      </div>
 
-        <TextField
-          label="Template"
-          fullWidth
-          multiline
+      <div className="space-y-2">
+        <Label htmlFor="template">Template</Label>
+        <Textarea
+          id="template"
+          {...register('template', {
+            required: 'Template content is required',
+          })}
+          className={cn(errors.template && 'border-destructive')}
           rows={4}
-          error={!!errors.template}
-          helperText={errors.template?.message}
-          {...register('template', { required: 'Template content is required' })}
         />
+        {errors.template && (
+          <p className="text-sm text-destructive">{errors.template.message}</p>
+        )}
+      </div>
 
-        <FormControlLabel
-          control={
-            <Checkbox
-              {...register('is_shared')}
-              defaultChecked={initialData?.is_shared}
-            />
-          }
-          label="Share this template with other users"
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="is_shared"
+          {...register('is_shared')}
+          defaultChecked={initialData?.is_shared}
         />
+        <Label htmlFor="is_shared" className="text-sm font-normal">
+          Share this template with other users
+        </Label>
+      </div>
 
-        <div className="flex justify-end gap-2">
-          <Button onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit" variant="contained" color="primary">
-            {initialData ? 'Update' : 'Create'} Template
-          </Button>
-        </div>
-      </Stack>
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit">
+          {initialData ? 'Update' : 'Create'} Template
+        </Button>
+      </div>
     </form>
   );
 };
 
-export default TemplateForm; 
+export default TemplateForm;

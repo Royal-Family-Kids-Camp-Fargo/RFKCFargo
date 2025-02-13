@@ -1,53 +1,73 @@
+import { Avatar } from '~/components/ui/avatar';
+import { Button } from '~/components/ui/button';
 import {
-  Avatar,
-  Box,
-  Typography,
-  IconButton,
-  Stack,
-  AppBar,
-  Toolbar,
-} from '@mui/material';
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from '~/components/ui/breadcrumb';
+import { Menu } from 'lucide-react';
 import type { User } from '~/api/objects/user';
-import MenuIcon from '@mui/icons-material/Menu';
+import { RfkCentralIcon } from './icons/RfkCentralIcon';
+import { Link, useLocation } from 'react-router';
 
 type TopNavProps = {
-  user?: User;
-  mobileOpen: boolean;
-  setMobileOpen: (open: boolean) => void;
+  setSideBarOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export function TopNav({ user, mobileOpen, setMobileOpen }: TopNavProps) {
+type Breadcrumb = {
+  label: string;
+  path: string;
+};
+
+export function TopNav({ setSideBarOpen }: TopNavProps) {
+  const location = useLocation();
+  const breadcrumbs = location.pathname.split('/').filter(Boolean);
+  const breadcrumbItems: Breadcrumb[] = [];
+
+  for (let i = 0; i < breadcrumbs.length; i++) {
+    const breadcrumb = breadcrumbs[i];
+    const path = breadcrumbs.slice(0, i + 1).join('/');
+    breadcrumbItems.push({
+      label: breadcrumb.charAt(0).toUpperCase() + breadcrumb.slice(1),
+      path: `/${path}`,
+    });
+  }
+
   return (
-    <AppBar position="static" elevation={0} sx={{ backgroundColor: 'white' }}>
-      <Toolbar>
-        <IconButton
-          sx={{
-            mr: 2,
-            display: { xs: 'block', md: 'none' },
-            minWidth: 48,
-            maxWidth: 48,
-          }}
-          onClick={() => setMobileOpen(true)}
-          edge="start"
-        >
-          <MenuIcon />
-        </IconButton>
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: 600, flexGrow: 1, color: 'primary.main' }}
-        >
-          RFK CENTRAL
-        </Typography>
-        <Avatar
-          sx={{
-            backgroundColor: 'primary.main',
-            color: 'primary.contrastText',
-          }}
-        >
-          {user ? user.first_name?.charAt(0) : ''}
-          {user ? user.last_name?.charAt(0) : ''}
-        </Avatar>
-      </Toolbar>
-    </AppBar>
+    <div className="flex py-2 items-center px-4 gap-2">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() =>
+          setSideBarOpen((prev) => {
+            return !prev;
+          })
+        }
+      >
+        <Menu />
+      </Button>
+
+      {/* Breadcrumbs */}
+      <div className="flex-1">
+        <Breadcrumb>
+          <BreadcrumbList>
+            {breadcrumbItems.map((breadcrumb, index) => (
+              <>
+                <BreadcrumbItem key={index}>
+                  <BreadcrumbLink asChild>
+                    <Link to={breadcrumb.path}>{breadcrumb.label}</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator />}
+              </>
+            ))}
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+
+      <RfkCentralIcon height={32} width={32} />
+    </div>
   );
 }

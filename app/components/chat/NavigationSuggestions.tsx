@@ -1,5 +1,5 @@
-import { useNavigation } from 'react-router';
-import { NavigationSuggestions as StyledNavigationSuggestions, SuggestionButton } from './styles';
+import { useNavigate } from 'react-router';
+import { Button } from '~/components/ui/button';
 
 interface NavigationSuggestionsProps {
   suggestions: Array<{
@@ -8,26 +8,27 @@ interface NavigationSuggestionsProps {
   }>;
 }
 
-const NavigationSuggestions: React.FunctionComponent<NavigationSuggestionsProps> = ({ suggestions }) => {
-  const navigate = useNavigation();
+const NavigationSuggestions: React.FC<NavigationSuggestionsProps> = ({
+  suggestions,
+}) => {
+  const navigate = useNavigate();
 
   if (suggestions.length === 0) return null;
 
   return (
-    <StyledNavigationSuggestions>
+    <div className="mb-4 flex flex-col gap-2 p-4">
       {suggestions.map((suggestion, index) => (
-        <SuggestionButton
+        <Button
           key={index}
-          variant="contained"
-          onClick={() => {
-            navigate(suggestion.route);
-          }}
+          variant="outline"
+          className="w-full justify-start"
+          onClick={() => navigate(suggestion.route)}
         >
           {suggestion.description}
-        </SuggestionButton>
+        </Button>
       ))}
-    </StyledNavigationSuggestions>
+    </div>
   );
 };
 
-export default NavigationSuggestions; 
+export default NavigationSuggestions;
