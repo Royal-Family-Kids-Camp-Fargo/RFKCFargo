@@ -71,6 +71,16 @@ export default function UserCard({
                 ? `${user.first_name} ${user.last_name}`
                 : 'No Name'}
             </span>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {user.tags_collection.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="bg-gray-200 text-gray-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded"
+                >
+                  {tag.name}
+                </span>
+              ))}
+            </div>
           </AccordionTrigger>
           <AccordionContent className="px-4 pb-4">
             <div className="space-y-2">

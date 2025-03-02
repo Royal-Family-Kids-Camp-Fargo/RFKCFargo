@@ -2,6 +2,7 @@ import { BaseApi } from './base.js';
 import { RoleApi } from './role.js';
 import type { Role } from './role.js';
 import type { UserPipelineStatus } from './userPipelineStatus.js';
+import type { Tag } from './tag.js';
 
 type UserDefault = {
   first_name: string;
@@ -28,6 +29,7 @@ export type User = UserBase & {
   user?: UserBase; // This is the user that is assigned to the pipeline status
   role: Role;
   user_pipeline_status_collection: UserPipelineStatus[];
+  tags_collection: Tag[];
 };
 
 export class UserApi extends BaseApi<User, UserInput> {
@@ -52,6 +54,8 @@ export class UserApi extends BaseApi<User, UserInput> {
       'user.first_name',
       'user.last_name',
       'user_pipeline_status_collection.pipeline_status_id',
+      'tags_collection.id',
+      'tags_collection.name',
     ];
   }
   roleApi: RoleApi;

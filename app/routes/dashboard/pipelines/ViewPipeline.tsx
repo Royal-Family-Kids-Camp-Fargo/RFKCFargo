@@ -35,6 +35,8 @@ import type { UserPipelineStatus } from '~/api/objects/userPipelineStatus';
 import userPipelineStatusApi from '~/api/objects/userPipelineStatus';
 import type { User, UserBase } from '~/api/objects/user';
 import AddUserDialog from '~/components/pipeline/AddUserDialog';
+import tagApi from '~/api/objects/tag';
+import type { Tag } from '~/api/objects/tag';
 
 // type UserPipelineStatus = {
 //   id: string;
@@ -81,6 +83,7 @@ export const clientLoader = async ({
 }: Route.ClientLoaderArgs): Promise<{
   pipeline: Pipeline;
   userPipelineStatuses: BoardData;
+  tags: Tag[];
 }> => {
   console.log('clientLoader');
   const { pipelineId } = params;
@@ -88,9 +91,10 @@ export const clientLoader = async ({
     throw new Error('Pipeline ID is required');
   }
 
-  const [pipelineRes, userPipelineStatusesRes] = await Promise.all([
+  const [pipelineRes, userPipelineStatusesRes, tagsRes] = await Promise.all([
     pipelineApi.get(pipelineId as string, null),
     getUserPipelineStatuses(pipelineId as string),
+    tagApi.getAll(),
   ]);
 
   if ('error' in pipelineRes) {
@@ -101,9 +105,14 @@ export const clientLoader = async ({
     throw new Error('Pipeline not found');
   }
 
+  if ('error' in tagsRes) {
+    throw tagsRes.error;
+  }
+
   return {
     pipeline: pipelineRes.data,
     userPipelineStatuses: userPipelineStatusesRes,
+    tags: tagsRes.data,
   };
 };
 

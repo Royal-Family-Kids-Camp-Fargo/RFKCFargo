@@ -1,8 +1,11 @@
 Needs:
-
+- [x] Add tags to contact cards
+- [ ] Add Notes to contacts 
+- [ ] Setup Liquibase
+- [ ] Setup Multiple tenants 
 - [x] Password Reset Flow
 - [ ] Users should be unique by location_id and (phone or email)
-- [ ] Connect Admin calendars and allow New Volunteers to sign up for an interview
+- [ ] Connect Admin calendars and allow New Volunteers to sign up for an interview 
 - [ ] Get notified when someone fills out an application and automatically move the user to the correct pipeline status.
 - [ ] Captcha for password reset
 
