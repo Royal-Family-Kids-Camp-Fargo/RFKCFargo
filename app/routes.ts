@@ -14,5 +14,6 @@ export default [
     route('forms/:id', 'routes/dashboard/forms/ViewForm.tsx'),
     route('announcements', 'routes/dashboard/announcements/announcements.tsx'),
     route('sms-templates', 'routes/dashboard/sms-templates/sms-templates.tsx'),
+    route('contacts/:id', 'routes/dashboard/contacts/ViewContact.tsx'),
   ]),
 ] satisfies RouteConfig;

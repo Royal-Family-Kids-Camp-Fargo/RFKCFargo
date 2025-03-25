@@ -8,7 +8,7 @@ import {
 import { Button } from '~/components/ui/button';
 import { ChevronLeft, ChevronRight, MessageSquare, Phone } from 'lucide-react';
 import type { User } from '~/api/objects/user';
-import { useFetcher } from 'react-router';
+import { Link, useFetcher } from 'react-router';
 import SmsDialog from './SmsDialog';
 
 export type StatusIds = {
@@ -66,11 +66,11 @@ export default function UserCard({
       >
         <AccordionItem value="item-1" className="border-none">
           <AccordionTrigger className="px-4 hover:no-underline">
-            <span className="font-semibold">
+            <Link to={`/dashboard/contacts/${user.id}`} className="font-semibold hover:underline">
               {user.first_name || user.last_name
                 ? `${user.first_name} ${user.last_name}`
                 : 'No Name'}
-            </span>
+            </Link>
             <div className="flex flex-wrap gap-2 mt-2">
               {user.tags_collection.map((tag) => (
                 <span

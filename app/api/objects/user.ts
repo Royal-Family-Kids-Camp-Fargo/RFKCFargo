@@ -3,6 +3,7 @@ import { RoleApi } from './role.js';
 import type { Role } from './role.js';
 import type { UserPipelineStatus } from './userPipelineStatus.js';
 import type { Tag } from './tag.js';
+import type { Note } from './note.js';
 
 type UserDefault = {
   first_name: string;
@@ -30,6 +31,7 @@ export type User = UserBase & {
   role: Role;
   user_pipeline_status_collection: UserPipelineStatus[];
   tags_collection: Tag[];
+  user_notes_collection: Note[];
 };
 
 export class UserApi extends BaseApi<User, UserInput> {

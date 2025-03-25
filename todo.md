@@ -16,6 +16,7 @@ Bugs:
 
 Ideas:
 
+- [ ] Allow Users to record meetings and label meetings in the platform -> Then search them
 - [ ] Have the last question of the application in the new volunteer application to be to schedule an interview.
 - [ ] Track activities for each user based on sms and call clicks
 - [ ] Track the number of people contacted vs the number of people who volunteer to accurately predict the number of people who will volunteer
