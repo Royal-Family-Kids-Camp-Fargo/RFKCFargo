@@ -26,7 +26,7 @@ export type User = UserBase & {
   location_id: string;
   created_at: string;
   updated_at: string;
-  user?: UserBase; // This is the user that is assigned to the pipeline status
+  assigned_to_user?: UserBase; // This is the user that is assigned to the pipeline status
   role: Role;
   user_pipeline_status_collection: UserPipelineStatus[];
   tags_collection: Tag[];
@@ -34,7 +34,7 @@ export type User = UserBase & {
 
 export class UserApi extends BaseApi<User, UserInput> {
   protected get model() {
-    return 'user';
+    return 'users';
   }
   protected get path() {
     return '/query';
@@ -49,10 +49,10 @@ export class UserApi extends BaseApi<User, UserInput> {
       'location_id',
       'created_at',
       'updated_at',
-      'user.id',
-      'user.email',
-      'user.first_name',
-      'user.last_name',
+      'assigned_to_user.id',
+      'assigned_to_user.email',
+      'assigned_to_user.first_name',
+      'assigned_to_user.last_name',
       'user_pipeline_status_collection.pipeline_status_id',
       'tags_collection.id',
       'tags_collection.name',

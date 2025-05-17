@@ -87,7 +87,7 @@ export default function UserCard({
               <p className="text-sm text-muted-foreground">{user.email}</p>
               <p className="text-sm">{user.phone_number || 'No Phone'}</p>
               <p className="text-sm">
-                Assigned to: {user.user?.first_name || 'No Assignment'}
+                Assigned to: {user.assigned_to_user?.first_name || 'No Assignment'}
               </p>
               <div className="flex items-center justify-between mt-4">
                 {statusIds.previousStatusId && (

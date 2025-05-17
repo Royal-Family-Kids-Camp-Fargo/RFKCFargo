@@ -127,8 +127,8 @@ function useUserFiltering(boardData: BoardData, currentUser: User | null) {
   const assignedUsers = React.useMemo(() => {
     const users = new Map<string, UserBase>();
     Object.values(boardData).forEach((status) => {
-      if (status?.user?.user) {
-        const { id, first_name, last_name, email } = status.user.user;
+      if (status?.user?.assigned_to_user) {
+        const { id, first_name, last_name, email } = status.user.assigned_to_user;
         users.set(id, { id, first_name, last_name, email });
       }
     });
@@ -155,15 +155,15 @@ function useUserFiltering(boardData: BoardData, currentUser: User | null) {
       const matchesStatus = user.pipeline_status_id == statusId;
       const matchesSearch =
         !globalSearchTerm ||
-        user.user?.first_name?.toLowerCase().includes(globalSearchTerm) ||
-        user.user?.last_name?.toLowerCase().includes(globalSearchTerm) ||
-        user.user?.email?.toLowerCase().includes(globalSearchTerm);
+        user.user?.assigned_to_user?.first_name?.toLowerCase().includes(globalSearchTerm) ||
+        user.user?.assigned_to_user?.last_name?.toLowerCase().includes(globalSearchTerm) ||
+        user.user?.assigned_to_user?.email?.toLowerCase().includes(globalSearchTerm);
       const matchesFilter =
         filterByAssignedTo &&
         (selectedUserId
-          ? user.user?.user?.id === selectedUserId
-          : user.user?.user?.id === currentUser?.id);
-      const matchesUnassigned = selectedUnassigned && !user.user?.user?.id;
+          ? user.user?.assigned_to_user?.id === selectedUserId
+          : user.user?.assigned_to_user?.id === currentUser?.id);
+      const matchesUnassigned = selectedUnassigned && !user.user?.assigned_to_user?.id;
       const showAllUsers = !filterByAssignedTo && !selectedUnassigned;
       return (
         matchesStatus &&
