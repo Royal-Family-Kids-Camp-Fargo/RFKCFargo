@@ -6,6 +6,7 @@ export default [
   route('sign-in', 'routes/sign-in.tsx'),
   route('forgot-password', 'routes/forgot-password.tsx'),
   route('reset-password', 'routes/reset-password.tsx'),
+  route('privacy', 'routes/privacy.tsx'),
   route('dashboard', 'routes/dashboard/dashboard.tsx', [
     route(
       'pipelines/:pipelineId',
